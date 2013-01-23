@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
+using System.IO;
+using FtpLib;
 
 namespace FTP_CLClient {
 	class Program {
@@ -7,15 +11,17 @@ namespace FTP_CLClient {
 			Console.WriteLine("Please wait for a line saying \"press [enter] to exit\"");
 			Console.WriteLine(" ");
 
+			FTPFactory ff = null;
+
 			try {
 				Console.WriteLine("Starting...");
 
-				var ff = new FtpFactory();
+				ff = new FTPFactory();
 				ff.setDebug(true);
 
-				ff.setRemoteHost("MY.FTP.SERVER.COM");
-				ff.setRemoteUser("USER");
-				ff.setRemotePass("PASSWORD");
+				ff.setRemoteHost("ftp.twofour.co.uk");
+				ff.setRemoteUser("ftp_bbcws");
+				ff.setRemotePass("Tw0four");
 
 				ff.ListMode = DirectoryListMode.PlatformList;
 
@@ -28,10 +34,9 @@ namespace FTP_CLClient {
 				ff.chdir("/test/test/");
 
 				ff.ListMode = DirectoryListMode.NameList;
-				var fileNames = ff.getFileList("*");
-				foreach (string t in fileNames)
-				{
-					Console.WriteLine(t);
+				string[] fileNames = ff.getFileList("*");
+				for (int i = 0; i < fileNames.Length; i++) {
+					Console.WriteLine(fileNames[i]);
 				}
 
 				ff.setBinaryMode(true);

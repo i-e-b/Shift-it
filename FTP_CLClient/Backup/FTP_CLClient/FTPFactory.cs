@@ -4,80 +4,99 @@ using System.IO;
 using System.Text;
 using System.Net.Sockets;
 
-namespace FTP_CLClient {
+namespace FtpLib {
+	/// <summary>
+	/// List of common directory listing modes for FTP
+	/// </summary>
+	public enum DirectoryListMode {
+		/// <summary>
+		/// Standardised list mode. Returns only file/directory names
+		/// </summary>
+		NameList,
+
+		/// <summary>
+		/// Platform specific list mode. Returns more details than NameList, but output varies from server to server.
+		/// </summary>
+		PlatformList
+	}
+
 	/// <summary>
 	/// A class to send and receive files over FTP, using sockets connections
 	/// instead of the .Net built in methods.
 	/// </summary>
-	public class FtpFactory {
+	public class FTPFactory {
 
-		private string _remoteHost, _remotePath, _remoteUser, _remotePass, _mes;
-		private int _remotePort, _bytes;
-		private Socket _clientSocket;
-		private DirectoryListMode _listMode;
+		private string remoteHost, remotePath, remoteUser, remotePass, mes;
+		private int remotePort, bytes;
+		private Socket clientSocket;
+		private DirectoryListMode listMode;
 
-		private int _retValue;
-		private Boolean _debug;
-		private Boolean _logined;
-		private string _reply;
-		private bool _passiveMode;
-		private bool _shouldContinue;
+		private int retValue;
+		private Boolean debug;
+		private Boolean logined;
+		private string reply;
+		private bool passive_mode;
+		private bool should_overwrite;
+		private bool should_continue;
 
 		/// <summary>
 		/// Gets or sets whether existing remote files are deleted prior to uploads.
 		/// This does not affect downloads.
 		/// </summary>
-		public bool ShouldOverwrite { get; set; }
+		public bool ShouldOverwrite {
+			get { return should_overwrite; }
+			set { should_overwrite = value; }
+		}
 
 		/// <summary>
 		/// Gets or sets whether ftp file transfers will be continued from partial uploads.
 		/// Use with caution.
 		/// </summary>
 		public bool ShouldContinue {
-			get { return _shouldContinue; }
+			get { return should_continue; }
 		}
 
 		/// <summary>
 		/// Gets or sets whether ftp connections are active or passive
 		/// </summary>
 		public bool PassiveMode {
-			get { return _passiveMode; }
-			set { _passiveMode = value; }
+			get { return passive_mode; }
+			set { passive_mode = value; }
 		}
 
 		private static int BLOCK_SIZE = 512;
 
-		readonly Byte[] buffer = new Byte[BLOCK_SIZE];
-		readonly Encoding ASCII = Encoding.ASCII;
+		Byte[] buffer = new Byte[BLOCK_SIZE];
+		Encoding ASCII = Encoding.ASCII;
 
 		/// <summary>
 		/// Create a new FTP transfer agent.
 		/// </summary>
-		public FtpFactory () {
-			_remoteHost = "localhost";
-			_remotePath = ".";
-			_remoteUser = "anonymous";
-			_remotePass = "example@example.com";
-			_remotePort = 21;
-			_debug = false;
-			_logined = false;
-			_passiveMode = true;
-			_listMode = DirectoryListMode.PlatformList;
+		public FTPFactory () {
+			remoteHost = "localhost";
+			remotePath = ".";
+			remoteUser = "anonymous";
+			remotePass = "example@example.com";
+			remotePort = 21;
+			debug = false;
+			logined = false;
+			passive_mode = true;
+			listMode = DirectoryListMode.PlatformList;
 		}
 
 		/// <summary>
 		/// Return a rough URI representation of this factory's connection settings
 		/// </summary>
 		public override string ToString () {
-			return "ftp://" + _remoteUser + ":" + _remotePass + "@" + _remoteHost + ":" + _remotePort + "/" + _remotePath;
+			return "ftp://" + remoteUser + ":" + remotePass + "@" + remoteHost + ":" + remotePort + "/" + remotePath;
 		}
 
 		/// <summary>
 		/// Gets or sets the command mode used to return directory listings
 		/// </summary>
 		public DirectoryListMode ListMode {
-			get { return _listMode; }
-			set { _listMode = value; }
+			get { return listMode; }
+			set { listMode = value; }
 		}
 
 		/// <summary>
@@ -85,7 +104,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <param name="remoteHost">Server name</param>
 		public void setRemoteHost (string remoteHost) {
-			_remoteHost = remoteHost;
+			this.remoteHost = remoteHost;
 		}
 
 		/// <summary>
@@ -93,7 +112,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <returns>Server name</returns>
 		public string getRemoteHost () {
-			return _remoteHost;
+			return remoteHost;
 		}
 
 		/// <summary>
@@ -101,7 +120,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <param name="remotePort">Port number</param>
 		public void setRemotePort (int remotePort) {
-			_remotePort = remotePort;
+			this.remotePort = remotePort;
 		}
 
 		/// <summary>
@@ -109,7 +128,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <returns>Current port number</returns>
 		public int getRemotePort () {
-			return _remotePort;
+			return remotePort;
 		}
 
 		/// <summary>
@@ -117,7 +136,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <param name="remotePath">The remote directory path</param>
 		public void setRemotePath (string remotePath) {
-			_remotePath = remotePath;
+			this.remotePath = remotePath;
 		}
 
 		/// <summary>
@@ -125,7 +144,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <returns>The current remote directory path.</returns>
 		public string getRemotePath () {
-			return _remotePath;
+			return remotePath;
 		}
 
 		/// <summary>
@@ -133,7 +152,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <param name="remoteUser">Username</param>
 		public void setRemoteUser (string remoteUser) {
-			_remoteUser = remoteUser;
+			this.remoteUser = remoteUser;
 		}
 
 		/// <summary>
@@ -141,7 +160,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <param name="remotePass">Password</param>
 		public void setRemotePass (string remotePass) {
-			_remotePass = remotePass;
+			this.remotePass = remotePass;
 		}
 
 		/// <summary>
@@ -151,33 +170,34 @@ namespace FTP_CLClient {
 		/// This is server dependent, but filters like *.txt, *.exe usually work.</param>
 		public string[] getFileList (string mask) {
 
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			Socket cSocket = createDataSocket();
 
-			switch (_listMode) {
+			switch (listMode) {
 				case DirectoryListMode.PlatformList:
 					sendCommand("LIST  " + mask);
 					break;
+				case DirectoryListMode.NameList:
 				default:
 					sendCommand("NLST " + mask);
 					break;
 			}
 
-			if (!(_retValue == 150 || _retValue == 125)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (!(retValue == 150 || retValue == 125)) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
-			_mes = "";
+			mes = "";
 
 			while (true) {
 
 				System.Threading.Thread.Sleep(100);
 				int bytes = cSocket.Receive(buffer, buffer.Length, 0);
 				System.Threading.Thread.Sleep(100);
-				_mes += ASCII.GetString(buffer, 0, bytes);
+				mes += ASCII.GetString(buffer, 0, bytes);
 				System.Threading.Thread.Sleep(100);
 
 				if (cSocket.Available < 1) {
@@ -186,18 +206,18 @@ namespace FTP_CLClient {
 			}
 
 			char[] seperator = { '\n' };
-			string[] mess = _mes.Split(seperator);
+			string[] mess = mes.Split(seperator);
 
 			cSocket.Close();
 
 			readReply();
 
-			if (_retValue != 226)
-			{
-				if (_reply.Length > 4) {
-					throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 226) {
+				if (reply.Length > 4) {
+					throw new IOException(reply.Substring(4), retValue);
+				} else {
+					throw new IOException(reply, retValue);
 				}
-				throw new IOException(_reply, _retValue);
 			}
 			return mess;
 
@@ -209,17 +229,17 @@ namespace FTP_CLClient {
 		/// <param name="fileName">Full name of a file in the current directory</param>
 		public long getFileSize (string fileName) {
 
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			sendCommand("SIZE " + fileName);
-			long size;
+			long size = 0;
 
-			if (_retValue == 213) {
-				size = Int64.Parse(_reply.Substring(4));
+			if (retValue == 213) {
+				size = Int64.Parse(reply.Substring(4));
 			} else {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 			return size;
@@ -232,46 +252,46 @@ namespace FTP_CLClient {
 		/// </summary>
 		public void login () {
 
-			_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			IPHostEntry hostInfo = GetHostInfo(_remoteHost);
-			_clientSocket.SendTimeout = _clientSocket.ReceiveTimeout = 30000;
+			clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			IPHostEntry hostInfo = GetHostInfo(remoteHost);
+			clientSocket.SendTimeout = clientSocket.ReceiveTimeout = 30000;
 
 			try {
-				_clientSocket.Connect(hostInfo.AddressList, _remotePort);
+				clientSocket.Connect(hostInfo.AddressList, remotePort);
 			} catch (Exception) {
 				throw new IOException("Can't connect to remote server");
 			}
 
 			readReply();
-			if (_retValue != 220) {
+			if (retValue != 220) {
 				close();
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(reply.Substring(4), retValue);
 			}
-			if (_debug)
-				Console.WriteLine("USER " + _remoteUser);
+			if (debug)
+				Console.WriteLine("USER " + remoteUser);
 
-			sendCommand("USER " + _remoteUser);
+			sendCommand("USER " + remoteUser);
 
-			if (!(_retValue == 331 || _retValue == 230)) {
+			if (!(retValue == 331 || retValue == 230)) {
 				cleanup();
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
-			if (_retValue != 230) {
-				if (_debug)
+			if (retValue != 230) {
+				if (debug)
 					Console.WriteLine("PASS xxx");
 
-				sendCommand("PASS " + _remotePass);
-				if (!(_retValue == 230 || _retValue == 202)) {
+				sendCommand("PASS " + remotePass);
+				if (!(retValue == 230 || retValue == 202)) {
 					cleanup();
-					throw new IOException(_reply.Substring(4), _retValue);
+					throw new IOException(reply.Substring(4), retValue);
 				}
 			}
 
-			_logined = true;
-			Console.WriteLine("Connected to " + _remoteHost);
+			logined = true;
+			Console.WriteLine("Connected to " + remoteHost);
 
-			chdir(_remotePath);
+			chdir(remotePath);
 
 		}
 
@@ -286,8 +306,8 @@ namespace FTP_CLClient {
 			} else {
 				sendCommand("TYPE A");
 			}
-			if (_retValue != 200) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 200) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 		}
 
@@ -330,13 +350,13 @@ namespace FTP_CLClient {
 		/// <param name="remFileName">Remote file name</param>
 		/// <param name="resume">if true, try to continue a previous download</param>
 		public void download (string remFileName, string locFileName, Boolean resume) {
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			setBinaryMode(true);
 
-			Console.WriteLine("Downloading file " + remFileName + " from " + _remoteHost + "/" + _remotePath);
+			Console.WriteLine("Downloading file " + remFileName + " from " + remoteHost + "/" + remotePath);
 
 			if (locFileName.Equals("")) {
 				locFileName = remFileName;
@@ -347,24 +367,27 @@ namespace FTP_CLClient {
 				st.Close();
 			}
 
-			var output = new FileStream(locFileName, FileMode.Open);
+			FileStream output = new FileStream(locFileName, FileMode.Open);
 
-			var cSocket = createDataSocket();
+			Socket cSocket = createDataSocket();
+
+			long offset = 0;
 
 			if (resume) {
 
-				long offset = output.Length;
+				offset = output.Length;
 
 				if (offset > 0) {
 					sendCommand("REST " + offset);
-					if (_retValue != 350) {
+					if (retValue != 350) {
+						//throw new IOException(reply.Substring(4), retValue);
 						//Some servers may not support resuming.
 						offset = 0;
 					}
 				}
 
 				if (offset > 0) {
-					if (_debug) {
+					if (debug) {
 						Console.WriteLine("seeking to " + offset);
 					}
 					long npos = output.Seek(offset, SeekOrigin.Begin);
@@ -374,14 +397,14 @@ namespace FTP_CLClient {
 
 			sendCommand("RETR " + remFileName);
 
-			if (!(_retValue == 150 || _retValue == 125)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (!(retValue == 150 || retValue == 125)) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 			while (true) {
 
-				_bytes = cSocket.Receive(buffer, buffer.Length, 0);
-				output.Write(buffer, 0, _bytes);
+				bytes = cSocket.Receive(buffer, buffer.Length, 0);
+				output.Write(buffer, 0, bytes);
 
 				if (cSocket.Available < 1) {
 					break;
@@ -397,8 +420,8 @@ namespace FTP_CLClient {
 
 			readReply();
 
-			if (!(_retValue == 226 || _retValue == 250)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (!(retValue == 226 || retValue == 250)) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 		}
@@ -419,16 +442,15 @@ namespace FTP_CLClient {
 		/// Upload a file and set the resume flag.
 		/// </summary>
 		/// <param name="fileName">Full local path and filename to upload</param>
-		/// <param name="remoteFileName">file name as it should be on the remote server</param>
 		/// <param name="resume">if true, try to continue a previous upload</param>
 		public void upload (string fileName, string remoteFileName, Boolean resume) {
-			_shouldContinue = false;
-			var dest = remoteFileName.Replace("/", "");
-			if (!_logined) {
+			should_continue = false;
+			string dest = remoteFileName.Replace("/", "");
+			if (!logined) {
 				login();
 			}
 
-			var cSocket = (_passiveMode) ? (createDataSocket()) : (createDataPort());
+			Socket cSocket = (passive_mode) ? (createDataSocket()) : (createDataPort());
 			cSocket.SendTimeout = cSocket.ReceiveTimeout = 30000;
 			long offset = 0;
 
@@ -446,13 +468,12 @@ namespace FTP_CLClient {
 			}
 
 			if (offset > 0) {
-				_shouldContinue = true;
+				should_continue = true;
 				sendCommand("REST " + offset);
-				if (_retValue != 350) {
+				if (retValue != 350) {
+					//throw new IOException(reply.Substring(4), retValue);
 					//Remote server may not support resuming.
-// ReSharper disable RedundantAssignment
 					offset = 0;
-// ReSharper restore RedundantAssignment
 				}
 			}
 
@@ -461,13 +482,13 @@ namespace FTP_CLClient {
 			sendCommand("STOR " + dest);
 
 
-			if (!(_retValue == 125 || _retValue == 150)) {
-				_shouldContinue = false;
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (!(retValue == 125 || retValue == 150)) {
+				should_continue = false;
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
-			if (!_passiveMode) {
-				var old = cSocket;
+			if (!passive_mode) {
+				Socket old = cSocket;
 				cSocket = old.Accept(); // This is blocking. Will wait for a LONG time!
 				old.Close();
 			}
@@ -476,7 +497,7 @@ namespace FTP_CLClient {
 			// open input stream to read source file
 			if (!File.Exists(fileName)) throw new IOException("Specified local file not accessible");
 
-			Console.WriteLine("Uploading file " + fileName + " to " + _remotePath + " as " + remoteFileName);
+			Console.WriteLine("Uploading file " + fileName + " to " + remotePath + " as " + remoteFileName);
 			cSocket.SendFile(fileName);
 			cSocket.Disconnect(false);
 
@@ -486,11 +507,11 @@ namespace FTP_CLClient {
 				cSocket.Close();
 			}
 
-			_shouldContinue = false; // all data sent
+			should_continue = false; // all data sent
 			readReply();
 
-			if (!(_retValue == 226 || _retValue == 250)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (!(retValue == 226 || retValue == 250)) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 		}
 
@@ -500,14 +521,14 @@ namespace FTP_CLClient {
 		/// <param name="fileName">File in the current remote directory</param>
 		public void deleteRemoteFile (string fileName) {
 
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			sendCommand("DELE " + fileName);
 
-			if (_retValue != 250) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 250) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 		}
@@ -519,22 +540,22 @@ namespace FTP_CLClient {
 		/// <param name="newFileName">New file name</param>
 		public void renameRemoteFile (string oldFileName, string newFileName) {
 
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			sendCommand("RNFR " + oldFileName);
 
-			if (_retValue != 350) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 350) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 			//  known problem
 			//  rnto will not take care of existing file.
 			//  i.e. It will overwrite if newFileName exist
 			sendCommand("RNTO " + newFileName);
-			if (_retValue != 250) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 250) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 		}
@@ -546,14 +567,14 @@ namespace FTP_CLClient {
 		/// <param name="dirName">New directory name</param>
 		public void mkdir (string dirName) {
 
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			sendCommand("MKD " + dirName);
 
-			if (!(_retValue == 250 || _retValue == 257)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (!(retValue == 250 || retValue == 257)) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 		}
@@ -563,23 +584,25 @@ namespace FTP_CLClient {
 		/// </summary>
 		/// <returns>Current working directory, result of PWD command</returns>
 		public string pwd () {
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			sendCommand("PWD");
 
-			if (!(_retValue == 250 || _retValue == 257)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (!(retValue == 250 || retValue == 257)) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
-			if (_reply.Contains("\"")) {
-				int left = _reply.IndexOf("\"", StringComparison.Ordinal) + 1;
-				int right = _reply.LastIndexOf("\"", StringComparison.Ordinal) - left;
-				_remotePath = _reply.Substring(left, right);
-				return _remotePath;
+			if (reply.Contains("\"")) {
+				int left = reply.IndexOf("\"") + 1;
+				int right = reply.LastIndexOf("\"") - left;
+				remotePath = reply.Substring(left, right);
+				return remotePath;
+			} else {
+				if (reply.Length > 4) return reply.Substring(4);
+				else return reply;
 			}
-			return _reply.Length > 4 ? _reply.Substring(4) : _reply;
 		}
 
 		/// <summary>
@@ -588,14 +611,14 @@ namespace FTP_CLClient {
 		/// <param name="dirName">Old directory name</param>
 		public void rmdir (string dirName) {
 
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			sendCommand("RMD " + dirName);
 
-			if (_retValue != 250) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 250) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 		}
@@ -610,19 +633,19 @@ namespace FTP_CLClient {
 				return;
 			}
 
-			if (!_logined) {
+			if (!logined) {
 				login();
 			}
 
 			sendCommand("CWD " + dirName);
 
-			if (_retValue != 250) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 250) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
-			_remotePath = dirName;
+			this.remotePath = dirName;
 
-			Console.WriteLine("Current directory is " + _remotePath);
+			Console.WriteLine("Current directory is " + remotePath);
 
 		}
 
@@ -631,7 +654,7 @@ namespace FTP_CLClient {
 		/// </summary>
 		public void close () {
 
-			if (_clientSocket != null) {
+			if (clientSocket != null) {
 				sendCommand("QUIT");
 			}
 
@@ -653,7 +676,7 @@ namespace FTP_CLClient {
 		/// Otherwise, it is assumed to be an absolute path on the server.</param>
 		public void ensureRemotePath (string path, bool relative) {
 			string fwd = getRemotePath();
-			string[] parts = path.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+			string[] parts = path.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
 			if (parts == null || parts.Length < 1) throw new ArgumentException("EnsureRemotePath: Specified path was empty");
 
 			if (!relative) chdir("/");
@@ -688,9 +711,9 @@ namespace FTP_CLClient {
 		/// </summary>
 		public void abort () {
 			sendCommand("ABOR");
-			if (_retValue != 226 && _retValue != 426) throw new IOException("Abort failed");
-			if (_retValue != 426) readReply(); // to get 426 message off queue
-			if (_retValue != 426) throw new IOException("Abort failed");
+			if (retValue != 226 && retValue != 426) throw new IOException("Abort failed");
+			if (retValue != 426) readReply(); // to get 426 message off queue
+			if (retValue != 426) throw new IOException("Abort failed");
 		}
 
 		/// <summary>
@@ -698,7 +721,7 @@ namespace FTP_CLClient {
 		/// This causes diagnostic information to be printed to the console.
 		/// </summary>
 		public void setDebug (Boolean debug) {
-			_debug = debug;
+			this.debug = debug;
 		}
 
 		#region Arcane Inner Workings
@@ -706,48 +729,48 @@ namespace FTP_CLClient {
 
 
 		private void readReply () {
-			_mes = "";
-			_reply = readLine();
-			_retValue = Int32.Parse(_reply.Substring(0, 3));
+			mes = "";
+			reply = readLine();
+			retValue = Int32.Parse(reply.Substring(0, 3));
 		}
 
 		private void cleanup () {
-			if (_clientSocket != null) {
-				_clientSocket.Close();
-				_clientSocket = null;
+			if (clientSocket != null) {
+				clientSocket.Close();
+				clientSocket = null;
 			}
-			_logined = false;
+			logined = false;
 		}
 
 		private string readLine () {
 
 			while (true) {
-				_bytes = _clientSocket.Receive(buffer, buffer.Length, 0);
-				_mes += ASCII.GetString(buffer, 0, _bytes);
-				if (_bytes < buffer.Length) {
+				bytes = clientSocket.Receive(buffer, buffer.Length, 0);
+				mes += ASCII.GetString(buffer, 0, bytes);
+				if (bytes < buffer.Length) {
 					break;
 				}
 			}
 
 			char[] seperator = { '\n' };
-			string[] mess = _mes.Split(seperator);
+			string[] mess = mes.Split(seperator);
 
-			if (_mes.Length > 2) {
+			if (mes.Length > 2) {
 				// find first non-ignore message:
 				foreach (string line in mess) {
 					if (line.Length > 3)
 						if (line.Substring(3, 1) == " ") {
-							_mes = line;
+							mes = line;
 							break;
 						}
 				}
 				//mes = mess[mess.Length - 2];
 			} else {
-				_mes = mess[0];
+				mes = mess[0];
 			}
 
-			if (_mes.Length < 4) {
-				if (_debug)
+			if (mes.Length < 4) {
+				if (debug)
 					foreach (string l in mess) {
 						Console.WriteLine("!   " + l);
 					}
@@ -755,40 +778,42 @@ namespace FTP_CLClient {
 				throw new IOException("Server returned an invalid message");
 			}
 
-			if (!_mes.Substring(3, 1).Equals(" ")) {
+			if (!mes.Substring(3, 1).Equals(" ")) {
 				return readLine();
 			}
 
-			if (_debug) {
+			if (debug) {
 				for (int k = 0; k < mess.Length - 1; k++) {
 					Console.WriteLine(mess[k]);
 				}
 			}
-			return _mes;
+			return mes;
 		}
 
 		private void sendCommand (String command) {
 
 			Byte[] cmdBytes = Encoding.ASCII.GetBytes((command + "\r\n").ToCharArray());
-			_clientSocket.Send(cmdBytes, cmdBytes.Length, 0);
+			clientSocket.Send(cmdBytes, cmdBytes.Length, 0);
 			readReply();
 		}
 
 		private Socket createDataPort () {
-			if (_debug) Console.WriteLine("   preparing port listener  ");
+			if (debug) Console.WriteLine("   preparing port listener  ");
 			int port = 1663;
 
 			// create the socket
-			var listenSocket = new Socket(AddressFamily.InterNetwork,
+			Socket listenSocket = new Socket(AddressFamily.InterNetwork,
 											 SocketType.Stream,
 											 ProtocolType.Tcp);
 
 			// bind the listening socket to the port
-			var hostIP = Dns.GetHostEntry(Dns.GetHostName()).AddressList[0];
-			var ftp_ip = hostIP.ToString().Replace(".", ",");
+			//IPAddress.Broadcast
+			IPAddress hostIP = Dns.Resolve(Dns.GetHostName()).AddressList[0];
+			string ftp_ip = hostIP.ToString().Replace(".", ",");
+			IPEndPoint ep = null;
 			while (true) {
 				try {
-					var ep = new IPEndPoint(hostIP, port);
+					ep = new IPEndPoint(hostIP, port);
 					listenSocket.Bind(ep);
 					listenSocket.Listen(100);
 					break;
@@ -802,11 +827,11 @@ namespace FTP_CLClient {
 			string port_cmd = "PORT " + ftp_ip + "," + p1 + "," + p2;
 
 
-			if (_debug) Console.WriteLine(port_cmd + " (Opening a data socket for transfer)");
+			if (debug) Console.WriteLine(port_cmd + " (Opening a data socket for transfer)");
 
 			sendCommand(port_cmd);
-			if (_retValue != 200 && _retValue != 227) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 200 && retValue != 227) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
 			/* This has to be done *after* the STOR message is sent and
@@ -821,19 +846,19 @@ namespace FTP_CLClient {
 		}
 
 		private Socket createDataSocket () {
-			if (_debug) Console.WriteLine("PASV (Opening a data socket for transfer)");
+			if (debug) Console.WriteLine("PASV (Opening a data socket for transfer)");
 			sendCommand("PASV");
 
-			if (_retValue != 227) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (retValue != 227) {
+				throw new IOException(reply.Substring(4), retValue);
 			}
 
-			int index1 = _reply.IndexOf('(');
-			int index2 = _reply.IndexOf(')');
-			if (index1 < 0 || index2 < 0) throw new IOException("Malformed PASV reply: " + _reply);
+			int index1 = reply.IndexOf('(');
+			int index2 = reply.IndexOf(')');
+			if (index1 < 0 || index2 < 0) throw new IOException("Malformed PASV reply: " + reply);
 
-			string ipData = _reply.Substring(index1 + 1, index2 - index1 - 1);
-			var parts = new int[7];
+			string ipData = reply.Substring(index1 + 1, index2 - index1 - 1);
+			int[] parts = new int[7];
 
 			int len = ipData.Length;
 			int partCount = 0;
@@ -845,7 +870,7 @@ namespace FTP_CLClient {
 				if (Char.IsDigit(ch))
 					buf += ch;
 				else if (ch != ',') {
-					throw new IOException("Malformed PASV reply: " + _reply);
+					throw new IOException("Malformed PASV reply: " + reply);
 				}
 
 				if (ch == ',' || i + 1 == len) {
@@ -854,7 +879,7 @@ namespace FTP_CLClient {
 						parts[partCount++] = Int32.Parse(buf);
 						buf = "";
 					} catch (Exception) {
-						throw new IOException("Malformed PASV reply: " + _reply);
+						throw new IOException("Malformed PASV reply: " + reply);
 					}
 				}
 			}
@@ -864,9 +889,9 @@ namespace FTP_CLClient {
 
 			int port = (parts[4] << 8) + parts[5];
 
-			var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			s.SendTimeout = s.ReceiveTimeout = 30000;
-			var hostInfo = GetHostInfo(ipAddress);
+			IPHostEntry hostInfo = GetHostInfo(ipAddress);
 
 			try {
 				s.Connect(hostInfo.AddressList, port);
@@ -878,14 +903,14 @@ namespace FTP_CLClient {
 		}
 
 		private IPHostEntry GetHostInfo (string addr) {
-			IPHostEntry hostInfo;
+			IPHostEntry hostInfo = null;
 			try {
 				hostInfo = Dns.GetHostEntry(addr);
 				if (hostInfo.AddressList == null || hostInfo.AddressList.Length < 1)
 					throw new Exception();
 			} catch {
 				try {
-					hostInfo = Dns.GetHostEntry(addr);
+					hostInfo = Dns.Resolve(addr);
 				} catch {
 					throw new Exception("Could not resolve host name to any IP addresses: (" + addr + ")");
 				}
