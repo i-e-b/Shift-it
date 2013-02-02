@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using ShiftIt.Socket;
 
-namespace ShiftIt
+namespace ShiftIt.Http
 {
 	/// <summary>
 	/// HttpClient class
 	/// </summary>
-	public static class HttpClient
+	public class HttpClient : IHttpClient
 	{
 		/// <summary>
 		/// Calls the target site using an HTTP/1.0 GET.
 		/// </summary>
 		/// <param name="url">Request URL</param>
 		/// <param name="timeOut">Timeout to wait for response, in milliseconds.</param>
-		public static string GetString (string url, int timeOut)
+		public string GetString (string url, int timeOut)
 		{
-			Socket		sock			= null;
+			System.Net.Sockets.Socket		sock			= null;
 			string		path			= null;				// path portion of request
 
 			try
@@ -42,7 +43,7 @@ namespace ShiftIt
 					path = String.Concat ("/", (path ?? ""));
 
 				// connect to server
-				sock = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) {Blocking = true};
+				sock = new System.Net.Sockets.Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) {Blocking = true};
 				sock.Connect (host, 80);
 
 				// create state object
@@ -136,7 +137,7 @@ Content-Length: 0
 			{
 				// Retrieve the socket from the state object.
 				var	state		= ar.AsyncState as SocketState;
-				Socket		client		= state.Socket;
+				System.Net.Sockets.Socket		client		= state.Socket;
 
 				// Complete sending the data to the remote device.
 				client.EndSend (ar);
@@ -181,7 +182,7 @@ Content-Length: 0
 				return;
 
 			// get socket
-			Socket sock = state.Socket;
+			System.Net.Sockets.Socket sock = state.Socket;
 
 			// end the read
 			if (0 != (read = sock.EndReceive (result)))

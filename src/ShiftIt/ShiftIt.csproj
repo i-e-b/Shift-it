@@ -39,8 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SocketState.cs" />
-    <Compile Include="HttpClient.cs" />
+    <Compile Include="IHttpClient.cs" />
+    <Compile Include="Socket\SocketState.cs" />
+    <Compile Include="Http\HttpClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,8 +1,7 @@
-﻿using System.Net.Sockets;
-using System.Text;
+﻿using System.Text;
 using System.Threading;
 
-namespace ShiftIt
+namespace ShiftIt.Socket
 {
 	/// <summary>
 	/// SocketState class
@@ -26,7 +25,7 @@ namespace ShiftIt
 		/// Constructor
 		/// </summary>
 		/// <param name="socket"></param>
-		public SocketState (Socket socket)
+		public SocketState (System.Net.Sockets.Socket socket)
 			: this ()
 		{
 			Socket = socket;
@@ -35,7 +34,7 @@ namespace ShiftIt
 		/// <summary>
 		/// TCP/IP socket.
 		/// </summary>
-		public Socket Socket = null;
+		public System.Net.Sockets.Socket Socket = null;
 
 		/// <summary>
 		/// Size of download buffer.
