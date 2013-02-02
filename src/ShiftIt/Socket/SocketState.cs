@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading;
 
 namespace ShiftIt.Socket
@@ -8,7 +9,7 @@ namespace ShiftIt.Socket
 	/// 
 	/// Used to track an async TCP/IP data, and maintain all data received over the async operation.
 	/// </summary>
-	internal class SocketState
+	internal class SocketState:IDisposable
 	{
 		/// <summary>
 		/// Constructor
@@ -55,5 +56,13 @@ namespace ShiftIt.Socket
 		/// Reset event for synchronization.
 		/// </summary>
 		public ManualResetEvent Done;
+
+		public void Dispose()
+		{
+			var sock = Interlocked.Exchange(ref Socket, null);
+			if (null == sock || !sock.Connected) return;
+			sock.Disconnect(false);
+			sock.Close();
+		}
 	}
 }
