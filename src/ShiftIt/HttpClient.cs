@@ -52,8 +52,7 @@ namespace ShiftIt
 				string		request = String.Format (
 					@"GET {0} HTTP/1.1
 HOST: {1}
-Accept: text/\*
-Accept-Language: en-gb
+Accept: text/*
 Cache-Control: no-cache
 Content-Length: 0
 
@@ -66,9 +65,7 @@ Content-Length: 0
 
 				// get the response
 				StartReceive (state);
-				state.Done.WaitOne (
-					5000
-					);
+				state.Done.WaitOne ();
 
 				// convert the response bytes
 				string		response = state.Data.ToString ();				// body of HTTP response
@@ -189,7 +186,7 @@ Content-Length: 0
 			// end the read
 			if (0 != (read = sock.EndReceive (result)))
 			{
-				state.Data.Append (Encoding.ASCII.GetString (state.ReadBuffer, 0, read));
+				state.Data.Append(Encoding.ASCII.GetString(state.ReadBuffer, 0, read));
 
 				// start another read
 				sock.BeginReceive (

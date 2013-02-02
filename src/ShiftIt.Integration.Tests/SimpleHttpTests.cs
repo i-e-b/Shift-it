@@ -9,7 +9,7 @@ namespace ShiftIt.Integration.Tests
 		[Test]
 		public void can_download_from_http_server()
 		{
-			var result = HttpClient.GetString("http://www.amazon.co.uk", 4000);
+			var result = HttpClient.GetString("http://www.iana.org/domains/example", 4000);
 			Console.WriteLine(result);
 			Assert.That(result, Contains.Substring("<html"));
 		}
