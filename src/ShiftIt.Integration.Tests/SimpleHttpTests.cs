@@ -7,12 +7,12 @@ namespace ShiftIt.Integration.Tests
 	[TestFixture]
     public class SimpleHttpTests
     {
-		IHttpClient _subject;
+		ISynchronousClient _subject;
 
 		[SetUp]
 		public void setup()
 		{
-			_subject = new HttpClient();
+			_subject = new SynchronousClient();
 		}
 
 		[Test]

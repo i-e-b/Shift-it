@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace ShiftIt
+﻿namespace ShiftIt
 {
-	public interface IHttpClient
+	public interface ISynchronousClient
 	{
 		string GetString (string url);
 

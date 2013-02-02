@@ -7,9 +7,9 @@ using ShiftIt.Socket;
 namespace ShiftIt.Http
 {
 	/// <summary>
-	/// HttpClient class
+	/// SynchronousClient class
 	/// </summary>
-	public class HttpClient : IHttpClient
+	public class SynchronousClient : ISynchronousClient
 	{
 		/// <summary>
 		/// Calls the target site using an HTTP/1.0 GET.
@@ -71,20 +71,20 @@ Content-Length: 0
 			using (var state = ConnectSocketState(host, port))
 			{
 				SynchronousSendAndReceive(state, rawRequest);
-				return state.Data.ToString();
+				return state.ResultData.ToString();
 			}
 		}
 
-		static SocketState ConnectSocketState(string host, int port)
+		static StatefulSocket ConnectSocketState(string host, int port)
 		{
-			var state = new SocketState(
+			var state = new StatefulSocket(
 				new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
 				{Blocking = true});
 			state.Socket.Connect(host, port);
 			return state;
 		}
 
-		static void SynchronousSendAndReceive(SocketState state, string request)
+		static void SynchronousSendAndReceive(StatefulSocket state, string request)
 		{
 			var byteData = Encoding.UTF8.GetBytes(request);
 
@@ -96,7 +96,7 @@ Content-Length: 0
 			while ((len = state.Socket.Receive(state.ReadBuffer, 0, state.ReadBuffer.Length, SocketFlags.None, out err)) > 0)
 			{
 				state.Socket.ReceiveTimeout = 500; // shorter delay to read stream from socket buffer
-				state.Data.Append(Encoding.UTF8.GetString(state.ReadBuffer,0,len));
+				state.ResultData.Append(Encoding.UTF8.GetString(state.ReadBuffer,0,len));
 			}
 			state.Socket.Close();
 		}
