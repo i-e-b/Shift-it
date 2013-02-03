@@ -3,10 +3,10 @@ using System.Linq;
 using NUnit.Framework;
 using ShiftIt.Http;
 
-namespace ShiftIt.Unit.Tests
+namespace ShiftIt.Unit.Tests.RequestBuilding
 {
 	[TestFixture]
-	public class HttpRequestBuilding
+	public class SimpleGet
 	{
 		IHttpRequestBuilder _subject;
 		Uri target;
@@ -17,7 +17,7 @@ namespace ShiftIt.Unit.Tests
 			_subject = new HttpRequestBuilder();
 			target = new Uri("http://www.example.com/my/path");
 
-			_subject.Get(target);
+			_subject.Get(target).SetHeader("User-Agent", "Phil's face");
 		}
 
 		[Test]
@@ -53,12 +53,13 @@ Cookie: auth=Z3Vlc3Q6Z3Vlc3Q%3D; m=34e2:|1da9:t|64b8:t|796a:t|47ba:t
 		public void default_headers_are_written_correctly()
 		{
 			Assert.That(_subject.ToString().Lines(), Contains.Item("Host: www.example.com:80"));
+			Assert.That(_subject.ToString().Lines(), Contains.Item("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
 		}
 
 		[Test]
 		public void custom_headers_are_written_correctly()
 		{
-			Assert.Inconclusive();
+			Assert.That(_subject.ToString().Lines(), Contains.Item("User-Agent: Phil's face"));
 		}
 
 		[Test]
@@ -66,6 +67,13 @@ Cookie: auth=Z3Vlc3Q6Z3Vlc3Q%3D; m=34e2:|1da9:t|64b8:t|796a:t|47ba:t
 		{
 			Assert.That(_subject.ToString(), Is.StringEnding("\r\n\r\n"));
 			Assert.That(_subject.ToString().CountOf("\r\n\r\n"), Is.EqualTo(1));
+		}
+
+		[Test]
+		public void can_add_several_values_to_a_header()
+		{
+			_subject.AddHeader("X-Plane", "one").AddHeader("X-Plane", "two");
+			Assert.That(_subject.ToString().Lines(), Contains.Item("X-Plane: one,two"));
 		}
 	}
 }
