@@ -30,7 +30,6 @@ namespace ShiftIt.Http.Internal
 
 		TextReader RestOfStreamDecompressed(Stream rawResponse)
 		{
-			if (rawResponse.Position == rawResponse.Length) return null; // no body
 			rawResponse.ReadByte(); // eat one spare byte
 			if (!Headers.ContainsKey("Content-Encoding")) return new StreamReader(rawResponse); // plain body
 
@@ -59,6 +58,10 @@ namespace ShiftIt.Http.Internal
 			{
 				if (!_headers.ContainsKey(parts[0]))
 				{
+					if (parts.Length < 2)
+					{
+						Console.WriteLine("Bad header -- " + headerLine);
+					} else
 					_headers.Add(parts[0], parts[1]);
 					return;
 				}

@@ -37,18 +37,16 @@
     <Compile Include="HttpClient.cs" />
     <Compile Include="Http\IHttpRequest.cs" />
     <Compile Include="Http\Internal\HttpReponse.cs" />
-    <Compile Include="Http\Internal\HttpRequestBuilder.cs" />
+    <Compile Include="Http\HttpRequestBuilder.cs" />
     <Compile Include="Http\Internal\HttpResponseParser.cs" />
     <Compile Include="Http\IHttpRequestBuilder.cs" />
     <Compile Include="Http\IHttpResponse.cs" />
     <Compile Include="Http\Internal\IHttpResponseParser.cs" />
     <Compile Include="Http\StatusClass.cs" />
-    <Compile Include="Socket\IConnectable.cs" />
-    <Compile Include="Socket\IStreamSource.cs" />
-    <Compile Include="Socket\ISynchronousClient.cs" />
+    <Compile Include="Socket\IConnectableStreamSource.cs" />
     <Compile Include="Socket\SocketStream.cs" />
-    <Compile Include="Socket\SynchronousClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Socket\SocketStreamFactory.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

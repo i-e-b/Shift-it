@@ -14,6 +14,8 @@ namespace ShiftIt.Http
 		IHttpRequestBuilder Data(Stream stream, int length);
 		IHttpRequestBuilder StringData(string data);
 
+		IHttpRequestBuilder BasicAuthentication(string userName, string password);
+
 		IHttpRequest Build();
 	}
 }

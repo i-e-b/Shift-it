@@ -45,7 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Http\HttpClientTests.cs" />
+    <Compile Include="Http\RequestBuilding\BasicAuthentication.cs" />
     <Compile Include="Http\RequestBuilding\StreamPut.cs" />
     <Compile Include="Http\RequestBuilding\Lorem.cs" />
     <Compile Include="Http\RequestBuilding\SimplePost.cs" />

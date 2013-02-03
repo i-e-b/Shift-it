@@ -53,6 +53,13 @@ namespace ShiftIt.Http.Internal
 			return this;
 		}
 
+		public IHttpRequestBuilder BasicAuthentication(string userName, string password)
+		{
+			SetHeader("Authorization", "Basic " + Convert.ToBase64String(Encoding.ASCII.GetBytes(
+				userName+":"+password)));
+			return this;
+		}
+
 		public IHttpRequest Build()
 		{
 			return this;

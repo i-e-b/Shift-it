@@ -1,22 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
 namespace ShiftIt.Socket
 {
-	public class SocketStream : Stream, IStreamSource, IConnectable
+	public class SocketStream : Stream
 	{
-		public SocketStream()
-		{
-			_socket = null;
-			ReadBuffer = new byte[BufferSize];
-			ResultData = new StringBuilder();
-		}
+
+		public SocketStream() { }
 
 		public SocketStream(System.Net.Sockets.Socket socket)
-			: this()
 		{
 			_socket = socket;
 		}
@@ -24,29 +18,9 @@ namespace ShiftIt.Socket
 		System.Net.Sockets.Socket _socket;
 		public System.Net.Sockets.Socket Socket { get { return _socket; } }
 
-		public const int BufferSize = 1024;
-
-		public readonly byte[] ReadBuffer;
-
-		public StringBuilder ResultData;
-
 		~SocketStream()
 		{
 			Dispose();
-		}
-
-		public void Connect(Uri connectionTarget, TimeSpan connectionTimeout)
-		{
-			_socket = new System.Net.Sockets.Socket(
-				AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-				{Blocking = true};
-			_socket.SendTimeout = _socket.ReceiveTimeout = (int)connectionTimeout.TotalMilliseconds;
-			_socket.Connect(connectionTarget.Host, connectionTarget.Port);
-		}
-
-		public Stream AsStream()
-		{
-			return this;
 		}
 
 		protected override void Dispose(bool disposing)
@@ -68,9 +42,10 @@ namespace ShiftIt.Socket
 		{
 			SocketError err;
 			int len = _socket.Receive(buffer, offset, count, SocketFlags.None, out err);
+			_socket.ReceiveTimeout = 500;
 			if (err != SocketError.Success)
 			{
-				throw new IOException("Socket error during transfer", (int)err);
+				Console.WriteLine("Socket error during transfer: "+err);
 			}
 			return len;
 		}
