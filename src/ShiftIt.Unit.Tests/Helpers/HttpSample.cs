@@ -1,17 +1,27 @@
 ﻿using System.IO;
 
-namespace ShiftIt.Unit.Tests.Responses
+namespace ShiftIt.Unit.Tests.Helpers
 {
 	public class HttpSample
 	{
 		public static TextReader SimpleResponse()
 		{
-			return new StringReader(File.ReadAllText(".\\Helpers\\uncompressed.txt"));
+			return Sample("uncompressed");
 		}
 
 		public static TextReader EmptyResponse()
 		{
-			return new StringReader(File.ReadAllText(".\\Helpers\\empty.txt"));
+			return Sample("empty");
+		}
+
+		public static TextReader GzippedResponse()
+		{
+			return Sample("gzipped");
+		}
+
+		static TextReader Sample(string f)
+		{
+			return new StringReader(File.ReadAllText(".\\Helpers\\"+f+".txt"));
 		}
 	}
 }

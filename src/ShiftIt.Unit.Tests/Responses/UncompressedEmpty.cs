@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using NUnit.Framework;
 using ShiftIt.Http;
+using ShiftIt.Unit.Tests.Helpers;
 
 namespace ShiftIt.Unit.Tests.Responses
 {
