@@ -12,3 +12,7 @@ HTTP
 ----
 An experimental HTTP / WebDAV file transfer tool, partly to work around 
 bugs in 2.x versions of Mono, partly just for kicks.
+
+Todo:
+* Get->Put direct streaming
+* Digest authentication

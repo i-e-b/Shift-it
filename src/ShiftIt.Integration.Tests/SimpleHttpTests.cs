@@ -15,14 +15,15 @@ namespace ShiftIt.Integration.Tests
 			_subject = new HttpClient();
 		}
 
-		[Test]
-		public void can_download_from_http_server()
+		[Test, Description("This server reports it's length incorrectly, so we read until closing")]
+		public void read_from_iana ()
 		{
 			var rq = new HttpRequestBuilder().Get(new Uri("http://www.iana.org/domains/example")).Build();
 			using (var result = _subject.Request(rq))
 			{
-				var body = result.BodyReader.ReadToEnd();
+				var body = result.BodyReader.ReadStringToTimeout(); // this server returns an invalid length!
 
+				Console.WriteLine("Expected " + result.BodyReader.ExpectedLength + " but got " + body.Length);
 				Console.WriteLine(body);
 				Assert.That(body, Contains.Substring("<html"));
 			}
@@ -34,7 +35,7 @@ namespace ShiftIt.Integration.Tests
 			var rq = new HttpRequestBuilder().Get(new Uri("http://en.wikipedia.org/wiki/Ternary_search_tree")).Build();
 			using (var result = _subject.Request(rq))
 			{
-				var body = result.BodyReader.ReadToEnd();
+				var body = result.BodyReader.ReadStringToLength();
 
 				Console.WriteLine(body);
 				Assert.That(body, Contains.Substring("<html"));
@@ -46,7 +47,7 @@ namespace ShiftIt.Integration.Tests
 		var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/overview")).BasicAuthentication("guest","guest").Build();
 			using (var result = _subject.Request(rq))
 			{
-				var body = result.BodyReader.ReadToEnd();
+				var body = result.BodyReader.ReadStringToLength();
 
 				Console.WriteLine(body);
 				Assert.That(body, Contains.Substring("{\"management_version"));

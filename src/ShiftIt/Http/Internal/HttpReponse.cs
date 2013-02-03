@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Threading;
+using ShiftIt.Socket;
 
 namespace ShiftIt.Http.Internal
 {
@@ -25,13 +26,18 @@ namespace ShiftIt.Http.Internal
 			foreach (var headerLine in NonBlankLines(rawResponse)) AddHeader(headerLine);
 			HeadersComplete = true;
 
-			BodyReader = RestOfStreamDecompressed(rawResponse);
+			BodyReader = new ExpectedLengthStream(RestOfStreamDecompressed(rawResponse), ReportedBodyLength());
 		}
 
-		TextReader RestOfStreamDecompressed(Stream rawResponse)
+		int ReportedBodyLength()
+		{
+			return Headers.ContainsKey("Content-Length") ? int.Parse(Headers["Content-Length"]):0;
+		}
+
+		Stream RestOfStreamDecompressed(Stream rawResponse)
 		{
 			rawResponse.ReadByte(); // eat one spare byte
-			if (!Headers.ContainsKey("Content-Encoding")) return new StreamReader(rawResponse); // plain body
+			if (!Headers.ContainsKey("Content-Encoding")) return rawResponse; // plain body
 
 			switch (Headers["Content-Encoding"])
 			{
@@ -41,14 +47,14 @@ namespace ShiftIt.Http.Internal
 			}
 		}
 
-		TextReader DeflateUnwrap(Stream rawResponse)
+		Stream DeflateUnwrap(Stream rawResponse)
 		{
-			return new StreamReader(new DeflateStream(rawResponse, CompressionMode.Decompress, true));
+			return new DeflateStream(rawResponse, CompressionMode.Decompress, true);
 		}
 
-		TextReader GzipUnwrap(Stream rawResponse)
+		Stream GzipUnwrap(Stream rawResponse)
 		{
-			return new StreamReader(new GZipStream(rawResponse, CompressionMode.Decompress, true));
+			return new GZipStream(rawResponse, CompressionMode.Decompress, true);
 		}
 
 		void AddHeader(string headerLine)
@@ -122,7 +128,7 @@ namespace ShiftIt.Http.Internal
 			private set { _headers = value; }
 		}
 
-		public TextReader BodyReader { get; private set; }
+		public IExpectedLengthStream BodyReader { get; private set; }
 
 		public void Dispose()
 		{

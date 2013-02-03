@@ -49,7 +49,7 @@ namespace ShiftIt.Unit.Tests.Http.Responses
 		[Test]
 		public void can_read_body_correctly()
 		{
-			Assert.That(_result.BodyReader.ReadToEnd(), Is.EqualTo(""));
+			Assert.That(_result.BodyReader.ReadStringToLength(), Is.EqualTo(""));
 		}
 	}
 }

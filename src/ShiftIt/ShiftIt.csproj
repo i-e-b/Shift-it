@@ -43,7 +43,9 @@
     <Compile Include="Http\IHttpResponse.cs" />
     <Compile Include="Http\Internal\IHttpResponseParser.cs" />
     <Compile Include="Http\StatusClass.cs" />
+    <Compile Include="Socket\ExpectedLengthStream.cs" />
     <Compile Include="Socket\IConnectableStreamSource.cs" />
+    <Compile Include="Socket\IExpectedLengthStream.cs" />
     <Compile Include="Socket\SocketStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Socket\SocketStreamFactory.cs" />

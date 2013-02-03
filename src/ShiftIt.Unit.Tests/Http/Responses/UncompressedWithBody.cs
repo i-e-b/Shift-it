@@ -56,7 +56,7 @@ namespace ShiftIt.Unit.Tests.Http.Responses
 		[Test]
 		public void can_read_body_correctly()
 		{
-			Assert.That(_result.BodyReader.ReadToEnd(), Is.EqualTo("<html><head><title>A html page</title></head><body> <h1>Hi</h1><p>Hello there!</p></body></html>"));
+			Assert.That(_result.BodyReader.ReadStringToLength(), Is.EqualTo("<html><head><title>A html page</title></head><body> <h1>Hi</h1><p>Hello there!</p></body></html>"));
 		}
 	}
 }

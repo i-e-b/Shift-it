@@ -45,7 +45,7 @@ namespace ShiftIt.Socket
 			_socket.ReceiveTimeout = 500;
 			if (err != SocketError.Success)
 			{
-				Console.WriteLine("Socket error during transfer: "+err);
+				throw new IOException("Socket error during transfer: "+err);
 			}
 			return len;
 		}
@@ -56,7 +56,7 @@ namespace ShiftIt.Socket
 			_socket.Send(buffer, offset, count, SocketFlags.None, out err);
 			if (err != SocketError.Success)
 			{
-				throw new IOException("Socket error during transfer", (int)err);
+				throw new IOException("Socket error during transfer" + err);
 			}
 		}
 		
