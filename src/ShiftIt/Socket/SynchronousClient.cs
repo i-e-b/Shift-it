@@ -91,7 +91,7 @@ Content-Length: 0
 			state.Socket.Send(byteData, 0, byteData.Length, SocketFlags.None, out err);
 
 			int len;
-			state.Socket.ReceiveTimeout = 5000; // longer delay to start sending
+			state.Socket.ReceiveTimeout = 15000; // longer delay to start sending
 			while ((len = state.Socket.Receive(state.ReadBuffer, 0, state.ReadBuffer.Length, SocketFlags.None, out err)) > 0)
 			{
 				state.Socket.ReceiveTimeout = 500; // shorter delay to read stream from socket buffer

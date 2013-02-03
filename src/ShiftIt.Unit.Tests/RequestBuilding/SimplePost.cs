@@ -6,26 +6,40 @@ using ShiftIt.Http;
 namespace ShiftIt.Unit.Tests.RequestBuilding
 {
 	[TestFixture]
-	public class SimpleGet
+	public class SimplePost
 	{
 		IHttpRequestBuilder _subject;
 		Uri target;
+		string _data;
 
 		[SetUp]
 		public void setup()
 		{
 			_subject = new HttpRequestBuilder();
 			target = new Uri("http://www.example.com/my/path");
+			_data = Lorem.Ipsum();
 
-			_subject.Get(target).SetHeader("User-Agent", "Phil's face");
+			_subject.Post(target, _data).SetHeader("User-Agent", "Phil's face");
 		}
 
 		[Test]
-		public void get_verb_is_given()
+		public void post_verb_is_given()
 		{
-			Assert.That(_subject.RequestHead(), Is.StringStarting("GET "));
+			Assert.That(_subject.RequestHead(), Is.StringStarting("POST "));
 		}
-		
+
+		[Test]
+		public void content_length_is_given()
+		{
+			Assert.That(_subject.RequestHead().Lines(), Contains.Item("Content-Length: "+_data.Length));
+		}
+
+		[Test]
+		public void content_is_written()
+		{
+			Assert.That(_subject.DataStream.ReadToEnd(), Is.EqualTo(_data));
+		}
+
 		[Test]
 		public void http_version_is_given_as_1_1()
 		{

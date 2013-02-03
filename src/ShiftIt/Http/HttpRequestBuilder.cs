@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Text;
 
 namespace ShiftIt.Http
@@ -16,14 +17,20 @@ namespace ShiftIt.Http
 		public HttpRequestBuilder()
 		{
 			_headers = new Dictionary<string, List<string>>();
+			DataLength = -1;
 		}
 
 		public IHttpRequestBuilder Get(Uri target)
 		{
-			_target = target;
-			_verb = "GET";	
-			_url = target.ToString();
-			_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+			StdVerb("GET", target);
+			return this;
+		}
+
+		public IHttpRequestBuilder Post(Uri target, string data)
+		{
+			StdVerb("POST", target);
+			DataStream = new StringReader(data);
+			DataLength = data.Length;
 			return this;
 		}
 
@@ -48,12 +55,12 @@ namespace ShiftIt.Http
 			return this;
 		}
 
-		public override string ToString()
+		public string RequestHead()
 		{
 			var sb = new StringBuilder();
 			Action crlf = () => sb.Append("\r\n");
 			Action<string> a = s => sb.Append(s);
-			Action<int> n = v => sb.Append(v.ToString(CultureInfo.InvariantCulture));
+			Action<long> n = v => sb.Append(v.ToString(CultureInfo.InvariantCulture));
 			Action<string> k = s => { sb.Append(s); sb.Append(": "); };
 
 			a(_verb); a(" "); a(_url); a(" HTTP/1.1");
@@ -65,10 +72,25 @@ namespace ShiftIt.Http
 			{
 				k(header.Key); a(string.Join(",", header.Value)); crlf();
 			}
-			
+
+			if (DataLength >= 0)
+			{
+				k("Content-Length");n(DataLength);crlf();
+			}
 			crlf();
 
 			return sb.ToString();
 		}
+		
+
+		void StdVerb(string verb, Uri target)
+		{
+			_target = target;
+			_verb = verb;	
+			_url = target.ToString();
+			_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+		}
+		public long DataLength { get; private set; }
+		public TextReader DataStream { get; private set; }
 	}
 }
