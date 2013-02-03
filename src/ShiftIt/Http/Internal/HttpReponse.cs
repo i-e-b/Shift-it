@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 
-namespace ShiftIt.Http
+namespace ShiftIt.Http.Internal
 {
 	public class HttpReponse : IHttpResponse
 	{

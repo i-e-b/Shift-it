@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
 namespace ShiftIt.Socket
 {
-	internal class SocketStream : Stream
+	public class SocketStream : Stream, IStreamSource, IConnectable
 	{
 		public SocketStream()
 		{
@@ -32,6 +33,20 @@ namespace ShiftIt.Socket
 		~SocketStream()
 		{
 			Dispose();
+		}
+
+		public void Connect(Uri connectionTarget, TimeSpan connectionTimeout)
+		{
+			_socket = new System.Net.Sockets.Socket(
+				AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+				{Blocking = true};
+			_socket.SendTimeout = _socket.ReceiveTimeout = (int)connectionTimeout.TotalMilliseconds;
+			_socket.Connect(connectionTarget.Host, connectionTarget.Port);
+		}
+
+		public Stream AsStream()
+		{
+			return this;
 		}
 
 		protected override void Dispose(bool disposing)

@@ -4,15 +4,15 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace ShiftIt.Http
+namespace ShiftIt.Http.Internal
 {
-	public class HttpRequestBuilder : IHttpRequestBuilder
+	public class HttpRequestBuilder : IHttpRequestBuilder, IHttpRequest
 	{
 		string _verb;
 		string _url;
 		string _accept;
-		Uri _target;
 		readonly Dictionary<string, List<string>> _headers;
+		public Uri Target { get; private set; }
 
 		public HttpRequestBuilder()
 		{
@@ -26,11 +26,35 @@ namespace ShiftIt.Http
 			return this;
 		}
 
-		public IHttpRequestBuilder Post(Uri target, string data)
+		public IHttpRequestBuilder Post(Uri target)
 		{
 			StdVerb("POST", target);
-			DataStream = new StringReader(data);
-			DataLength = data.Length;
+			return this;
+		}
+
+		public IHttpRequestBuilder Put(Uri target)
+		{
+			StdVerb("PUT", target);
+			return this;
+		}
+
+		public IHttpRequestBuilder Data(Stream stream, int length)
+		{
+			DataStream = stream;
+			DataLength = length;
+			return this;
+		}
+
+		public IHttpRequestBuilder StringData(string data)
+		{
+			var bytes = Encoding.UTF8.GetBytes(data);
+			DataStream = new MemoryStream(bytes);
+			DataLength = bytes.Length;
+			return this;
+		}
+
+		public IHttpRequest Build()
+		{
 			return this;
 		}
 
@@ -55,6 +79,7 @@ namespace ShiftIt.Http
 			return this;
 		}
 
+
 		public string RequestHead()
 		{
 			var sb = new StringBuilder();
@@ -65,8 +90,9 @@ namespace ShiftIt.Http
 
 			a(_verb); a(" "); a(_url); a(" HTTP/1.1");
 			crlf();
-			k("Host"); a(_target.Host); a(":");n(_target.Port);crlf();
+			k("Host"); a(Target.Host); a(":");n(Target.Port);crlf();
 			k("Accept"); a(_accept); crlf();
+			k("Accept-Encoding"); a("gzip, deflate"); crlf();
 
 			foreach (var header in _headers)
 			{
@@ -85,12 +111,12 @@ namespace ShiftIt.Http
 
 		void StdVerb(string verb, Uri target)
 		{
-			_target = target;
+			Target = target;
 			_verb = verb;	
 			_url = target.ToString();
 			_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 		}
 		public long DataLength { get; private set; }
-		public TextReader DataStream { get; private set; }
+		public Stream DataStream { get; private set; }
 	}
 }

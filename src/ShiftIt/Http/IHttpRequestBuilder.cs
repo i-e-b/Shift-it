@@ -8,9 +8,12 @@ namespace ShiftIt.Http
 		IHttpRequestBuilder Get(Uri target);
 		IHttpRequestBuilder SetHeader(string name, string value);
 		IHttpRequestBuilder AddHeader(string name, string value);
-		IHttpRequestBuilder Post(Uri target, string data);
+		IHttpRequestBuilder Post(Uri target);
+		IHttpRequestBuilder Put(Uri target);
 
-		string RequestHead();
-		TextReader DataStream { get; }
+		IHttpRequestBuilder Data(Stream stream, int length);
+		IHttpRequestBuilder StringData(string data);
+
+		IHttpRequest Build();
 	}
 }

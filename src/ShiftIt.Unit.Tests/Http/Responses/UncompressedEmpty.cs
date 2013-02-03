@@ -1,12 +1,13 @@
 ﻿using System.IO;
 using NUnit.Framework;
 using ShiftIt.Http;
+using ShiftIt.Http.Internal;
 using ShiftIt.Unit.Tests.Helpers;
 
-namespace ShiftIt.Unit.Tests.Responses
+namespace ShiftIt.Unit.Tests.Http.Responses
 {
 	[TestFixture]
-	public class CompressedResponse
+	public class UncompressedEmpty
 	{
 		IHttpResponseParser _subject;
 		Stream _rawSample;
@@ -15,7 +16,7 @@ namespace ShiftIt.Unit.Tests.Responses
 		[SetUp]
 		public void setup()
 		{
-			_rawSample = HttpSample.GzippedResponse();
+			_rawSample = HttpSample.EmptyResponse();
 			_subject = new HttpResponseParser();
 			_result = _subject.Parse(_rawSample);
 		}
@@ -40,16 +41,15 @@ namespace ShiftIt.Unit.Tests.Responses
 		}
 
 		[Test]
-		public void http_headers_are_correct_with_duplicates_concatenated()
+		public void http_headers_are_correct()
 		{
-			Assert.That(_result.Headers["Date"], Is.EqualTo("Fri, 01 Feb 2013 10:43:17 GMT"));
-			Assert.That(_result.Headers["X-Cache"], Is.EqualTo("MISS from sq60.wikimedia.org,HIT from amssq36.esams.wikimedia.org,MISS from amssq41.esams.wikimedia.org"));
+			Assert.That(_result.Headers["Date"], Is.EqualTo("Sun, 03 Feb 2013 13:19:56 GMT"));
 		}
 
 		[Test]
 		public void can_read_body_correctly()
 		{
-			Assert.That(_result.BodyReader.ReadToEnd(), Is.StringStarting("<!DOCTYPE html>"));
+			Assert.That(_result.BodyReader, Is.Null);
 		}
 	}
 }

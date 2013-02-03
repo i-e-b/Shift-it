@@ -1,4 +1,4 @@
-namespace ShiftIt.Unit.Tests.RequestBuilding
+namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 {
 	public class Lorem
 	{

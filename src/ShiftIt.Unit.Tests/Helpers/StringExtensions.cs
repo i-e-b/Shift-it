@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ShiftIt.Unit.Tests
+namespace ShiftIt.Unit.Tests.Helpers
 {
 	public static class StringExtensions
 	{

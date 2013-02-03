@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace ShiftIt.Http
+namespace ShiftIt.Http.Internal
 {
 	public interface IHttpResponseParser
 	{
