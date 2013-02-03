@@ -34,8 +34,13 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Http\HttpReponse.cs" />
     <Compile Include="Http\HttpRequestBuilder.cs" />
+    <Compile Include="Http\HttpResponseParser.cs" />
     <Compile Include="Http\IHttpRequestBuilder.cs" />
+    <Compile Include="Http\IHttpResponse.cs" />
+    <Compile Include="Http\IHttpResponseParser.cs" />
+    <Compile Include="Http\StatusClass.cs" />
     <Compile Include="Socket\ISynchronousClient.cs" />
     <Compile Include="Socket\StatefulSocket.cs" />
     <Compile Include="Socket\SynchronousClient.cs" />
