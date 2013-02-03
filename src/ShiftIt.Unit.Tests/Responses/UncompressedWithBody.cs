@@ -9,7 +9,7 @@ namespace ShiftIt.Unit.Tests.Responses
 	public class UncompressedWithBody
 	{
 		IHttpResponseParser _subject;
-		TextReader _rawSample;
+		Stream _rawSample;
 		IHttpResponse _result;
 
 		[SetUp]

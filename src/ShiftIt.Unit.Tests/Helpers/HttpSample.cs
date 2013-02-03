@@ -4,24 +4,24 @@ namespace ShiftIt.Unit.Tests.Helpers
 {
 	public class HttpSample
 	{
-		public static TextReader SimpleResponse()
+		public static Stream SimpleResponse()
 		{
 			return Sample("uncompressed");
 		}
 
-		public static TextReader EmptyResponse()
+		public static Stream EmptyResponse()
 		{
 			return Sample("empty");
 		}
 
-		public static TextReader GzippedResponse()
+		public static Stream GzippedResponse()
 		{
 			return Sample("gzipped");
 		}
 
-		static TextReader Sample(string f)
+		static Stream Sample(string f)
 		{
-			return new StringReader(File.ReadAllText(".\\Helpers\\"+f+".txt"));
+			return File.OpenRead(".\\Helpers\\"+f+".txt");
 		}
 	}
 }

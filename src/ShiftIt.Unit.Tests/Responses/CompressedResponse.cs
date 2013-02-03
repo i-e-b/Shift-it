@@ -6,7 +6,7 @@ using ShiftIt.Unit.Tests.Helpers;
 namespace ShiftIt.Unit.Tests.Responses
 {
 	[TestFixture]
-	public class UncompressedEmpty
+	public class CompressedResponse
 	{
 		IHttpResponseParser _subject;
 		Stream _rawSample;
@@ -15,7 +15,7 @@ namespace ShiftIt.Unit.Tests.Responses
 		[SetUp]
 		public void setup()
 		{
-			_rawSample = HttpSample.EmptyResponse();
+			_rawSample = HttpSample.GzippedResponse();
 			_subject = new HttpResponseParser();
 			_result = _subject.Parse(_rawSample);
 		}
@@ -40,15 +40,16 @@ namespace ShiftIt.Unit.Tests.Responses
 		}
 
 		[Test]
-		public void http_headers_are_correct()
+		public void http_headers_are_correct_with_duplicates_concatenated()
 		{
-			Assert.That(_result.Headers["Date"], Is.EqualTo("Sun, 03 Feb 2013 13:19:56 GMT"));
+			Assert.That(_result.Headers["Date"], Is.EqualTo("Mon, 21 Jan 2013 23:58:10 GMT"));
+			Assert.That(_result.Headers["X-Cache"], Is.EqualTo("HIT from sq61.wikimedia.org,HIT from amssq44.esams.wikimedia.org,MISS from amssq32.esams.wikimedia.org"));
 		}
 
 		[Test]
 		public void can_read_body_correctly()
 		{
-			Assert.That(_result.BodyReader, Is.Null);
+			Assert.That(_result.BodyReader.ReadToEnd(), Is.StringStarting("<html>"));
 		}
 	}
 }
