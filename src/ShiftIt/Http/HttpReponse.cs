@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Threading;
 
 namespace ShiftIt.Http
 {
 	public class HttpReponse : IHttpResponse
 	{
-		TextReader _textResponse;
+		Stream _rawResponse;
 		IDictionary<string, string> _headers;
 
 		/// <summary>
@@ -17,11 +18,11 @@ namespace ShiftIt.Http
 		/// </summary>
 		public HttpReponse(Stream rawResponse)
 		{
-			_textResponse = new StreamReader(rawResponse);
+			_rawResponse = rawResponse;
 			Headers = new Dictionary<string,string>();
-			ReadStatusLine(_textResponse.ReadLine());
+			ReadStatusLine(NextLine(rawResponse));
 
-			foreach (var headerLine in NonBlankLines(_textResponse)) AddHeader(headerLine);
+			foreach (var headerLine in NonBlankLines(rawResponse)) AddHeader(headerLine);
 			HeadersComplete = true;
 
 			BodyReader = RestOfStreamDecompressed(rawResponse);
@@ -29,12 +30,9 @@ namespace ShiftIt.Http
 
 		TextReader RestOfStreamDecompressed(Stream rawResponse)
 		{
-			if (_textResponse.Peek() < 0) return null; // no body
-			if (!Headers.ContainsKey("Content-Encoding")) return _textResponse; // plain body
-
-			// StreamReader does a greedy-read. We need to be a bt smarter!
-			rawResponse.Seek(692, SeekOrigin.Begin); // hack!
-			///if (rawResponse.Position != 692) throw new Exception("wrong!");
+			if (rawResponse.Position == rawResponse.Length) return null; // no body
+			rawResponse.ReadByte(); // eat one spare byte
+			if (!Headers.ContainsKey("Content-Encoding")) return new StreamReader(rawResponse); // plain body
 
 			switch (Headers["Content-Encoding"])
 			{
@@ -67,12 +65,34 @@ namespace ShiftIt.Http
 			}
 			Headers[parts[0]] += "," + parts[1];
 		}
+		
 
-		static IEnumerable<string> NonBlankLines(TextReader rawResponse)
+		static string NextLine(Stream stream)
+		{
+			var sb = new StringBuilder();
+			int b;
+			int s = 0;
+			while ((b = stream.ReadByte()) >= 0)
+			{
+				if (b == '\r' || b == '\n')
+				{
+					if (s == 2) break;
+					if (s == 1 && b != '\n') break;
+					s++;
+				}
+				else
+				{
+					s = 2;
+					sb.Append((char) b);
+				}
+			}
+			return sb.ToString();
+		}
+		static IEnumerable<string> NonBlankLines(Stream rawResponse)
 		{
 			while (true)
 			{
-				var line = rawResponse.ReadLine();
+				var line = NextLine(rawResponse);
 				if (string.IsNullOrWhiteSpace(line)) yield break;
 				yield return line;
 			}
@@ -84,7 +104,7 @@ namespace ShiftIt.Http
 			if (parts.Length > 1)
 			{
 				StatusCode = int.Parse(parts[1]);
-				StatusClass = (Http.StatusClass)(StatusCode-(StatusCode%100));
+				StatusClass = (StatusClass)(StatusCode-(StatusCode%100));
 			}
 			if (parts.Length > 2) StatusMessage = parts[2];
 		}
@@ -103,7 +123,7 @@ namespace ShiftIt.Http
 
 		public void Dispose()
 		{
-			var stream = Interlocked.Exchange(ref _textResponse, null);
+			var stream = Interlocked.Exchange(ref _rawResponse, null);
 			if (stream == null) return;
 			stream.Close();
 			stream.Dispose();
