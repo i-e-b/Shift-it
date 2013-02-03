@@ -32,13 +32,9 @@ namespace ShiftIt.Http
 			if (_textResponse.Peek() < 0) return null; // no body
 			if (!Headers.ContainsKey("Content-Encoding")) return _textResponse; // plain body
 
-			// debug:
-			var buf = new byte[20];
-			rawResponse.Read(buf, 0, 20);
-			foreach (var b in buf)
-			{
-				Console.Write(b.ToString("X")+" ");
-			}
+			// StreamReader does a greedy-read. We need to be a bt smarter!
+			rawResponse.Seek(692, SeekOrigin.Begin); // hack!
+			///if (rawResponse.Position != 692) throw new Exception("wrong!");
 
 			switch (Headers["Content-Encoding"])
 			{

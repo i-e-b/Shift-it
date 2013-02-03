@@ -42,14 +42,14 @@ namespace ShiftIt.Unit.Tests.Responses
 		[Test]
 		public void http_headers_are_correct_with_duplicates_concatenated()
 		{
-			Assert.That(_result.Headers["Date"], Is.EqualTo("Mon, 21 Jan 2013 23:58:10 GMT"));
-			Assert.That(_result.Headers["X-Cache"], Is.EqualTo("HIT from sq61.wikimedia.org,HIT from amssq44.esams.wikimedia.org,MISS from amssq32.esams.wikimedia.org"));
+			Assert.That(_result.Headers["Date"], Is.EqualTo("Fri, 01 Feb 2013 10:43:17 GMT"));
+			Assert.That(_result.Headers["X-Cache"], Is.EqualTo("MISS from sq60.wikimedia.org,HIT from amssq36.esams.wikimedia.org,MISS from amssq41.esams.wikimedia.org"));
 		}
 
 		[Test]
 		public void can_read_body_correctly()
 		{
-			Assert.That(_result.BodyReader.ReadToEnd(), Is.StringStarting("<html>"));
+			Assert.That(_result.BodyReader.ReadToEnd(), Is.StringStarting("<!DOCTYPE html>"));
 		}
 	}
 }
