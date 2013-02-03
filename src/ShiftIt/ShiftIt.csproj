@@ -42,7 +42,7 @@
     <Compile Include="Http\IHttpResponseParser.cs" />
     <Compile Include="Http\StatusClass.cs" />
     <Compile Include="Socket\ISynchronousClient.cs" />
-    <Compile Include="Socket\StatefulSocket.cs" />
+    <Compile Include="Socket\SocketStream.cs" />
     <Compile Include="Socket\SynchronousClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

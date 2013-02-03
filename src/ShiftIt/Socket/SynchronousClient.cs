@@ -74,16 +74,16 @@ Content-Length: 0
 			}
 		}
 
-		static StatefulSocket ConnectSocketState(string host, int port)
+		static SocketStream ConnectSocketState(string host, int port)
 		{
-			var state = new StatefulSocket(
+			var state = new SocketStream(
 				new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
 				{Blocking = true});
 			state.Socket.Connect(host, port);
 			return state;
 		}
 
-		static void SynchronousSendAndReceive(StatefulSocket state, string request)
+		static void SynchronousSendAndReceive(SocketStream state, string request)
 		{
 			var byteData = Encoding.UTF8.GetBytes(request);
 
