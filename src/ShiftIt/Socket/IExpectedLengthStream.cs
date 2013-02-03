@@ -1,6 +1,8 @@
-﻿namespace ShiftIt.Socket
+﻿using System;
+
+namespace ShiftIt.Socket
 {
-	public interface IExpectedLengthStream
+	public interface IExpectedLengthStream:IDisposable
 	{
 		long ExpectedLength { get; }
 		

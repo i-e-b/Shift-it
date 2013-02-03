@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace ShiftIt.Socket
 {
 	public class ExpectedLengthStream : IExpectedLengthStream
 	{
-		readonly Stream _source;
+		Stream _source;
 		readonly int _expectedLength;
 		int _readSoFar;
 		readonly object _lock;
@@ -74,6 +75,18 @@ namespace ShiftIt.Socket
 		public int Read(byte[] buffer, int offset, int count)
 		{
 			return _source.Read(buffer, offset, count);
+		}
+		
+		~ExpectedLengthStream()
+		{
+			Dispose();
+		}
+
+		public void Dispose()
+		{
+			var sock = Interlocked.Exchange(ref _source, null);
+			if (sock == null) return;
+			sock.Dispose();
 		}
 	}
 }

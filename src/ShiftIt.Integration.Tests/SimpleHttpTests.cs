@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.NetworkInformation;
 using NUnit.Framework;
 using ShiftIt.Http.Internal;
 
@@ -43,8 +44,9 @@ namespace ShiftIt.Integration.Tests
 		}
 
 		[Test]
-		public void connection_to_rabbit_mq_api () {
-		var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/overview")).BasicAuthentication("guest","guest").Build();
+		public void connection_to_rabbit_mq_api()
+		{
+			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/overview")).BasicAuthentication("guest", "guest").Build();
 			using (var result = _subject.Request(rq))
 			{
 				var body = result.BodyReader.ReadStringToLength();
@@ -52,6 +54,32 @@ namespace ShiftIt.Integration.Tests
 				Console.WriteLine(body);
 				Assert.That(body, Contains.Substring("{\"management_version"));
 			}
+		}
+
+		[Test, Explicit]
+		public void leak_test()
+		{
+			var start = Connections();
+			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/vhosts")).BasicAuthentication("guest", "guest").Build();
+			for (int i = 0; i < 512; i++)
+			{
+				using (var result = _subject.Request(rq))
+				{
+					Assert.That(start, Is.Not.EqualTo(Connections()));
+					Console.WriteLine(result.BodyReader.ReadStringToLength());
+				}
+			}
+			var end = Connections();
+
+			Console.WriteLine("Before: " + start + ", after: " + end);
+			Assert.That(start, Is.EqualTo(end));
+		}
+
+		static long Connections()
+		{
+			return IPGlobalProperties.GetIPGlobalProperties()
+			                         .GetTcpIPv4Statistics()
+			                         .CurrentConnections;
 		}
     }
 }

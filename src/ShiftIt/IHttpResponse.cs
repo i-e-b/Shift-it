@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using ShiftIt.Socket;
 
-namespace ShiftIt.Http
+namespace ShiftIt
 {
 	public interface IHttpResponse: IDisposable
 	{

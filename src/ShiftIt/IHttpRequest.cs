@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace ShiftIt.Http
+namespace ShiftIt
 {
 	public interface IHttpRequest
 	{

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using ShiftIt.Http;
 
-namespace ShiftIt.Http.Internal
+namespace ShiftIt
 {
 	public class HttpRequestBuilder : IHttpRequestBuilder, IHttpRequest
 	{
