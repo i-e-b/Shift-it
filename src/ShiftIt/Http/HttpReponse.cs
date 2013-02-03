@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -23,6 +22,7 @@ namespace ShiftIt.Http
 			foreach (var headerLine in NonBlankLines(rawResponse)) AddHeader(headerLine);
 			HeadersComplete = true;
 
+			if (rawResponse.Peek() >= 0) BodyReader = rawResponse;
 		}
 
 		void AddHeader(string headerLine)
@@ -57,6 +57,7 @@ namespace ShiftIt.Http
 		public StatusClass StatusClass { get; private set; }
 		public string StatusMessage { get; private set; }
 		public IDictionary<string, string> Headers { get; private set; }
+		public TextReader BodyReader { get; private set; }
 
 		public void Dispose()
 		{
@@ -64,6 +65,10 @@ namespace ShiftIt.Http
 			if (stream == null) return;
 			stream.Close();
 			stream.Dispose();
+		}
+		~HttpReponse()
+		{
+			Dispose();
 		}
 	}
 }

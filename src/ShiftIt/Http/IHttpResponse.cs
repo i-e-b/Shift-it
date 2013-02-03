@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ShiftIt.Http
 {
@@ -9,5 +10,6 @@ namespace ShiftIt.Http
 		int StatusCode { get; }
 		Http.StatusClass StatusClass { get; }
 		IDictionary<string, string> Headers { get; }
+		TextReader BodyReader { get; }
 	}
 }

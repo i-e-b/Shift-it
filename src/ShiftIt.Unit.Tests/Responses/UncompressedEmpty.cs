@@ -5,7 +5,7 @@ using ShiftIt.Http;
 namespace ShiftIt.Unit.Tests.Responses
 {
 	[TestFixture]
-	public class ResponseParsing
+	public class UncompressedEmpty
 	{
 		IHttpResponseParser _subject;
 		TextReader _rawSample;
@@ -14,7 +14,7 @@ namespace ShiftIt.Unit.Tests.Responses
 		[SetUp]
 		public void setup()
 		{
-			_rawSample = HttpSample.SimpleResponse();
+			_rawSample = HttpSample.EmptyResponse();
 			_subject = new HttpResponseParser();
 			_result = _subject.Parse(_rawSample);
 		}
@@ -42,13 +42,12 @@ namespace ShiftIt.Unit.Tests.Responses
 		public void http_headers_are_correct()
 		{
 			Assert.That(_result.Headers["Date"], Is.EqualTo("Sun, 03 Feb 2013 13:19:56 GMT"));
-			Assert.That(_result.Headers["Server"], Is.EqualTo("Microsoft-IIS/6.0"));
-			Assert.That(_result.Headers["X-Powered-By"], Is.EqualTo("ASP.NET"));
-			Assert.That(_result.Headers["Pragma"], Is.EqualTo("no-cache"));
-			Assert.That(_result.Headers["Content-Length"], Is.EqualTo("96"));
-			Assert.That(_result.Headers["Content-Type"], Is.EqualTo("text/html"));
-			Assert.That(_result.Headers["Expires"], Is.EqualTo("Sun, 03 Feb 2013 13:18:56 GMT"));
-			Assert.That(_result.Headers["Cache-control"], Is.EqualTo("no-store"));
+		}
+
+		[Test]
+		public void can_read_body_correctly()
+		{
+			Assert.That(_result.BodyReader, Is.Null);
 		}
 	}
 }
