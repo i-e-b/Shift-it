@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
-using ShiftIt.Socket;
 
-namespace ShiftIt.Http
+namespace ShiftIt.Socket
 {
 	/// <summary>
 	/// SynchronousClient class

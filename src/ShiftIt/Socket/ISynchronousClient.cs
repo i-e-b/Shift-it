@@ -1,4 +1,4 @@
-﻿namespace ShiftIt
+﻿namespace ShiftIt.Socket
 {
 	public interface ISynchronousClient
 	{

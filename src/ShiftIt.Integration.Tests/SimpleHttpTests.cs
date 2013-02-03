@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using ShiftIt.Http;
+using ShiftIt.Socket;
 
 namespace ShiftIt.Integration.Tests
 {
