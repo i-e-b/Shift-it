@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
 using NUnit.Framework;
@@ -92,7 +93,28 @@ namespace ShiftIt.Integration.Tests
 			_client.Request(_deleteRq2).Dispose();
 		}
 
+		[Test, Explicit]
+		public void can_use_crossload_with_hash_feature ()
+		{
+			_client.Request(_putRq).Dispose(); // put a file in place
 
+			var load = new HttpRequestBuilder().Get(_uri_src).Build();
+			var store = new HttpRequestBuilder().Put(_uri_dst);
+
+			var hash = _client.CrossLoad(load, store, "MD5"); // copy from src to dest
+
+			Assert.That(string.Join("", hash.Select(h=>h.ToString("x"))),
+				Is.EqualTo("bc6e6f16b8a077ef5fbc8d59d0b931b9"));
+
+			var getRq = new HttpRequestBuilder().Get(_uri_dst).Build();
+			using (var result = _client.Request(getRq)) // check dest is correct
+			{
+				var body = result.BodyReader.ReadStringToLength();
+				Assert.That(body, Is.EqualTo("Hello, world"));
+			}
+			_client.Request(_deleteRq).Dispose();
+			_client.Request(_deleteRq2).Dispose();
+		}
 		
 		[Test, Explicit]
 		public void leak_test_over_cross_load()

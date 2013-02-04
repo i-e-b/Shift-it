@@ -19,6 +19,5 @@ Uses only .Net sockets, not WebClient or HttpWebRequest, so works around bugs in
 versions of Mono.
 
 Todo:
-* Get->Put direct streaming
 * Digest authentication
 * chunked upload & download

@@ -1,16 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography;
 using ShiftIt.Http.Internal;
 using ShiftIt.Internal.Socket;
+using ShiftIt.Internal.Streaming;
 
 namespace ShiftIt.Http
 {
-	public interface IHttpClient
-	{
-		IHttpResponse Request(IHttpRequest request);
-		void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest);
-	}
-
 	public class HttpClient : IHttpClient
 	{
 		readonly IConnectableStreamSource _conn;
@@ -53,6 +49,18 @@ namespace ShiftIt.Http
 			{
 				var storeRq = storeRequest.Data(getTx.RawBodyStream, getTx.BodyReader.ExpectedLength).Build();
 				Request(storeRq).Dispose(); // write out to dest
+			}
+		}
+
+		public byte[] CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, string hashAlgorithmName)
+		{
+			var hash = HashAlgorithm.Create(hashAlgorithmName);
+			using (var getTx = Request(loadRequest))
+			{
+				var hashStream = new HashingReadStream(getTx.RawBodyStream, hash);
+				var storeRq = storeRequest.Data(hashStream, getTx.BodyReader.ExpectedLength).Build();
+				Request(storeRq).Dispose();
+				return hashStream.GetHashValue();
 			}
 		}
 	}
