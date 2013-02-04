@@ -42,8 +42,8 @@ namespace ShiftIt.Internal.Socket
 		{
 			SocketError err;
 			int len = _socket.Receive(buffer, offset, count, SocketFlags.None, out err);
-			_socket.ReceiveTimeout = 500;
-			if (err != SocketError.Success)
+			_socket.ReceiveTimeout = 1000;
+			if (err != SocketError.Success && err != SocketError.WouldBlock)
 			{
 				if (err == SocketError.TimedOut)
 					throw new TimeoutException("Socket timed out during read");
