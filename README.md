@@ -13,8 +13,10 @@ Todo:
 
 HTTP
 ----
-An experimental HTTP / WebDAV file transfer tool, partly to work around 
-bugs in 2.x versions of Mono, partly just for kicks.
+A HTTP client that can accept a reasonable level of invalid protocol from servers.
+This is a blocking, synchronous library that does very little of the work for you.
+Uses only .Net sockets, not WebClient or HttpWebRequest, so works around bugs in some
+versions of Mono.
 
 Todo:
 * Get->Put direct streaming

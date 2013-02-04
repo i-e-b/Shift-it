@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 
-namespace ShiftIt
+namespace ShiftIt.Http
 {
 	public interface IHttpRequest
 	{
 		Uri Target { get; }
 		string RequestHead();
 		Stream DataStream { get; }
+		long DataLength { get; }
 	}
 }

@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Threading;
-using ShiftIt.Socket;
+using ShiftIt.Internal.Socket;
 
 namespace ShiftIt.Http.Internal
 {
@@ -26,7 +26,8 @@ namespace ShiftIt.Http.Internal
 			foreach (var headerLine in NonBlankLines(rawResponse)) AddHeader(headerLine);
 			HeadersComplete = true;
 
-			BodyReader = new ExpectedLengthStream(RestOfStreamDecompressed(rawResponse), ReportedBodyLength());
+			RawBodyStream = RestOfStreamDecompressed(rawResponse);
+			BodyReader = new ExpectedLengthStream(RawBodyStream, ReportedBodyLength());
 		}
 
 		int ReportedBodyLength()
@@ -47,12 +48,12 @@ namespace ShiftIt.Http.Internal
 			}
 		}
 
-		Stream DeflateUnwrap(Stream rawResponse)
+		static Stream DeflateUnwrap(Stream rawResponse)
 		{
 			return new DeflateStream(rawResponse, CompressionMode.Decompress, true);
 		}
 
-		Stream GzipUnwrap(Stream rawResponse)
+		static Stream GzipUnwrap(Stream rawResponse)
 		{
 			return new GZipStream(rawResponse, CompressionMode.Decompress, true);
 		}
@@ -129,6 +130,7 @@ namespace ShiftIt.Http.Internal
 		}
 
 		public IExpectedLengthStream BodyReader { get; private set; }
+		public Stream RawBodyStream { get; private set; }
 
 		public void Dispose()
 		{

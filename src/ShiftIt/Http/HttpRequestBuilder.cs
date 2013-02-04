@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using ShiftIt.Http;
 
-namespace ShiftIt
+namespace ShiftIt.Http
 {
 	public class HttpRequestBuilder : IHttpRequestBuilder, IHttpRequest
 	{
@@ -39,7 +38,13 @@ namespace ShiftIt
 			return this;
 		}
 
-		public IHttpRequestBuilder Data(Stream stream, int length)
+		public IHttpRequestBuilder Delete(Uri target)
+		{
+			StdVerb("DELETE", target);
+			return this;
+		}
+
+		public IHttpRequestBuilder Data(Stream stream, long length)
 		{
 			DataStream = stream;
 			DataLength = length;
@@ -126,5 +131,6 @@ namespace ShiftIt
 		}
 		public long DataLength { get; private set; }
 		public Stream DataStream { get; private set; }
+
 	}
 }

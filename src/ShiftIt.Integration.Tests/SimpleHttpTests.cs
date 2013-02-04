@@ -2,6 +2,7 @@
 using System.Net.NetworkInformation;
 using System.Threading;
 using NUnit.Framework;
+using ShiftIt.Http;
 
 namespace ShiftIt.Integration.Tests
 {

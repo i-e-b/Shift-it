@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net.Sockets;
 
-namespace ShiftIt.Socket
+namespace ShiftIt.Internal.Socket
 {
 	public class SocketStreamFactory : IConnectableStreamSource
 	{

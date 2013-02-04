@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ShiftIt.Socket
+namespace ShiftIt.Internal.Socket
 {
 	public interface IExpectedLengthStream:IDisposable
 	{

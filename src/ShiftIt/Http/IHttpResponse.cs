@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using ShiftIt.Socket;
+using System.IO;
+using ShiftIt.Internal.Socket;
 
-namespace ShiftIt
+namespace ShiftIt.Http
 {
 	public interface IHttpResponse: IDisposable
 	{
@@ -10,6 +11,8 @@ namespace ShiftIt
 		int StatusCode { get; }
 		Http.StatusClass StatusClass { get; }
 		IDictionary<string, string> Headers { get; }
+
 		IExpectedLengthStream BodyReader { get; }
+		Stream RawBodyStream { get; }
 	}
 }

@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace ShiftIt.Socket
+namespace ShiftIt.Internal.Socket
 {
 	public class ExpectedLengthStream : IExpectedLengthStream
 	{
@@ -11,6 +11,7 @@ namespace ShiftIt.Socket
 		readonly int _expectedLength;
 		int _readSoFar;
 		readonly object _lock;
+		const int BufferSize = 4096;
 
 		public ExpectedLengthStream(Stream source, int expectedLength)
 		{
@@ -27,13 +28,13 @@ namespace ShiftIt.Socket
 		public string ReadStringToLength()
 		{
 			var sb = new StringBuilder(_expectedLength);
-			var buf = new byte[1024];
+			var buf = new byte[BufferSize];
 			lock (_lock)
 			{
 				int remaining;
 				while ((remaining = _expectedLength - _readSoFar) > 0)
 				{
-					var len = remaining > 1024 ? 1024 : remaining;
+					var len = remaining > BufferSize ? BufferSize : remaining;
 					var got = _source.Read(buf, 0, len);
 					_readSoFar += got;
 					sb.Append(Encoding.UTF8.GetString(buf,0,got));
@@ -50,17 +51,9 @@ namespace ShiftIt.Socket
 		public byte[] ReadBytesToLength()
 		{
 			var ms = new MemoryStream(_expectedLength);
-			var buf = new byte[1024];
 			lock (_lock)
 			{
-				int remaining;
-				while ((remaining = _expectedLength - _readSoFar) > 0)
-				{
-					var len = remaining > 1024 ? 1024 : remaining;
-					var got = _source.Read(buf, 0, len);
-					_readSoFar += got;
-					ms.Write(buf, 0, got);
-				}
+				CopyBytesToLength(_source, ms, _expectedLength);
 			}
 			return ms.ToArray();
 		}
@@ -68,7 +61,7 @@ namespace ShiftIt.Socket
 		public byte[] ReadBytesToTimeout()
 		{
 			var ms = new MemoryStream(_expectedLength);
-			_source.CopyTo(ms);
+			CopyBytesToTimeout(_source, ms);
 			return ms.ToArray();
 		}
 
@@ -87,6 +80,25 @@ namespace ShiftIt.Socket
 			var sock = Interlocked.Exchange(ref _source, null);
 			if (sock == null) return;
 			sock.Dispose();
+		}
+
+		public static void CopyBytesToLength(Stream source, Stream dest, long length)
+		{
+			long read = 0;
+			var buf = new byte[BufferSize];
+			long remaining;
+			while ((remaining = length - read) > 0)
+			{
+				int len = remaining > BufferSize ? BufferSize : (int)remaining;
+				var got = source.Read(buf, 0, len);
+				read += got;
+				dest.Write(buf, 0, got);
+			}
+		}
+		public static void CopyBytesToTimeout(Stream source, Stream dest)
+		{
+			try { source.CopyTo(dest); }
+			catch (TimeoutException) { }
 		}
 	}
 }

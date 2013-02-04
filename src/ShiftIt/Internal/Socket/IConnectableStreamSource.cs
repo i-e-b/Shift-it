@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace ShiftIt.Socket
+namespace ShiftIt.Internal.Socket
 {
 	public interface IConnectableStreamSource
 	{

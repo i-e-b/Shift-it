@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace ShiftIt.Socket
+namespace ShiftIt.Internal.Socket
 {
 	public class SocketStream : Stream
 	{
@@ -45,7 +45,9 @@ namespace ShiftIt.Socket
 			_socket.ReceiveTimeout = 500;
 			if (err != SocketError.Success)
 			{
-				throw new IOException("Socket error during transfer: "+err);
+				if (err == SocketError.TimedOut)
+					throw new TimeoutException("Socket timed out during read");
+				throw new IOException("Socket error during read: "+err);
 			}
 			return len;
 		}
@@ -56,7 +58,9 @@ namespace ShiftIt.Socket
 			_socket.Send(buffer, offset, count, SocketFlags.None, out err);
 			if (err != SocketError.Success)
 			{
-				throw new IOException("Socket error during transfer" + err);
+				if (err == SocketError.TimedOut)
+					throw new TimeoutException("Socket timed out during send");
+				throw new IOException("Socket error during send: "+err);
 			}
 		}
 		
