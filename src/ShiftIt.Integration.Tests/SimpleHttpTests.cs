@@ -74,7 +74,7 @@ namespace ShiftIt.Integration.Tests
 			var end = Connections();
 
 			Console.WriteLine("Before: " + start + ", after: " + end);
-			Assert.That(start, Is.GreaterThanOrEqualTo(end));
+			Assert.That(end, Is.LessThanOrEqualTo(start));
 		}
 		
 		[Test, Explicit]
@@ -95,7 +95,28 @@ namespace ShiftIt.Integration.Tests
 			var end = Connections();
 
 			Console.WriteLine("Before: " + start + ", after: " + end);
-			Assert.That(start, Is.GreaterThanOrEqualTo(end));
+			Assert.That(end, Is.LessThanOrEqualTo(start));
+		}
+
+		[Test, Explicit, Description("Don't dispose, to prove that the test is valid")]
+		public void leak_test_anti_test()
+		{
+			var start = Connections();
+			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:55672/api/vhosts")).BasicAuthentication("guest", "guest").Build();
+			for (int i = 0; i < 110; i++)
+			{
+				var result = _subject.Request(rq);
+				/*using (*/var stream = result.BodyReader;/*)*/
+				{
+					Assert.That(start, Is.Not.EqualTo(Connections()));
+					Console.WriteLine(stream.ReadStringToLength());
+				}
+			}
+			Thread.Sleep(500);
+			var end = Connections();
+
+			Console.WriteLine("Before: " + start + ", after: " + end);
+			Assert.That(end, Is.LessThanOrEqualTo(start));
 		}
 
 		static long Connections()

@@ -98,21 +98,23 @@ namespace ShiftIt.Integration.Tests
 		public void leak_test_over_cross_load()
 		{
 			var start = Connections();
-
+			
+			_client.Request(_putRq).Dispose(); // put a file in place
 			var load = new HttpRequestBuilder().Get(_uri_src).Build();
 			var store = new HttpRequestBuilder().Put(_uri_dst);
-			for (int i = 0; i < 1; i++)
+
+			for (int i = 0; i < 51; i++) // WebDAV is very slow... don't do too many!
 			{
 				_client.CrossLoad(load, store); // copy from src to dest
 			}
 			_client.Request(_deleteRq).Dispose();
 			_client.Request(_deleteRq2).Dispose();
 
-			Thread.Sleep(500);
+			Thread.Sleep(1000);
 			var end = Connections();
 
 			Console.WriteLine("Before: " + start + ", after: " + end);
-			Assert.That(start, Is.GreaterThanOrEqualTo(end));
+			Assert.That(end, Is.LessThanOrEqualTo(start));
 		}
 		static long Connections()
 		{
