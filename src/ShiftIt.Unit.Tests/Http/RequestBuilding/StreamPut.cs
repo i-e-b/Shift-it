@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using ShiftIt.Http;
-using ShiftIt.Http.Internal;
 using ShiftIt.Unit.Tests.Helpers;
 
 namespace ShiftIt.Unit.Tests.Http.RequestBuilding
@@ -62,7 +61,7 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		public void default_headers_are_written_correctly()
 		{
 			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("Host: www.example.com:80"));
-			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
+			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("Accept: */*"));
 		}
 	}
 }

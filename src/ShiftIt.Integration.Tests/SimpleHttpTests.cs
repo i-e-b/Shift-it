@@ -44,6 +44,20 @@ namespace ShiftIt.Integration.Tests
 			}
 		}
 
+        [Test]
+        public void head_from_wikipedia ()
+        {
+			var rq = new HttpRequestBuilder().Head(new Uri("http://en.wikipedia.org/wiki/Ternary_search_tree")).Build();
+			using (var result = _subject.Request(rq))
+			{
+				var body = result.BodyReader.ReadStringToLength();
+
+				Console.WriteLine(body);
+                Assert.That(result.StatusCode == 200);
+				Assert.That(body, Is.Empty);
+			}
+        }
+
 		[Test]
 		public void connection_to_rabbit_mq_api()
 		{

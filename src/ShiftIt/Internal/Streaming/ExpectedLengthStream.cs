@@ -36,6 +36,7 @@ namespace ShiftIt.Internal.Socket
 				{
 					var len = remaining > BufferSize ? BufferSize : remaining;
 					var got = _source.Read(buf, 0, len);
+                    if (got < 1) break; // Ran out of data before expected length
 					_readSoFar += got;
 					sb.Append(Encoding.UTF8.GetString(buf,0,got));
 				}

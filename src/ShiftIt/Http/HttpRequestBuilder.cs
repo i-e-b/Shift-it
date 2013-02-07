@@ -25,6 +25,11 @@ namespace ShiftIt.Http
 			StdVerb("GET", target);
 			return this;
 		}
+		public IHttpRequestBuilder Head(Uri target)
+		{
+			StdVerb("HEAD", target);
+			return this;
+		}
 
 		public IHttpRequestBuilder Post(Uri target)
 		{
@@ -41,6 +46,12 @@ namespace ShiftIt.Http
 		public IHttpRequestBuilder Delete(Uri target)
 		{
 			StdVerb("DELETE", target);
+			return this;
+		}
+
+		public IHttpRequestBuilder Accept(string mimeTypes)
+		{
+            _accept = mimeTypes;
 			return this;
 		}
 
@@ -127,7 +138,8 @@ namespace ShiftIt.Http
 			Target = target;
 			_verb = verb;	
 			_url = target.ToString();
-			_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+			//_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+            _accept = "*/*";
 		}
 		public long DataLength { get; private set; }
 		public Stream DataStream { get; private set; }
