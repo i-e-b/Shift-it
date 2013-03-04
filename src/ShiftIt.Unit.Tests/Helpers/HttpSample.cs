@@ -23,5 +23,10 @@ namespace ShiftIt.Unit.Tests.Helpers
 		{
 			return File.OpenRead(".\\Helpers\\"+f+".txt");
 		}
+
+		public static Stream WithDuplicatedHeaders()
+		{
+			return Sample("duplicated_headers");
+		}
 	}
 }

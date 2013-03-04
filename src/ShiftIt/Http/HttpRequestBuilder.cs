@@ -137,7 +137,7 @@ namespace ShiftIt.Http
 		{
 			Target = target;
 			_verb = verb;	
-			_url = target.ToString();
+			_url = target.AbsolutePath;
 			//_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
             _accept = "*/*";
 		}
