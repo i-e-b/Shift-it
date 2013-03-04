@@ -32,7 +32,15 @@ namespace ShiftIt.Http.Internal
 
 		int ReportedBodyLength()
 		{
-			return Headers.ContainsKey("Content-Length") ? int.Parse(Headers["Content-Length"]):0;
+			return Headers.ContainsKey("Content-Length") ? int.Parse(GetContentLength()):0;
+		}
+
+		private string GetContentLength()
+		{
+			string[] contentLengthValues = Headers["Content-Length"].Split(',');
+			if (contentLengthValues.Length > 1)
+				return contentLengthValues[contentLengthValues.Length - 1];
+			return contentLengthValues[0];
 		}
 
 		Stream RestOfStreamDecompressed(Stream rawResponse)
