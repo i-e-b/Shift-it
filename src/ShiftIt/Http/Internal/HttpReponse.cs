@@ -12,6 +12,7 @@ namespace ShiftIt.Http.Internal
 	{
 		Stream _rawResponse;
 		IDictionary<string, string> _headers;
+		readonly HashSet<string> _singleItemHeaders = new HashSet<string> { "Content-Length" };
 
 		/// <summary>
 		/// Reads synchronously until headers are complete, then 
@@ -20,7 +21,7 @@ namespace ShiftIt.Http.Internal
 		public HttpReponse(Stream rawResponse)
 		{
 			_rawResponse = rawResponse;
-			Headers = new Dictionary<string,string>();
+			Headers = new Dictionary<string, string>();
 			ReadStatusLine(NextLine(rawResponse));
 
 			foreach (var headerLine in NonBlankLines(rawResponse)) AddHeader(headerLine);
@@ -32,15 +33,12 @@ namespace ShiftIt.Http.Internal
 
 		int ReportedBodyLength()
 		{
-			return Headers.ContainsKey("Content-Length") ? int.Parse(GetContentLength()):0;
+			return Headers.ContainsKey("Content-Length") ? GetContentLength() : 0;
 		}
 
-		private string GetContentLength()
+		private int GetContentLength()
 		{
-			string[] contentLengthValues = Headers["Content-Length"].Split(',');
-			if (contentLengthValues.Length > 1)
-				return contentLengthValues[contentLengthValues.Length - 1];
-			return contentLengthValues[0];
+			return int.Parse(Headers["Content-Length"]);
 		}
 
 		Stream RestOfStreamDecompressed(Stream rawResponse)
@@ -52,7 +50,7 @@ namespace ShiftIt.Http.Internal
 			{
 				case "gzip": return GzipUnwrap(rawResponse);
 				case "deflate": return DeflateUnwrap(rawResponse);
-				default: throw new Exception("Unknown compression scheme: "+Headers["Content-Encoding"]);
+				default: throw new Exception("Unknown compression scheme: " + Headers["Content-Encoding"]);
 			}
 		}
 
@@ -68,22 +66,26 @@ namespace ShiftIt.Http.Internal
 
 		void AddHeader(string headerLine)
 		{
-			var parts = headerLine.Split(new[]{": "}, StringSplitOptions.None);
+			var parts = headerLine.Split(new[] { ": " }, StringSplitOptions.None);
+			if (parts.Length < 2)
+			{
+				Console.WriteLine("Bad header -- " + headerLine);
+			}
+			var name = parts[0];
+			var value = parts[1];
+
 			lock (_headers)
 			{
-				if (!_headers.ContainsKey(parts[0]))
+				if (!_headers.ContainsKey(name))
 				{
-					if (parts.Length < 2)
-					{
-						Console.WriteLine("Bad header -- " + headerLine);
-					} else
-					_headers.Add(parts[0], parts[1]);
+					_headers.Add(name, value);
 					return;
 				}
 			}
-			Headers[parts[0]] += "," + parts[1];
+			if (_singleItemHeaders.Contains(name)) Headers[name] = value;
+			else Headers[name] += "," + value;
 		}
-		
+
 
 		static string NextLine(Stream stream)
 		{
@@ -101,7 +103,7 @@ namespace ShiftIt.Http.Internal
 				else
 				{
 					s = 2;
-					sb.Append((char) b);
+					sb.Append((char)b);
 				}
 			}
 			return sb.ToString();
@@ -118,11 +120,11 @@ namespace ShiftIt.Http.Internal
 
 		void ReadStatusLine(string statusLine)
 		{
-			var parts = statusLine.Split(new[]{' '}, 3);
+			var parts = statusLine.Split(new[] { ' ' }, 3);
 			if (parts.Length > 1)
 			{
 				StatusCode = int.Parse(parts[1]);
-				StatusClass = (StatusClass)(StatusCode-(StatusCode%100));
+				StatusClass = (StatusClass)(StatusCode - (StatusCode % 100));
 			}
 			if (parts.Length > 2) StatusMessage = parts[2];
 		}

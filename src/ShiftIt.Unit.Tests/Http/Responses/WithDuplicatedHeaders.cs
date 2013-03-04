@@ -47,16 +47,16 @@ namespace ShiftIt.Unit.Tests.Http.Responses
 			Assert.That(_result.Headers["Server"], Is.EqualTo("Microsoft-IIS/6.0"));
 			Assert.That(_result.Headers["X-Powered-By"], Is.EqualTo("ASP.NET"));
 			Assert.That(_result.Headers["Pragma"], Is.EqualTo("no-cache"));
-			Assert.That(_result.Headers["Content-Length"], Is.EqualTo("96,96"));
+			Assert.That(_result.Headers["Content-Length"], Is.EqualTo("96"));
 			Assert.That(_result.Headers["Content-Type"], Is.EqualTo("text/html"));
 			Assert.That(_result.Headers["Expires"], Is.EqualTo("Sun, 03 Feb 2013 13:18:56 GMT"));
 			Assert.That(_result.Headers["Cache-control"], Is.EqualTo("no-store"));
 		}
 
 		[Test]
-		public void duplicated_http_headers_are_correct()
+		public void duplicated_http_headers_are_correct_use_most_recent_value()
 		{
-			Assert.That(_result.Headers["Content-Length"], Is.EqualTo("96,96"));
+			Assert.That(_result.Headers["Content-Length"], Is.EqualTo("96"));
 			
 		}
 

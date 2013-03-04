@@ -13,12 +13,14 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		IHttpRequestBuilder _subject;
 		Uri target;
 		string _data;
+		string _localTarget;
 
 		[SetUp]
 		public void setup()
 		{
 			_subject = new HttpRequestBuilder();
 			target = new Uri("http://www.example.com/my/path");
+			_localTarget = "/my/path";
 			_data = Lorem.Ipsum();
 
 			_subject.Post(target).StringData(_data).SetHeader("User-Agent", "Phil's face");
@@ -51,7 +53,7 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		[Test]
 		public void request_path_is_given()
 		{
-			Assert.That(_subject.Build().RequestHead().Lines().First(), Is.StringContaining(target.ToString()));
+			Assert.That(_subject.Build().RequestHead().Lines().First(), Is.StringContaining(_localTarget));
 		}
 
 		[Test]
