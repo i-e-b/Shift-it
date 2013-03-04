@@ -21,3 +21,4 @@ versions of Mono.
 Todo:
 * Digest authentication
 * chunked upload & download
+* Maybe: automatically close socket after read-to-end or read-to-timeout

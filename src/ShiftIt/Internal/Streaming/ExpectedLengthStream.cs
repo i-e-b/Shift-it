@@ -21,7 +21,8 @@ namespace ShiftIt.Internal.Socket
 			_expectedLength = expectedLength;
 		}
 
-		public long ExpectedLength {
+		public long ExpectedLength
+		{
 			get { return _expectedLength; }
 		}
 
@@ -36,9 +37,9 @@ namespace ShiftIt.Internal.Socket
 				{
 					var len = remaining > BufferSize ? BufferSize : remaining;
 					var got = _source.Read(buf, 0, len);
-                    if (got < 1) break; // Ran out of data before expected length
+					if (got < 1) break; // Ran out of data before expected length
 					_readSoFar += got;
-					sb.Append(Encoding.UTF8.GetString(buf,0,got));
+					sb.Append(Encoding.UTF8.GetString(buf, 0, got));
 				}
 			}
 			return sb.ToString();
@@ -70,7 +71,7 @@ namespace ShiftIt.Internal.Socket
 		{
 			return _source.Read(buffer, offset, count);
 		}
-		
+
 		~ExpectedLengthStream()
 		{
 			Dispose();
