@@ -28,5 +28,10 @@ namespace ShiftIt.Unit.Tests.Helpers
 		{
 			return Sample("duplicated_headers");
 		}
+
+		public static Stream FailedResponse()
+		{
+			return Sample("failed");
+		}
 	}
 }

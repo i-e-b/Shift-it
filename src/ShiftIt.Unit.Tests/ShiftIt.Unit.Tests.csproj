@@ -52,6 +52,7 @@
     <Compile Include="Http\RequestBuilding\Lorem.cs" />
     <Compile Include="Http\RequestBuilding\SimplePost.cs" />
     <Compile Include="Http\RequestBuilding\SimpleGet.cs" />
+    <Compile Include="Http\Responses\FailedRequest.cs" />
     <Compile Include="Http\Responses\WithDuplicatedHeaders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\HttpSample.cs" />
@@ -67,6 +68,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Helpers\failed.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Helpers\duplicated_headers.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

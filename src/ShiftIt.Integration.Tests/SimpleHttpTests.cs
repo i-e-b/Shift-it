@@ -40,6 +40,7 @@ namespace ShiftIt.Integration.Tests
 				var body = result.BodyReader.ReadStringToLength();
 
 				Console.WriteLine(body);
+				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
 				Assert.That(body, Contains.Substring("<html"));
 			}
 		}

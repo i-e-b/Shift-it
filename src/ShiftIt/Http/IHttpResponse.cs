@@ -9,7 +9,8 @@ namespace ShiftIt.Http
 	{
 		bool HeadersComplete { get; }
 		int StatusCode { get; }
-		Http.StatusClass StatusClass { get; }
+		StatusClass StatusClass { get; }
+		string StatusMessage { get; }
 		IDictionary<string, string> Headers { get; }
 
 		IExpectedLengthStream BodyReader { get; }

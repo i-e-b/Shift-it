@@ -34,6 +34,12 @@ namespace ShiftIt.Unit.Tests.Http.Responses
 		}
 
 		[Test]
+		public void status_message_is_available()
+		{
+			Assert.That(_result.StatusMessage, Is.EqualTo("OK"));
+		}
+
+		[Test]
 		public void can_get_status_code_and_class()
 		{
 			Assert.That(_result.StatusCode, Is.EqualTo(200));
