@@ -12,6 +12,7 @@ namespace ShiftIt.Http
 		IHttpRequestBuilder Put(Uri target);
 
 		IHttpRequestBuilder Delete(Uri target);
+		IHttpRequestBuilder Verb(string verb, Uri target);
 
 		IHttpRequestBuilder SetHeader(string name, string value);
 		IHttpRequestBuilder AddHeader(string name, string value);

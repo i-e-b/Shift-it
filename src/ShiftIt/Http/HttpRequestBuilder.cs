@@ -49,6 +49,12 @@ namespace ShiftIt.Http
 			return this;
 		}
 
+		public IHttpRequestBuilder Verb(string verb, Uri target)
+		{
+			StdVerb(verb, target);
+			return this;
+		}
+
 		public IHttpRequestBuilder Accept(string mimeTypes)
 		{
             _accept = mimeTypes;

@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Http\RequestBuilding\BasicAuthentication.cs" />
+    <Compile Include="Http\RequestBuilding\CustomVerbs.cs" />
     <Compile Include="Http\RequestBuilding\StreamPut.cs" />
     <Compile Include="Http\RequestBuilding\Lorem.cs" />
     <Compile Include="Http\RequestBuilding\SimplePost.cs" />
