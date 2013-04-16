@@ -21,7 +21,7 @@ namespace ShiftIt.Unit.Tests.Helpers
 
 		static Stream Sample(string f)
 		{
-			return File.OpenRead(".\\Helpers\\"+f+".txt");
+			return File.OpenRead(Path.Combine(".", "Helpers", f+".txt"));
 		}
 
 		public static Stream WithDuplicatedHeaders()
