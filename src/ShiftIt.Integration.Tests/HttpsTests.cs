@@ -24,7 +24,7 @@ namespace ShiftIt.Integration.Tests
 				Assert.That(result.StatusClass, Is.EqualTo(StatusClass.Success), result.StatusMessage);
 				var body = result.BodyReader.ReadStringToTimeout(); // this server returns an invalid length!
 
-				Console.WriteLine("Expected " + result.BodyReader.ExpectedLength + " but got " + body.Length);
+				Console.WriteLine("Expected " + result.BodyReader.ExpectedLength + ", got " + body.Length);
 				Console.WriteLine(body);
 				Assert.That(body, Contains.Substring("<html"));
 			}

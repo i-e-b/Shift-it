@@ -20,9 +20,7 @@ namespace ShiftIt.Internal.Socket
 
 		public Stream ConnectSSL(Uri connectionTarget, TimeSpan connectionTimeout)
 		{
-			var stream = new SslStream(
-				ConnectUnsecured(connectionTarget, connectionTimeout)
-				);
+			var stream = new SslStream(ConnectUnsecured(connectionTarget, connectionTimeout));
 			stream.AuthenticateAsClient(connectionTarget.Host);
 			return stream;
 		}

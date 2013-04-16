@@ -17,17 +17,19 @@ namespace ShiftIt.Integration.Tests
 			_subject = new HttpClient();
 		}
 
-		[Test, Description("This server reports it's length incorrectly, so we read until closing")]
+		[Test, Description("This server returns a compressed response, so checks our length logic")]
 		public void read_from_iana ()
 		{
 			var rq = new HttpRequestBuilder().Get(new Uri("http://www.iana.org/domains/example")).Build();
 			using (var result = _subject.Request(rq))
 			{
-				var body = result.BodyReader.ReadStringToTimeout(); // this server returns an invalid length!
+				var body = result.BodyReader.ReadStringToLength(); // this server returns an invalid length!
 
-				Console.WriteLine("Expected " + result.BodyReader.ExpectedLength + " but got " + body.Length);
+				Console.WriteLine("Expected " + result.BodyReader.ExpectedLength + ", got " + body.Length);
 				Console.WriteLine(body);
 				Assert.That(body, Contains.Substring("<html"));
+				Assert.That(body, Contains.Substring("</html>"), "didn't read to end");
+				Assert.That(result.BodyReader.ExpectedLength, Is.EqualTo(body.Length), "length was not correct");
 			}
 		}
 
@@ -38,8 +40,6 @@ namespace ShiftIt.Integration.Tests
 			using (var result = _subject.Request(rq))
 			{
 				var body = result.BodyReader.ReadStringToLength();
-
-				Console.WriteLine(body);
 
 				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
 				Assert.That(body, Contains.Substring("<html"));

@@ -5,7 +5,7 @@ namespace ShiftIt.Internal.Socket
 	public interface IExpectedLengthStream:IDisposable
 	{
 		long ExpectedLength { get; }
-		
+
 		string ReadStringToLength();
 		string ReadStringToTimeout();
 

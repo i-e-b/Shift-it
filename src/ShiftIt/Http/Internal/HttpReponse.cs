@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using ShiftIt.Internal.Socket;
@@ -44,6 +45,7 @@ namespace ShiftIt.Http.Internal
 		Stream RestOfStreamDecompressed(Stream rawResponse)
 		{
 			rawResponse.ReadByte(); // eat one spare byte
+			if (rawResponse is SocketStream) ((SocketStream)rawResponse).ResetCounts();
 			if (!Headers.ContainsKey("Content-Encoding")) return rawResponse; // plain body
 
 			switch (Headers["Content-Encoding"])
