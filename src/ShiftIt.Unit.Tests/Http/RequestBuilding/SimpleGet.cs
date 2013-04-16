@@ -2,7 +2,6 @@
 using System.Linq;
 using NUnit.Framework;
 using ShiftIt.Http;
-using ShiftIt.Http.Internal;
 using ShiftIt.Unit.Tests.Helpers;
 
 namespace ShiftIt.Unit.Tests.Http.RequestBuilding

@@ -57,7 +57,7 @@ namespace ShiftIt.Http
 
 		public IHttpRequestBuilder Accept(string mimeTypes)
 		{
-            _accept = mimeTypes;
+			_accept = mimeTypes;
 			return this;
 		}
 
@@ -79,7 +79,7 @@ namespace ShiftIt.Http
 		public IHttpRequestBuilder BasicAuthentication(string userName, string password)
 		{
 			SetHeader("Authorization", "Basic " + Convert.ToBase64String(Encoding.ASCII.GetBytes(
-				userName+":"+password)));
+				userName + ":" + password)));
 			return this;
 		}
 
@@ -120,7 +120,7 @@ namespace ShiftIt.Http
 
 			a(_verb); a(" "); a(_url); a(" HTTP/1.1");
 			crlf();
-			k("Host"); a(Target.Host); a(":");n(Target.Port);crlf();
+			k("Host"); a(Target.Host); a(":"); n(Target.Port); crlf();
 			k("Accept"); a(_accept); crlf();
 			k("Accept-Encoding"); a("gzip, deflate"); crlf();
 
@@ -131,23 +131,30 @@ namespace ShiftIt.Http
 
 			if (DataLength >= 0)
 			{
-				k("Content-Length");n(DataLength);crlf();
+				k("Content-Length"); n(DataLength); crlf();
 			}
 			crlf();
 
 			return sb.ToString();
 		}
-		
+
 
 		void StdVerb(string verb, Uri target)
 		{
 			Target = target;
-			_verb = verb;	
+			_verb = verb;
 			_url = target.AbsolutePath;
-			//_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-            _accept = "*/*";
+			_accept = "*/*";
 		}
 		public long DataLength { get; private set; }
+		public bool Secure
+		{
+			get
+			{
+				if (Target == null) return false;
+				return Target.Scheme.ToLowerInvariant() == "https";
+			}
+		}
 		public Stream DataStream { get; private set; }
 
 	}

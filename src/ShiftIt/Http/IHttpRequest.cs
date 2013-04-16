@@ -9,5 +9,6 @@ namespace ShiftIt.Http
 		string RequestHead();
 		Stream DataStream { get; }
 		long DataLength { get; }
+		bool Secure { get; }
 	}
 }

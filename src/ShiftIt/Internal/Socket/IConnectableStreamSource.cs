@@ -5,6 +5,7 @@ namespace ShiftIt.Internal.Socket
 {
 	public interface IConnectableStreamSource
 	{
-		Stream Connect(Uri connectionTarget, TimeSpan connectionTimeout);
+		Stream ConnectUnsecured(Uri connectionTarget, TimeSpan connectionTimeout);
+		Stream ConnectSSL(Uri connectionTarget, TimeSpan connectionTimeout);
 	}
 }

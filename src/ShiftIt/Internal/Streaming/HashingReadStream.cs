@@ -8,7 +8,7 @@ namespace ShiftIt.Internal.Streaming
 	/// <summary>
 	/// Wraps a stream in a hash algorithm
 	/// </summary>
-	public class HashingReadStream : Stream	
+	public class HashingReadStream : Stream
 	{
 		Stream _source;
 		HashAlgorithm _hash;
@@ -24,8 +24,8 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public byte[] GetHashValue()
 		{
-            _hash.TransformFinalBlock(new byte[0], 0, 0);
-            return _hash.Hash;
+			_hash.TransformFinalBlock(new byte[0], 0, 0);
+			return _hash.Hash;
 		}
 
 		public override int Read(byte[] buffer, int offset, int count)
@@ -37,14 +37,14 @@ namespace ShiftIt.Internal.Streaming
 			}
 			return len;
 		}
-		
-        protected override void Dispose(bool disposing)
-        {
+
+		protected override void Dispose(bool disposing)
+		{
 			var lstream = Interlocked.Exchange(ref _source, null);
 			if (lstream != null) { lstream.Dispose(); }
 			var lhash = Interlocked.Exchange(ref _hash, null);
 			if (lhash != null) { lhash.Clear(); }
-        }
+		}
 
 		public override bool CanRead
 		{

@@ -44,8 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HttpsTests.cs" />
     <Compile Include="PutDeleteAndCrossloadTests.cs" />
-    <Compile Include="SimpleHttpTests.cs" />
+    <Compile Include="HttpTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

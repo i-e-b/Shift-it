@@ -7,7 +7,7 @@ using ShiftIt.Http;
 namespace ShiftIt.Integration.Tests
 {
 	[TestFixture]//, Explicit, Description("These connect to the internet")]
-    public class SimpleHttpTests
+    public class HttpTests
     {
 		IHttpClient _subject;
 
@@ -40,6 +40,7 @@ namespace ShiftIt.Integration.Tests
 				var body = result.BodyReader.ReadStringToLength();
 
 				Console.WriteLine(body);
+
 				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
 				Assert.That(body, Contains.Substring("<html"));
 			}

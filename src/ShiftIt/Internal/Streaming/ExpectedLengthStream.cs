@@ -9,14 +9,12 @@ namespace ShiftIt.Internal.Socket
 	{
 		Stream _source;
 		readonly int _expectedLength;
-		int _readSoFar;
 		readonly object _lock;
 		const int BufferSize = 4096;
 
 		public ExpectedLengthStream(Stream source, int expectedLength)
 		{
 			_lock = new Object();
-			_readSoFar = 0;
 			_source = source;
 			_expectedLength = expectedLength;
 		}
@@ -28,21 +26,7 @@ namespace ShiftIt.Internal.Socket
 
 		public string ReadStringToLength()
 		{
-			var sb = new StringBuilder(_expectedLength);
-			var buf = new byte[BufferSize];
-			lock (_lock)
-			{
-				int remaining;
-				while ((remaining = _expectedLength - _readSoFar) > 0)
-				{
-					var len = remaining > BufferSize ? BufferSize : remaining;
-					var got = _source.Read(buf, 0, len);
-					if (got < 1) break; // Ran out of data before expected length
-					_readSoFar += got;
-					sb.Append(Encoding.UTF8.GetString(buf, 0, got));
-				}
-			}
-			return sb.ToString();
+			return Encoding.UTF8.GetString(ReadBytesToLength());
 		}
 
 		public string ReadStringToTimeout()

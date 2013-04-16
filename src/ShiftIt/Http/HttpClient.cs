@@ -25,7 +25,10 @@ namespace ShiftIt.Http
 
 		public IHttpResponse Request(IHttpRequest request)
 		{
-			var socket = _conn.Connect(request.Target, Timeout);
+			var socket = (request.Secure) 
+				? _conn.ConnectSSL(request.Target, Timeout)
+				: _conn.ConnectUnsecured(request.Target, Timeout);
+
 			var Tx = new StreamWriter(socket);
 			Tx.Write(request.RequestHead());
 			Tx.Flush();
@@ -42,7 +45,6 @@ namespace ShiftIt.Http
 
 			return _parser.Parse(socket);
 		}
-
 		public void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest)
 		{
 			using (var getTx = Request(loadRequest)) // get source
