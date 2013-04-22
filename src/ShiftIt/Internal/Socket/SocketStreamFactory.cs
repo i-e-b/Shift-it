@@ -7,13 +7,8 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace ShiftIt.Internal.Socket
 {
-	public class SocketStreamFactory : IConnectableStreamSource, ICertificatePolicy 
+	public class SocketStreamFactory : IConnectableStreamSource
 	{
-		public bool CheckValidationResult (ServicePoint sp, 
-		X509Certificate certificate, WebRequest request, int error)
-	{
-		return true;
-	}
 		
 		public Stream ConnectUnsecured(Uri connectionTarget, TimeSpan connectionTimeout)
 		{
@@ -26,10 +21,16 @@ namespace ShiftIt.Internal.Socket
 			return s;
 		}
 
+		public bool RemoteCertificateValidationCallback (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
+			return true;
+		}
+
+
 		public Stream ConnectSSL(Uri connectionTarget, TimeSpan connectionTimeout)
 		{
-		ServicePointManager.CertificatePolicy = this;
-			var stream = new SslStream(ConnectUnsecured(connectionTarget, connectionTimeout));
+			var stream = new SslStream(ConnectUnsecured(connectionTarget, connectionTimeout),
+			                           false,
+			                           RemoteCertificateValidationCallback);
 			stream.AuthenticateAsClient(connectionTarget.Host);
 			return stream;
 		}
