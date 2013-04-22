@@ -1,4 +1,4 @@
-namespace FTP_CLClient
+namespace ShiftIt.Ftp
 {
 	/// <summary>
 	/// List of common directory listing modes for FTP

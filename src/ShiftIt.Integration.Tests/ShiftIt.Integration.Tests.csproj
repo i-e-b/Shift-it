@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FtpSessionTests.cs" />
     <Compile Include="HttpsTests.cs" />
     <Compile Include="PutDeleteAndCrossloadTests.cs" />
     <Compile Include="HttpTests.cs" />
