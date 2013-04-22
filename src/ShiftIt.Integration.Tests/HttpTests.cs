@@ -60,6 +60,9 @@ namespace ShiftIt.Integration.Tests
 		public void reading_the_body_of_a_head_request_results_in_a_timeout()
 		{
 			var rq = new HttpRequestBuilder().Head(new Uri("http://en.wikipedia.org/wiki/Ternary_search_tree")).Build();
+
+			_subject.Timeout = TimeSpan.FromSeconds(0.5);
+
 			using (var result = _subject.Request(rq))
 			{
 				Assert.Throws<TimeoutException>(() => result.BodyReader.ReadStringToLength());

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using ShiftIt.Internal.Socket;
@@ -19,7 +18,7 @@ namespace ShiftIt.Http.Internal
 		/// Reads synchronously until headers are complete, then 
 		/// provides the remaining data in a stream
 		/// </summary>
-		public HttpReponse(Stream rawResponse)
+		public HttpReponse(Stream rawResponse, TimeSpan timeout)
 		{
 			_rawResponse = rawResponse;
 			Headers = new Dictionary<string, string>();
@@ -30,6 +29,7 @@ namespace ShiftIt.Http.Internal
 
 			RawBodyStream = RestOfStreamDecompressed(rawResponse);
 			BodyReader = new ExpectedLengthStream(RawBodyStream, ReportedBodyLength());
+			BodyReader.Timeout = timeout;
 		}
 
 		int ReportedBodyLength()

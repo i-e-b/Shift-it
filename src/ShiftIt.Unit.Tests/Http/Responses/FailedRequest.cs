@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using NUnit.Framework;
 using ShiftIt.Http;
 using ShiftIt.Http.Internal;
@@ -18,7 +19,7 @@ namespace ShiftIt.Unit.Tests.Http.Responses
 		{
 			_rawSample = HttpSample.FailedResponse();
 			_subject = new HttpResponseParser();
-			_result = _subject.Parse(_rawSample);
+			_result = _subject.Parse(_rawSample, TimeSpan.Zero);
 		}
 
 		[TearDown]

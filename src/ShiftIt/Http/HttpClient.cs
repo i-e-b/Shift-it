@@ -9,6 +9,9 @@ namespace ShiftIt.Http
 {
 	public class HttpClient : IHttpClient
 	{
+		public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
+
+
 		readonly IConnectableStreamSource _conn;
 		readonly IHttpResponseParser _parser;
 
@@ -18,7 +21,7 @@ namespace ShiftIt.Http
 		{
 			_conn = conn;
 			_parser = parser;
-			Timeout = TimeSpan.FromSeconds(5);
+			Timeout = DefaultTimeout;
 		}
 
 		public HttpClient() : this(new SocketStreamFactory(), new HttpResponseParser()) { }
@@ -43,7 +46,7 @@ namespace ShiftIt.Http
 
 			socket.Flush();
 
-			return _parser.Parse(socket);
+			return _parser.Parse(socket, Timeout);
 		}
 		public void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest)
 		{

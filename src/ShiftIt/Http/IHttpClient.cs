@@ -1,3 +1,5 @@
+using System;
+
 namespace ShiftIt.Http
 {
 	public interface IHttpClient
@@ -11,5 +13,6 @@ namespace ShiftIt.Http
 		void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest);
 
 		byte[] CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, string hashAlgorithmName);
+		TimeSpan Timeout { get; set; }
 	}
 }

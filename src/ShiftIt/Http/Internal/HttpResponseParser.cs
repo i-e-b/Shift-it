@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace ShiftIt.Http.Internal
 {
 	public class HttpResponseParser : IHttpResponseParser
 	{
-		public IHttpResponse Parse(Stream rawResponse)
+		public IHttpResponse Parse(Stream rawResponse, TimeSpan timeout)
 		{
-			return new HttpReponse(rawResponse);
+			return new HttpReponse(rawResponse, timeout);
 		}
 	}
 }

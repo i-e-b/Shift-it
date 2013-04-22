@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using ShiftIt.Http;
 
 namespace ShiftIt.Internal.Socket
 {
@@ -15,6 +16,8 @@ namespace ShiftIt.Internal.Socket
 		int _firstByte;
 		const int BufferSize = 4096;
 
+		public TimeSpan Timeout { get; set; }
+
 		public ExpectedLengthStream(Stream source, int expectedLength)
 		{
 			_lock = new Object();
@@ -22,6 +25,7 @@ namespace ShiftIt.Internal.Socket
 			_expectedLength = expectedLength;
 			_firstByte = -1;
 
+			Timeout = HttpClient.DefaultTimeout;
 			VerifiedLength = true;
 			TryDirtyCompressedStreamReading(source, ref _expectedLength);
 		}
@@ -53,7 +57,7 @@ namespace ShiftIt.Internal.Socket
 			lock (_lock)
 			{
 				if (_firstByte >= 0) ms.WriteByte((byte)_firstByte);
-				CopyBytesToLength(_source, ms, _expectedLength, TimeSpan.FromSeconds(5));
+				CopyBytesToLength(_source, ms, _expectedLength, Timeout);
 			}
 			return ms.ToArray();
 		}
@@ -90,15 +94,15 @@ namespace ShiftIt.Internal.Socket
 			long remaining;
 
 			Func<int> now = () => Environment.TickCount;
-			var lastData = now();
-			Func<int> waiting = () => now() - lastData;
+			int[] lastData = {now()};
+			Func<int> waiting = () => now() - lastData[0];
 
 			while ((remaining = length - read) > 0)
 			{
 				int len = remaining > BufferSize ? BufferSize : (int)remaining;
 				var got = source.Read(buf, 0, len);
 
-				if (got > 0) lastData = now();
+				if (got > 0) lastData[0] = now();
 				else if (waiting() > timeout.TotalMilliseconds) throw new TimeoutException("Timeout while reading from result stream");
 
 				read += got;
