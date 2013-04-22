@@ -53,7 +53,7 @@ namespace ShiftIt.Internal.Socket
 			lock (_lock)
 			{
 				if (_firstByte >= 0) ms.WriteByte((byte)_firstByte);
-				CopyBytesToLength(_source, ms, _expectedLength);
+				CopyBytesToLength(_source, ms, _expectedLength, TimeSpan.FromSeconds(5));
 			}
 			return ms.ToArray();
 		}
@@ -83,15 +83,24 @@ namespace ShiftIt.Internal.Socket
 			sock.Dispose();
 		}
 
-		public static void CopyBytesToLength(Stream source, Stream dest, long length)
+		public static void CopyBytesToLength(Stream source, Stream dest, long length, TimeSpan timeout)
 		{
 			long read = 0;
 			var buf = new byte[BufferSize];
 			long remaining;
+
+			Func<int> now = () => Environment.TickCount;
+			var lastData = now();
+			Func<int> waiting = () => now() - lastData;
+
 			while ((remaining = length - read) > 0)
 			{
 				int len = remaining > BufferSize ? BufferSize : (int)remaining;
 				var got = source.Read(buf, 0, len);
+
+				if (got > 0) lastData = now();
+				else if (waiting() > timeout.TotalMilliseconds) throw new TimeoutException("Timeout while reading from result stream");
+
 				read += got;
 				dest.Write(buf, 0, got);
 			}

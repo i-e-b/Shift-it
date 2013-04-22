@@ -36,7 +36,7 @@ namespace ShiftIt.Http
 			if (request.DataStream != null)
 			{
 				if (request.DataLength > 0)
-					ExpectedLengthStream.CopyBytesToLength(request.DataStream, socket, request.DataLength);
+					ExpectedLengthStream.CopyBytesToLength(request.DataStream, socket, request.DataLength, Timeout);
 				else
 					ExpectedLengthStream.CopyBytesToTimeout(request.DataStream, socket);
 			}
