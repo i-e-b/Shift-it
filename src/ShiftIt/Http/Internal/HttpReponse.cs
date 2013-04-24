@@ -71,7 +71,7 @@ namespace ShiftIt.Http.Internal
 			var parts = headerLine.Split(new[] { ": " }, StringSplitOptions.None);
 			if (parts.Length < 2)
 			{
-				Console.WriteLine("Bad header -- " + headerLine);
+				throw new ArgumentException("Bad header -- " + headerLine);
 			}
 			var name = parts[0];
 			var value = parts[1];

@@ -99,7 +99,7 @@ namespace ShiftIt.Internal.Socket
 
 			while ((remaining = length - read) > 0)
 			{
-				int len = remaining > BufferSize ? BufferSize : (int)remaining;
+				var len = remaining > BufferSize ? BufferSize : (int)remaining;
 				var got = source.Read(buf, 0, len);
 
 				if (got > 0) lastData[0] = now();

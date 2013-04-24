@@ -62,6 +62,7 @@
     <Compile Include="Http\Responses\UncompressedEmpty.cs" />
     <Compile Include="Http\Responses\UncompressedWithBody.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
+    <Compile Include="Streams\Zero_size_expected_length_stream.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ShiftIt\ShiftIt.csproj">
