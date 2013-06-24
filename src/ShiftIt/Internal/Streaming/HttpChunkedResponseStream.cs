@@ -43,7 +43,7 @@ namespace ShiftIt.Internal.Socket
 			return Encoding.UTF8.GetString(ReadBytesToTimeout());
 		}
 
-		public byte[] ReadNextChunk()
+		byte[] ReadNextChunk()
 		{
 			lock (_lock)
 			{
@@ -116,6 +116,7 @@ namespace ShiftIt.Internal.Socket
 
 		public byte[] ReadBytesToTimeout()
 		{
+			// TODO: data timeout like in CopyBytesToTimeout
 			return ReadNextChunk();
 		}
 
