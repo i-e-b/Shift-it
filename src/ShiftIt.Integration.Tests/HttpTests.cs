@@ -26,18 +26,23 @@ namespace ShiftIt.Integration.Tests
 			var rq = new HttpRequestBuilder().Get(new Uri("http://www.iana.org/domains/reserved")).Build();
 			using (var result = _subject.Request(rq))
 			{
-				var body = result.BodyReader.ReadStringToLength(); // this server returns an invalid length!
+				var body = result.BodyReader.ReadStringToLength();
+				
+				Console.WriteLine(Write(result.Headers));
 
 				Console.WriteLine("Expected " + result.BodyReader.ExpectedLength + ", got " + body.Length);
 				Console.WriteLine(body);
 				Assert.That(body, Contains.Substring("<html"));
 				Assert.That(body, Contains.Substring("</html>"), "didn't read to end");
-				Assert.That(result.BodyReader.ExpectedLength, Is.EqualTo(body.Length), "length was not correct");
+				Assert.That(result.BodyReader.Complete, Is.True, "reader did not complete");
+				
+				// this server returns an invalid length!
+				Assert.That(result.BodyReader.ExpectedLength, Is.GreaterThanOrEqualTo(body.Length), "length was not correct");
 			}
 		}
 
 		[Test]
-		public void can_read_chunked_responses ()
+		public void can_read_chunked_responses_as_one_complete_response ()
 		{
 			var rq = new HttpRequestBuilder().Get(new Uri("http://www.httpwatch.com/httpgallery/chunked/")).Build();
 			using (var result = _subject.Request(rq))
@@ -53,6 +58,32 @@ namespace ShiftIt.Integration.Tests
 
 				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
 				Assert.That(body, Contains.Substring("<html"));
+			}
+		}
+
+		[Test]
+		public void can_read_chunked_responses_in_parts ()
+		{
+			var rq = new HttpRequestBuilder().Get(new Uri("http://www.httpwatch.com/httpgallery/chunked/")).Build();
+			using (var result = _subject.Request(rq))
+			{
+				var reader = result.BodyReader;
+
+				Assert.That(reader, Is.InstanceOf<HttpChunkedResponseStream>());
+
+				string bodyChunk = "wrong";
+
+				Console.WriteLine(Write(result.Headers));
+				while (!reader.Complete)
+				{
+					var chunk = reader.ReadStringToTimeout();
+					Console.WriteLine(">>> " + chunk);
+					if (!string.IsNullOrEmpty(chunk)) bodyChunk = chunk;
+				}
+
+
+				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
+				Assert.That(bodyChunk, Contains.Substring("</html"));
 			}
 		}
 

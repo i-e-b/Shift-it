@@ -15,7 +15,9 @@ namespace ShiftIt.Internal.Socket
 		readonly object _lock;
 		int _firstByte;
 		const int BufferSize = 4096;
+		long _readSoFar;
 
+		public bool Complete { get { return _readSoFar >= _expectedLength; }}
 		public TimeSpan Timeout { get; set; }
 
 		public HttpSingleResponseStream(Stream source, int expectedLength)
@@ -24,6 +26,7 @@ namespace ShiftIt.Internal.Socket
 			_source = source;
 			_expectedLength = expectedLength;
 			_firstByte = -1;
+			_readSoFar = 0;
 
 			Timeout = HttpClient.DefaultTimeout;
 			VerifiedLength = true;
@@ -59,6 +62,7 @@ namespace ShiftIt.Internal.Socket
 				if (_firstByte >= 0) ms.WriteByte((byte)_firstByte);
 				CopyBytesToLength(_source, ms, _expectedLength, Timeout);
 			}
+			_readSoFar += ms.Length;
 			return ms.ToArray();
 		}
 
@@ -67,6 +71,7 @@ namespace ShiftIt.Internal.Socket
 			var ms = new MemoryStream(_expectedLength);
 			if (_firstByte >= 0) ms.WriteByte((byte)_firstByte);
 			CopyBytesToTimeout(_source, ms);
+			_readSoFar += ms.Length;
 			return ms.ToArray();
 		}
 
