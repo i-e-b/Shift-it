@@ -28,8 +28,21 @@ namespace ShiftIt.Http.Internal
 			HeadersComplete = true;
 
 			RawBodyStream = RestOfStreamDecompressed(rawResponse);
-			BodyReader = new ExpectedLengthStream(RawBodyStream, ReportedBodyLength());
-			BodyReader.Timeout = timeout;
+
+			if (IsChunked())
+			{
+				BodyReader = new HttpChunkedResponseStream(RawBodyStream) {Timeout = timeout};
+			}
+			else
+			{
+				BodyReader = new HttpSingleResponseStream(RawBodyStream, ReportedBodyLength()) {Timeout = timeout};
+			}
+		}
+
+		bool IsChunked()
+		{
+			return _headers.ContainsKey("Transfer-Encoding")
+				&& _headers["Transfer-Encoding"].ToLowerInvariant() == "chunked";
 		}
 
 		int ReportedBodyLength()
@@ -141,7 +154,7 @@ namespace ShiftIt.Http.Internal
 			private set { _headers = value; }
 		}
 
-		public IExpectedLengthStream BodyReader { get; private set; }
+		public IHttpResponseStream BodyReader { get; private set; }
 		public Stream RawBodyStream { get; private set; }
 
 		public void Dispose()

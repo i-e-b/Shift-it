@@ -8,7 +8,7 @@ using ShiftIt.Http;
 
 namespace ShiftIt.Internal.Socket
 {
-	public class ExpectedLengthStream : IExpectedLengthStream
+	public class HttpSingleResponseStream : IHttpResponseStream
 	{
 		Stream _source;
 		readonly int _expectedLength;
@@ -18,7 +18,7 @@ namespace ShiftIt.Internal.Socket
 
 		public TimeSpan Timeout { get; set; }
 
-		public ExpectedLengthStream(Stream source, int expectedLength)
+		public HttpSingleResponseStream(Stream source, int expectedLength)
 		{
 			_lock = new Object();
 			_source = source;
@@ -75,7 +75,7 @@ namespace ShiftIt.Internal.Socket
 			return _source.Read(buffer, offset, count);
 		}
 
-		~ExpectedLengthStream()
+		~HttpSingleResponseStream()
 		{
 			Dispose();
 		}

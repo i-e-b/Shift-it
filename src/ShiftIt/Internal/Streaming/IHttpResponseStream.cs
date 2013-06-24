@@ -2,7 +2,7 @@
 
 namespace ShiftIt.Internal.Socket
 {
-	public interface IExpectedLengthStream:IDisposable
+	public interface IHttpResponseStream:IDisposable
 	{
 		long ExpectedLength { get; }
 		TimeSpan Timeout { get; set; }

@@ -22,7 +22,7 @@ namespace ShiftIt.Integration.Tests
 			using (var result = _subject.Request(rq))
 			{
 				Assert.That(result.StatusClass, Is.EqualTo(StatusClass.Success), result.StatusMessage);
-				var body = result.BodyReader.ReadStringToTimeout(); // this server returns an invalid length!
+				var body = result.BodyReader.ReadStringToLength();
 
 				Console.WriteLine("Expected " + result.BodyReader.ExpectedLength + ", got " + body.Length);
 				Console.WriteLine(body);

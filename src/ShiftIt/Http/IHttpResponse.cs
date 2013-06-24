@@ -13,7 +13,7 @@ namespace ShiftIt.Http
 		string StatusMessage { get; }
 		IDictionary<string, string> Headers { get; }
 
-		IExpectedLengthStream BodyReader { get; }
+		IHttpResponseStream BodyReader { get; }
 		Stream RawBodyStream { get; }
 	}
 }

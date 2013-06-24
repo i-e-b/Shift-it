@@ -39,9 +39,9 @@ namespace ShiftIt.Http
 			if (request.DataStream != null)
 			{
 				if (request.DataLength > 0)
-					ExpectedLengthStream.CopyBytesToLength(request.DataStream, socket, request.DataLength, Timeout);
+					HttpSingleResponseStream.CopyBytesToLength(request.DataStream, socket, request.DataLength, Timeout);
 				else
-					ExpectedLengthStream.CopyBytesToTimeout(request.DataStream, socket);
+					HttpSingleResponseStream.CopyBytesToTimeout(request.DataStream, socket);
 			}
 
 			socket.Flush();

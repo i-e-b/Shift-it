@@ -48,10 +48,11 @@
     <Compile Include="Http\IHttpResponse.cs" />
     <Compile Include="Http\Internal\IHttpResponseParser.cs" />
     <Compile Include="Http\StatusClass.cs" />
-    <Compile Include="Internal\Streaming\ExpectedLengthStream.cs" />
+    <Compile Include="Internal\Streaming\HttpChunkedResponseStream.cs" />
+    <Compile Include="Internal\Streaming\HttpSingleResponseStream.cs" />
     <Compile Include="Internal\Socket\IConnectableStreamSource.cs" />
     <Compile Include="Internal\Streaming\HashingReadStream.cs" />
-    <Compile Include="Internal\Streaming\IExpectedLengthStream.cs" />
+    <Compile Include="Internal\Streaming\IHttpResponseStream.cs" />
     <Compile Include="Internal\Socket\SocketStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\Socket\SocketStreamFactory.cs" />

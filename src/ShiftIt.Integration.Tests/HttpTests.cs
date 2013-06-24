@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
 using NUnit.Framework;
 using ShiftIt.Http;
+using ShiftIt.Internal.Socket;
 
 namespace ShiftIt.Integration.Tests
 {
 	[TestFixture]//, Explicit, Description("These connect to the internet")]
-    public class HttpTests
-    {
+	public class HttpTests
+	{
 		IHttpClient _subject;
 
 		[SetUp]
@@ -18,9 +21,9 @@ namespace ShiftIt.Integration.Tests
 		}
 
 		[Test, Description("This server returns a compressed response, so checks our length logic")]
-		public void read_from_iana ()
+		public void read_from_iana()
 		{
-			var rq = new HttpRequestBuilder().Get(new Uri("http://www.iana.org/domains/example")).Build();
+			var rq = new HttpRequestBuilder().Get(new Uri("http://www.iana.org/domains/reserved")).Build();
 			using (var result = _subject.Request(rq))
 			{
 				var body = result.BodyReader.ReadStringToLength(); // this server returns an invalid length!
@@ -34,6 +37,26 @@ namespace ShiftIt.Integration.Tests
 		}
 
 		[Test]
+		public void can_read_chunked_responses ()
+		{
+			var rq = new HttpRequestBuilder().Get(new Uri("http://www.httpwatch.com/httpgallery/chunked/")).Build();
+			using (var result = _subject.Request(rq))
+			{
+				var reader = result.BodyReader;
+
+				Assert.That(reader, Is.InstanceOf<HttpChunkedResponseStream>());
+
+				var body = reader.ReadStringToLength();
+
+				Console.WriteLine(Write(result.Headers));
+				Console.WriteLine(body);
+
+				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
+				Assert.That(body, Contains.Substring("<html"));
+			}
+		}
+
+		[Test]
 		public void read_from_wikipedia()
 		{
 			var rq = new HttpRequestBuilder().Get(new Uri("http://en.wikipedia.org/wiki/Ternary_search_tree")).Build();
@@ -41,9 +64,17 @@ namespace ShiftIt.Integration.Tests
 			{
 				var body = result.BodyReader.ReadStringToLength();
 
+				Console.WriteLine(Write(result.Headers));
+				Console.WriteLine(body);
+
 				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
 				Assert.That(body, Contains.Substring("<html"));
 			}
+		}
+
+		static string Write(IDictionary<string, string> headers)
+		{
+			return string.Join("\r\n", headers.Keys.Select(k => k + ": " + headers[k]));
 		}
 
 		[Test]
@@ -101,7 +132,7 @@ namespace ShiftIt.Integration.Tests
 			Console.WriteLine("Before: " + start + ", after: " + end);
 			Assert.That(end, Is.LessThanOrEqualTo(start));
 		}
-		
+
 		[Test, Explicit]
 		public void leak_test_over_stream_object()
 		{
@@ -131,7 +162,8 @@ namespace ShiftIt.Integration.Tests
 			for (int i = 0; i < 110; i++)
 			{
 				var result = _subject.Request(rq);
-				/*using (*/var stream = result.BodyReader;/*)*/
+				/*using (*/
+				var stream = result.BodyReader;/*)*/
 				{
 					Assert.That(start, Is.Not.EqualTo(Connections()));
 					Console.WriteLine(stream.ReadStringToLength());
@@ -147,8 +179,8 @@ namespace ShiftIt.Integration.Tests
 		static long Connections()
 		{
 			return IPGlobalProperties.GetIPGlobalProperties()
-			                         .GetTcpIPv4Statistics()
-			                         .CurrentConnections;
+									 .GetTcpIPv4Statistics()
+									 .CurrentConnections;
 		}
-    }
+	}
 }
