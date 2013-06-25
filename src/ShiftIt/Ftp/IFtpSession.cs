@@ -2,6 +2,9 @@ using System;
 
 namespace ShiftIt.Ftp
 {
+	/// <summary>
+	/// Contract for an Ftp session
+	/// </summary>
 	public interface IFtpSession : IDisposable
 	{
 		/// <summary>
@@ -144,6 +147,11 @@ namespace ShiftIt.Ftp
 		/// <param name="fileName">Full local path and filename to upload</param>
 		void Upload (string fileName);
 
+		/// <summary>
+		/// Upload a file to the current remote directory.
+		/// </summary>
+		/// <param name="fileName">Full local path and filename to upload</param>
+		/// <param name="resume">Resume partial upload if possible</param>
 		void Upload (string fileName, Boolean resume);
 
 		/// <summary>

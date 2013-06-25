@@ -66,6 +66,9 @@ namespace ShiftIt.Ftp {
 			return "ftp://" + _remoteUser + ":" + _remotePass + "@" + _remoteHost + ":" + _remotePort + "/" + _remotePath;
 		}
 
+		/// <summary>
+		/// Close the underlying connection
+		/// </summary>
 		public void Dispose()
 		{
 			Close();
@@ -410,6 +413,11 @@ namespace ShiftIt.Ftp {
 			Upload(fileName, false);
 		}
 
+		/// <summary>
+		/// Upload a file to the current remote directory.
+		/// </summary>
+		/// <param name="fileName">Full local path and filename to upload</param>
+		/// <param name="resume">Resume partial upload if possible</param>
 		public void Upload (string fileName, Boolean resume) {
 			Upload(fileName, Path.GetFileName(fileName), resume);
 		}

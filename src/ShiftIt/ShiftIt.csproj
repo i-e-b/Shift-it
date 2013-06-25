@@ -55,6 +55,7 @@
     <Compile Include="Internal\Streaming\HashingReadStream.cs" />
     <Compile Include="Internal\Streaming\IHttpResponseStream.cs" />
     <Compile Include="Internal\Socket\SocketStream.cs" />
+    <Compile Include="Internal\Streaming\StreamTools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\Socket\SocketStreamFactory.cs" />
   </ItemGroup>

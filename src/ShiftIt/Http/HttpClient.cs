@@ -7,25 +7,44 @@ using ShiftIt.Internal.Streaming;
 
 namespace ShiftIt.Http
 {
+	/// <summary>
+	/// Standard Http client for Shift-it
+	/// </summary>
 	public class HttpClient : IHttpClient
 	{
+		/// <summary>
+		/// Default conenction and data timeout (5 seconds)
+		/// </summary>
 		public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
-
 
 		readonly IConnectableStreamSource _conn;
 		readonly IHttpResponseParser _parser;
 
+		/// <summary>
+		/// Connection and data transfer timeout
+		/// </summary>
 		public TimeSpan Timeout { get; set; }
 
-		public HttpClient(IConnectableStreamSource conn, IHttpResponseParser parser)
+		/// <summary>
+		/// Create a new HttpClient with a specified connection and parser
+		/// </summary>
+		internal HttpClient(IConnectableStreamSource conn, IHttpResponseParser parser)
 		{
 			_conn = conn;
 			_parser = parser;
 			Timeout = DefaultTimeout;
 		}
 
+		/// <summary>
+		/// Start a new HttpClient
+		/// </summary>
 		public HttpClient() : this(new SocketStreamFactory(), new HttpResponseParser()) { }
 
+		/// <summary>
+		/// Issue a request to a server, and return the (IDisposable) response.
+		/// </summary>
+		/// <exception cref="System.TimeoutException">Timeouts while reading or writing sockets</exception>
+		/// <exception cref="System.Net.Sockets.SocketException">Generic socket exceptions</exception>
 		public IHttpResponse Request(IHttpRequest request)
 		{
 			var socket = (request.Secure) 
@@ -39,15 +58,22 @@ namespace ShiftIt.Http
 			if (request.DataStream != null)
 			{
 				if (request.DataLength > 0)
-					HttpSingleResponseStream.CopyBytesToLength(request.DataStream, socket, request.DataLength, Timeout);
+					StreamTools.CopyBytesToLength(request.DataStream, socket, request.DataLength, Timeout);
 				else
-					HttpSingleResponseStream.CopyBytesToTimeout(request.DataStream, socket);
+					StreamTools.CopyBytesToTimeout(request.DataStream, socket);
 			}
 
 			socket.Flush();
 
 			return _parser.Parse(socket, Timeout);
 		}
+
+		/// <summary>
+		/// Request data from one resource and provide to another.
+		/// This is done in a memory-efficient manner.
+		/// </summary>
+		/// <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
+		/// <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
 		public void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest)
 		{
 			using (var getTx = Request(loadRequest)) // get source
@@ -57,6 +83,14 @@ namespace ShiftIt.Http
 			}
 		}
 
+		/// <summary>
+		/// Request data from one resource and provide to another, calculating a 
+		/// hash of the cross-loaded data.
+		/// This is done in a memory-efficient manner.
+		/// </summary>
+		/// <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
+		/// <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
+		/// <param name="hashAlgorithmName">Name of hash algorithm to use (should a name supported by System.Security.Cryptography.HashAlgorithm)</param>
 		public byte[] CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, string hashAlgorithmName)
 		{
 			var hash = HashAlgorithm.Create(hashAlgorithmName);

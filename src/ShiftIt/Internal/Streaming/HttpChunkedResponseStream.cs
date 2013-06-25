@@ -7,14 +7,23 @@ using ShiftIt.Http;
 
 namespace ShiftIt.Internal.Socket
 {
+	
+	/// <summary>
+	/// Wrapper around a chunked http body stream
+	/// </summary>
 	public class HttpChunkedResponseStream : IHttpResponseStream
 	{
 		Stream _source;
 		readonly object _lock;
-		const int BufferSize = 4096;
 
+		/// <summary>
+		/// Timeout for reading.
+		/// </summary>
 		public TimeSpan Timeout { get; set; }
 
+		/// <summary>
+		/// Wrap a chunked http response
+		/// </summary>
 		public HttpChunkedResponseStream(Stream source)
 		{
 			_source = source;
@@ -24,20 +33,43 @@ namespace ShiftIt.Internal.Socket
 			Complete = false;
 		}
 
+		/// <summary>
+		/// Dispose of the underlying stream
+		/// </summary>
 		~HttpChunkedResponseStream()
 		{
 			Dispose();
 		}
 
+		/// <summary>
+		/// Returns true if all expected data has been read.
+		/// Returns false if message should have more data.
+		/// 
+		/// Due to frequent protocol violations, this is not 100% reliable.
+		/// </summary>
 		public bool Complete { get; protected set; }
-		
+
+		/// <summary>
+		/// Length that server reported for the response.
+		/// Tries to give decompressed length if response is compressed.
+		/// 
+		/// Due to frequent protocol violations, this is not 100% reliable.
+		/// </summary>
 		public long ExpectedLength { get { return 0; } }
 
+		/// <summary>
+		/// Read string up to the declared response length.
+		/// If response is chunked, this will read until an empty chunk is received.
+		/// </summary>
 		public string ReadStringToLength()
 		{
 			return Encoding.UTF8.GetString(ReadBytesToLength());
 		}
 
+		/// <summary>
+		/// Read string while data is on the stream, waiting up to the timeout value for more data.
+		/// If response is chunked, this will read the next chunk.
+		/// </summary>
 		public string ReadStringToTimeout()
 		{
 			return Encoding.UTF8.GetString(ReadBytesToTimeout());
@@ -66,7 +98,7 @@ namespace ShiftIt.Internal.Socket
 					length--;
 				}
 
-				CopyBytesToLength(_source, ms, length, Timeout);
+				StreamTools.CopyBytesToLength(_source, ms, length, Timeout);
 
 				// Should end with CRLF:
 				// TODO: make this resilient to LF-only output
@@ -103,6 +135,10 @@ namespace ShiftIt.Internal.Socket
 			return result;
 		}
 
+		/// <summary>
+		/// Read raw bytes up to the declared response length.
+		/// If response is chunked, this will read until an empty chunk is received.
+		/// </summary>
 		public byte[] ReadBytesToLength()
 		{
 			var ms = new MemoryStream();
@@ -114,50 +150,47 @@ namespace ShiftIt.Internal.Socket
 			return ms.ToArray();
 		}
 
+		/// <summary>
+		/// Read raw bytes while data is on the stream, waiting up to the timeout value for more data.
+		/// </summary>
 		public byte[] ReadBytesToTimeout()
 		{
-			// TODO: data timeout like in CopyBytesToTimeout
-			return ReadNextChunk();
+			Func<int> now = () => Environment.TickCount;
+			int[] lastData = {now()};
+			Func<int> waiting = () => now() - lastData[0];
+			var ms = new MemoryStream();
+			
+			while (!Complete)
+			{
+				var ch = ReadNextChunk();
+
+				if (ch.Length > 0)
+				{
+					ms.Write(ch, 0, ch.Length);
+					lastData[0] = now();
+				}
+				else if (waiting() > Timeout.TotalMilliseconds) break;
+			}
+
+			return ms.ToArray();
 		}
 
+		/// <summary>
+		/// Read raw bytes from the response into a buffer, returning number of bytes read.
+		/// </summary>
 		public int Read(byte[] buffer, int offset, int count)
 		{
 			return _source.Read(buffer, offset, count);
 		}
 
+		/// <summary>
+		/// Dispose of the underlying stream
+		/// </summary>
 		public void Dispose()
 		{
 			var sock = Interlocked.Exchange(ref _source, null);
 			if (sock == null) return;
 			sock.Dispose();
-		}
-
-		public static void CopyBytesToLength(Stream source, Stream dest, long length, TimeSpan timeout)
-		{
-			long read = 0;
-			var buf = new byte[BufferSize];
-			long remaining;
-
-			Func<int> now = () => Environment.TickCount;
-			int[] lastData = {now()};
-			Func<int> waiting = () => now() - lastData[0];
-
-			while ((remaining = length - read) > 0)
-			{
-				var len = remaining > BufferSize ? BufferSize : (int)remaining;
-				var got = source.Read(buf, 0, len);
-
-				if (got > 0) lastData[0] = now();
-				else if (waiting() > timeout.TotalMilliseconds) throw new TimeoutException("Timeout while reading from result stream");
-
-				read += got;
-				dest.Write(buf, 0, got);
-			}
-		}
-		public static void CopyBytesToTimeout(Stream source, Stream dest)
-		{
-			try { source.CopyTo(dest); }
-			catch (TimeoutException) { }
 		}
 	}
 }

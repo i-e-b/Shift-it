@@ -8,10 +8,12 @@ using ShiftIt.Internal.Socket;
 
 namespace ShiftIt.Http.Internal
 {
+	/// <summary>
+	/// Wrapper for HTTP response streams
+	/// </summary>
 	public class HttpReponse : IHttpResponse
 	{
 		Stream _rawResponse;
-		IDictionary<string, string> _headers;
 		readonly HashSet<string> _singleItemHeaders = new HashSet<string> { "Content-Length" };
 
 		/// <summary>
@@ -41,8 +43,8 @@ namespace ShiftIt.Http.Internal
 
 		bool IsChunked()
 		{
-			return _headers.ContainsKey("Transfer-Encoding")
-				&& _headers["Transfer-Encoding"].ToLowerInvariant() == "chunked";
+			return Headers.ContainsKey("Transfer-Encoding")
+				&& Headers["Transfer-Encoding"].ToLowerInvariant() == "chunked";
 		}
 
 		int ReportedBodyLength()
@@ -89,18 +91,17 @@ namespace ShiftIt.Http.Internal
 			var name = parts[0];
 			var value = parts[1];
 
-			lock (_headers)
+			lock (Headers)
 			{
-				if (!_headers.ContainsKey(name))
+				if (!Headers.ContainsKey(name))
 				{
-					_headers.Add(name, value);
+					Headers.Add(name, value);
 					return;
 				}
 			}
 			if (_singleItemHeaders.Contains(name)) Headers[name] = value;
 			else Headers[name] += "," + value;
 		}
-
 
 		static string NextLine(Stream stream)
 		{
@@ -144,19 +145,46 @@ namespace ShiftIt.Http.Internal
 			if (parts.Length > 2) StatusMessage = parts[2];
 		}
 
+		/// <summary>
+		/// Returns true once all headers have been read.
+		/// The body stream can be used at this point.
+		/// </summary>
 		public bool HeadersComplete { get; private set; }
-		public int StatusCode { get; private set; }
-		public StatusClass StatusClass { get; private set; }
-		public string StatusMessage { get; private set; }
-		public IDictionary<string, string> Headers
-		{
-			get { return _headers; }
-			private set { _headers = value; }
-		}
 
+		/// <summary>
+		/// Status code returned by server.
+		/// If the status code is zero, there was a protocol error.
+		/// </summary>
+		public int StatusCode { get; private set; }
+
+		/// <summary>
+		/// General class of the status code
+		/// </summary>
+		public StatusClass StatusClass { get; private set; }
+
+		/// <summary>
+		/// Status message returned by server.
+		/// </summary>
+		public string StatusMessage { get; private set; }
+
+		/// <summary>
+		/// Headers returned by server
+		/// </summary>
+		public IDictionary<string, string> Headers { get; private set; }
+
+		/// <summary>
+		/// The HTTP body stream wrapped in a decoder class
+		/// </summary>
 		public IHttpResponseStream BodyReader { get; private set; }
+
+		/// <summary>
+		/// The raw body stream. This will be consumed if you use the BodyReader.
+		/// </summary>
 		public Stream RawBodyStream { get; private set; }
 
+		/// <summary>
+		/// Dispose of the underlying stream
+		/// </summary>
 		public void Dispose()
 		{
 			var stream = Interlocked.Exchange(ref _rawResponse, null);
@@ -164,6 +192,10 @@ namespace ShiftIt.Http.Internal
 			stream.Close();
 			stream.Dispose();
 		}
+
+		/// <summary>
+		/// Dispose of the underlying stream
+		/// </summary>
 		~HttpReponse()
 		{
 			Dispose();
