@@ -23,6 +23,11 @@ namespace ShiftIt.Http
 		public Uri Target { get; private set; }
 
 		/// <summary>
+		/// Verb used
+		/// </summary>
+		string IHttpRequest.Verb { get { return _verb; }}
+
+		/// <summary>
 		/// Start building a new request
 		/// </summary>
 		public HttpRequestBuilder()

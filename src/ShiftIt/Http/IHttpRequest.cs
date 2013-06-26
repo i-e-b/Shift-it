@@ -14,6 +14,11 @@ namespace ShiftIt.Http
 		Uri Target { get; }
 
 		/// <summary>
+		/// Verb used
+		/// </summary>
+		string Verb { get; }
+
+		/// <summary>
 		/// Headers
 		/// </summary>
 		string RequestHead();

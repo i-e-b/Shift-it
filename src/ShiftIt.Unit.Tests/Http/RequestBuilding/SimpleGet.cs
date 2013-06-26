@@ -26,6 +26,8 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		public void get_verb_is_given()
 		{
 			Assert.That(_subject.Build().RequestHead(), Is.StringStarting("GET "));
+
+			Assert.That(_subject.Build().Verb, Is.EqualTo("GET"));
 		}
 		
 		[Test]
@@ -38,6 +40,8 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		public void request_path_is_given()
 		{
 			Assert.That(_subject.Build().RequestHead().Lines().First(), Is.StringContaining(_localTarget));
+
+
 		}
 
 		[Test]
