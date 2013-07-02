@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\HttpResponseExtensionsTests.cs" />
     <Compile Include="Http\RequestBuilding\BasicAuthentication.cs" />
     <Compile Include="Http\RequestBuilding\CustomVerbs.cs" />
     <Compile Include="Http\RequestBuilding\HttpsDetection.cs" />

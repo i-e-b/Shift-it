@@ -40,6 +40,7 @@
     <Compile Include="Ftp\FtpSession.cs" />
     <Compile Include="Ftp\IFtpSession.cs" />
     <Compile Include="Http\HttpClient.cs" />
+    <Compile Include="Http\HttpResponseExtensions.cs" />
     <Compile Include="Http\IHttpClient.cs" />
     <Compile Include="Http\IHttpRequest.cs" />
     <Compile Include="Http\Internal\HttpReponse.cs" />
