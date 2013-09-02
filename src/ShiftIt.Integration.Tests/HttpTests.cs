@@ -88,6 +88,21 @@ namespace ShiftIt.Integration.Tests
 		}
 
 		[Test]
+		public void correctly_sends_query_strings ()
+		{
+			var rq = new HttpRequestBuilder().Get(new Uri("http://www.google.co.uk/?q=wipquazin")).Build();
+			using (var result = _subject.Request(rq))
+			{
+				var body = result.BodyReader.ReadStringToLength();
+
+				Console.WriteLine(Write(result.Headers));
+				Console.WriteLine(body);
+
+				Assert.That(body, Contains.Substring("wipquazin"));
+			}
+		}
+
+		[Test]
 		public void read_from_wikipedia()
 		{
 			var rq = new HttpRequestBuilder().Get(new Uri("http://en.wikipedia.org/wiki/Ternary_search_tree")).Build();

@@ -18,7 +18,7 @@ namespace ShiftIt.Integration.Tests
 		[Test, Description("Nuget uses https throughout")]
 		public void read_from_nuget ()
 		{
-			var rq = new HttpRequestBuilder().Get(new Uri("https://nuget.org/")).Build();
+			var rq = new HttpRequestBuilder().Get(new Uri("https://www.nuget.org/")).Build();
 			using (var result = _subject.Request(rq))
 			{
 				Assert.That(result.StatusClass, Is.EqualTo(StatusClass.Success), result.StatusMessage);
