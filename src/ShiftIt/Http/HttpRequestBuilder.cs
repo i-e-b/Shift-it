@@ -213,7 +213,7 @@ namespace ShiftIt.Http
 		{
 			Target = target;
 			_verb = verb;
-			_url = target.GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+			_url = target.GetComponents(UriComponents.PathAndQuery, UriFormat.UriEscaped);
 			_accept = "*/*";
 		}
 
