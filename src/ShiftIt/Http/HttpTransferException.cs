@@ -25,7 +25,8 @@ namespace ShiftIt.Http
 		/// <summary>
 		/// Create an exception object for returned headers, target and status
 		/// </summary>
-		public HttpTransferException(IDictionary<string, string> headers, Uri target, int statusCode)
+		public HttpTransferException(IDictionary<string, string> headers, Uri target, int statusCode):
+			base(string.Format("Target: {0} failed with status: {1}", target,statusCode))
 		{
 			Headers = headers;
 			Target = target;
