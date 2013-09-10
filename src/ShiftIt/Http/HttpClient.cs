@@ -78,27 +78,44 @@ namespace ShiftIt.Http
 		{
 			using (var getTx = Request(loadRequest)) // get source
 			{
+				if (getTx.StatusClass != StatusClass.Success)
+					throw new HttpTransferException(getTx.Headers, loadRequest.Target, getTx.StatusCode);
+
+
 				var storeRq = storeRequest.Data(getTx.RawBodyStream, getTx.BodyReader.ExpectedLength).Build();
-				Request(storeRq).Dispose(); // write out to dest
+				using (var storeRs = Request(storeRq))
+				{
+					if (storeRs.StatusClass != StatusClass.Success)
+						throw new HttpTransferException(storeRs.Headers, storeRq.Target, storeRs.StatusCode);
+				}
 			}
 		}
 
 		/// <summary>
 		/// Request data from one resource and provide to another, calculating a 
-		/// hash of the cross-loaded data.
-		/// This is done in a memory-efficient manner.
+		/// hash of the cross-loaded data. This is done in a memory-efficient manner.
+		/// If either source or destination return a non-success result (including redirects)
+		/// an exception will be thrown
 		/// </summary>
 		/// <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
 		/// <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
 		/// <param name="hashAlgorithmName">Name of hash algorithm to use (should a name supported by System.Security.Cryptography.HashAlgorithm)</param>
+		/// <exception cref="ShiftIt.Http.HttpTransferException">ShiftIt.Http.HttpTransferException</exception>
 		public byte[] CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, string hashAlgorithmName)
 		{
 			var hash = HashAlgorithm.Create(hashAlgorithmName);
 			using (var getTx = Request(loadRequest))
 			{
+				if (getTx.StatusClass != StatusClass.Success)
+					throw new HttpTransferException(getTx.Headers, loadRequest.Target, getTx.StatusCode);
+
 				var hashStream = new HashingReadStream(getTx.RawBodyStream, hash);
 				var storeRq = storeRequest.Data(hashStream, getTx.BodyReader.ExpectedLength).Build();
-				Request(storeRq).Dispose();
+				using (var storeRs = Request(storeRq))
+				{
+					if (storeRs.StatusClass != StatusClass.Success)
+						throw new HttpTransferException(storeRs.Headers, storeRq.Target, storeRs.StatusCode);
+				}
 				return hashStream.GetHashValue();
 			}
 		}
