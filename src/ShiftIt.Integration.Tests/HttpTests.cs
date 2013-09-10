@@ -149,7 +149,7 @@ namespace ShiftIt.Integration.Tests
 		[Test]
 		public void connection_to_rabbit_mq_api()
 		{
-			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:55672/api/overview")).BasicAuthentication("guest", "guest").Build();
+			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/overview")).BasicAuthentication("guest", "guest").Build();
 			using (var result = _subject.Request(rq))
 			{
 				var body = result.BodyReader.ReadStringToLength();
