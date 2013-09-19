@@ -193,7 +193,6 @@ namespace ShiftIt.Http
 
 			a(_verb); a(" "); a(_url); a(" HTTP/1.1");
 			crlf();
-			k("Host"); a(Target.Host); a(":"); n(Target.Port); crlf();
 
 			foreach (var header in _headers)
 			{
@@ -209,10 +208,10 @@ namespace ShiftIt.Http
 			return sb.ToString();
 		}
 
-
 		void StdVerb(string verb, Uri target)
 		{
 			Target = target;
+			SetHeader("Host", string.Format("{0}:{1}", target.Host, target.Port));
 			_verb = verb;
 			_url = target.GetComponents(UriComponents.PathAndQuery, UriFormat.UriEscaped);
 			Accept("*/*");
@@ -228,17 +227,12 @@ namespace ShiftIt.Http
 		/// </summary>
 		public bool Secure
 		{
-			get
-			{
-				if (Target == null) return false;
-				return Target.Scheme.ToLowerInvariant() == "https";
-			}
+			get { return Target.Scheme.ToLowerInvariant() == "https"; }
 		}
 
 		/// <summary>
 		/// Body data stream
 		/// </summary>
 		public Stream DataStream { get; private set; }
-
 	}
 }

@@ -16,7 +16,6 @@ namespace ShiftIt.Internal.Socket
 		/// <returns>Readable and writable stream connected to target by an open socket</returns>
 		Stream ConnectUnsecured(Uri connectionTarget, TimeSpan connectionTimeout);
 
-		
 		/// <summary>
 		/// Connect to an target URI over an SSL connection.
 		/// This method does not attempt to verify certificate trust.

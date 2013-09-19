@@ -44,19 +44,6 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		}
 
 		[Test]
-		public void default_headers_are_written_correctly()
-		{
-			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("Host: www.example.com:80"));
-			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("Accept: */*"));
-		}
-
-		[Test]
-		public void custom_headers_are_written_correctly()
-		{
-			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("User-Agent: Phil's face"));
-		}
-
-		[Test]
 		public void message_ends_in_two_sets_of_crlf_and_has_no_other_instance_of_crlfcrlf()
 		{
 			Assert.That(_subject.Build().RequestHead(), Is.StringEnding("\r\n\r\n"));

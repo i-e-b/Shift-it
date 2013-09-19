@@ -24,6 +24,19 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		}
 
 		[Test]
+		public void default_headers_are_written_correctly()
+		{
+			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("Host: www.example.com:80"));
+			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("Accept: */*"));
+		}
+
+		[Test]
+		public void custom_headers_are_written_correctly()
+		{
+			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("User-Agent: Phil's face"));
+		}
+
+		[Test]
 		public void can_add_several_values_to_a_header()
 		{
 			_subject.AddHeader("X-Plane", "one").AddHeader("X-Plane", "two").AddHeader("X-Plane", "two").AddHeader("X-Plane", "one");
@@ -58,6 +71,17 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 
 			Assert.That(headers.Lines(), Contains.Item("Accept: text/html"));
 			Assert.That(headers.Lines().Count(x => x.StartsWith("Accept:")), Is.EqualTo(1));
+		}
+
+		[Test]
+		public void can_set_custom_host_header()
+		{
+			_subject.SetHeader("Host", "ww1.example.com:81");
+			var headers = _subject.Build().RequestHead();
+
+			Assert.That(((IHttpRequest)_subject).Target, Is.EqualTo(_target));
+			Assert.That(headers.Lines(), Contains.Item("Host: ww1.example.com:81"));
+			Assert.That(headers.Lines().Count(x => x.StartsWith("Host:")), Is.EqualTo(1));
 		}
 	}
 }
