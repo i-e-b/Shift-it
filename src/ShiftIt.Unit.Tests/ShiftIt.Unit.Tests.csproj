@@ -51,6 +51,7 @@
     <Compile Include="Extensions\HttpResponseExtensionsTests.cs" />
     <Compile Include="Http\RequestBuilding\BasicAuthentication.cs" />
     <Compile Include="Http\RequestBuilding\CustomVerbs.cs" />
+    <Compile Include="Http\RequestBuilding\Headers.cs" />
     <Compile Include="Http\RequestBuilding\HttpsDetection.cs" />
     <Compile Include="Http\RequestBuilding\StreamPut.cs" />
     <Compile Include="Http\RequestBuilding\Lorem.cs" />

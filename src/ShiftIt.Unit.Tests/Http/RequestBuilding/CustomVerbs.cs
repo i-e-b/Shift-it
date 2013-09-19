@@ -18,7 +18,8 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		public void setup()
 		{
 			_subject = new HttpRequestBuilder();
-			target = new Uri("http://www.example.com/my/path");			_localTarget = "/my/path";
+			target = new Uri("http://www.example.com/my/path");
+			_localTarget = "/my/path";
 
 			_verb = "PURGE";
 			_subject.Verb(_verb, target).SetHeader("User-Agent", "Phil's face");
@@ -60,13 +61,6 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		{
 			Assert.That(_subject.Build().RequestHead(), Is.StringEnding("\r\n\r\n"));
 			Assert.That(_subject.Build().RequestHead().CountOf("\r\n\r\n"), Is.EqualTo(1));
-		}
-
-		[Test]
-		public void can_add_several_values_to_a_header()
-		{
-			_subject.AddHeader("X-Plane", "one").AddHeader("X-Plane", "two");
-			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("X-Plane: one,two"));
 		}
 	}
 }

@@ -72,7 +72,7 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		[Test]
 		public void can_override_accept_headers ()
 		{
-            _subject.Accept("text/html");
+			_subject.Accept("text/html");
 			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("Accept: text/html"));
 		}
 
@@ -81,13 +81,6 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		{
 			Assert.That(_subject.Build().RequestHead(), Is.StringEnding("\r\n\r\n"));
 			Assert.That(_subject.Build().RequestHead().CountOf("\r\n\r\n"), Is.EqualTo(1));
-		}
-
-		[Test]
-		public void can_add_several_values_to_a_header()
-		{
-			_subject.AddHeader("X-Plane", "one").AddHeader("X-Plane", "two");
-			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("X-Plane: one,two"));
 		}
 	}
 }
