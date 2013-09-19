@@ -57,6 +57,7 @@
     <Compile Include="Http\RequestBuilding\Lorem.cs" />
     <Compile Include="Http\RequestBuilding\SimplePost.cs" />
     <Compile Include="Http\RequestBuilding\SimpleGet.cs" />
+    <Compile Include="Http\Responses\WithMixedCaseHeaders.cs" />
     <Compile Include="Http\Responses\FailedRequest.cs" />
     <Compile Include="Http\Responses\WithDuplicatedHeaders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,6 +75,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Helpers\mixed_case_headers.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Helpers\failed.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

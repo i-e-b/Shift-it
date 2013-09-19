@@ -30,7 +30,7 @@ namespace ShiftIt.Http
 		/// </summary>
 		public HttpRequestBuilder()
 		{
-			_headers = new Dictionary<string, List<string>>
+			_headers = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"Accept-Encoding",new List<string> {"gzip", "deflate"}}
 			};

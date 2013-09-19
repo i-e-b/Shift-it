@@ -44,6 +44,20 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		}
 
 		[Test]
+		public void can_add_headers_with_field_name_being_case_insensitive()
+		{
+			_subject.AddHeader("X-Plane", "one").AddHeader("x-Plane", "two").AddHeader("X-plAne", "two");
+			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("X-Plane: one,two"));
+		}
+
+		[Test]
+		public void can_set_headers_with_field_name_being_case_insensitive()
+		{
+			_subject.SetHeader("X-Plane", "one").SetHeader("x-Plane", "three").SetHeader("X-plAne", "two");
+			Assert.That(_subject.Build().RequestHead().Lines(), Contains.Item("X-Plane: two"));
+		}
+
+		[Test]
 		public void can_add_several_values_to_accept_encoding()
 		{
 			_subject.AddHeader("Accept-Encoding", "x-gzip").AddHeader("Accept-Encoding", "x-custom");

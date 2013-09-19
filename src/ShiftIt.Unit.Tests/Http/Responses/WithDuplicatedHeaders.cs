@@ -58,8 +58,6 @@ namespace ShiftIt.Unit.Tests.Http.Responses
 		public void duplicated_http_headers_are_correct_use_most_recent_value()
 		{
 			Assert.That(_result.Headers["Content-Length"], Is.EqualTo("96"));
-			
 		}
-
 	}
 }
