@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/i-e-b/Shift-it</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Support for overriding Accept, Accept-Encoding and Host headers. Case-insensitive handling of header field names.</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>http ftp sockets client</tags>
+  </metadata>
+</package>

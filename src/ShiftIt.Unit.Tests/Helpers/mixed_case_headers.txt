@@ -1,0 +1,12 @@
+﻿HTTP/1.1 200 OK
+Date: Sun, 03 Feb 2013 13:19:56 GMT
+Server: Microsoft-IIS/6.0
+X-Powered-By: ASP.NET
+Pragma: no-cache
+Content-Length: 90
+content-tYPE: text/html
+expires: Sun, 03 Feb 2013 13:18:56 GMT
+cache-Control: no-store
+CONTENT-LENGTH: 96
+
+<html><head><title>A html page</title></head><body> <h1>Hi</h1><p>Hello there!</p></body></html>

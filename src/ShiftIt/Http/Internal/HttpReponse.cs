@@ -14,7 +14,11 @@ namespace ShiftIt.Http.Internal
 	public class HttpReponse : IHttpResponse
 	{
 		Stream _rawResponse;
-		readonly HashSet<string> _singleItemHeaders = new HashSet<string> { "Content-Length" };
+
+		private readonly ISet<string> _singleItemHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+			{
+				"Content-Length"
+			};
 
 		/// <summary>
 		/// Reads synchronously until headers are complete, then 
@@ -23,7 +27,7 @@ namespace ShiftIt.Http.Internal
 		public HttpReponse(Stream rawResponse, TimeSpan timeout)
 		{
 			_rawResponse = rawResponse;
-			Headers = new Dictionary<string, string>();
+			Headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 			ReadStatusLine(NextLine(rawResponse));
 
 			foreach (var headerLine in NonBlankLines(rawResponse)) AddHeader(headerLine);

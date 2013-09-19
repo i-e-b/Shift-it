@@ -6,7 +6,6 @@ using System.Text;
 
 namespace ShiftIt.Http
 {
-	
 	/// <summary>
 	/// HTTP requests builder and request object
 	/// </summary>
@@ -14,7 +13,6 @@ namespace ShiftIt.Http
 	{
 		string _verb;
 		string _url;
-		string _accept;
 		readonly Dictionary<string, List<string>> _headers;
 
 		/// <summary>
@@ -32,7 +30,10 @@ namespace ShiftIt.Http
 		/// </summary>
 		public HttpRequestBuilder()
 		{
-			_headers = new Dictionary<string, List<string>>();
+			_headers = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
+			{
+				{"Accept-Encoding",new List<string> {"gzip", "deflate"}}
+			};
 			DataLength = -1;
 		}
 
@@ -95,12 +96,12 @@ namespace ShiftIt.Http
 		}
 
 		/// <summary>
-		/// Set the MIME types to accept for the resource.
+		/// Set the MIME types to accept for the resource. Replaces existing header value.
 		/// Defaults to */* if not provided. 
 		/// </summary>
 		public IHttpRequestBuilder Accept(string mimeTypes)
 		{
-			_accept = mimeTypes;
+			SetHeader("Accept", mimeTypes);
 			return this;
 		}
 
@@ -154,9 +155,9 @@ namespace ShiftIt.Http
 		/// </summary>
 		public IHttpRequestBuilder SetHeader(string name, string value)
 		{
-			lock (_headers)
+			if (!_headers.ContainsKey(name))
 			{
-				if (!_headers.ContainsKey(name)) _headers.Add(name, new List<string>());
+				_headers.Add(name, new List<string>());
 			}
 			_headers[name].Clear();
 			_headers[name].Add(value);
@@ -168,14 +169,16 @@ namespace ShiftIt.Http
 		/// </summary>
 		public IHttpRequestBuilder AddHeader(string name, string value)
 		{
-			lock (_headers)
+			if (!_headers.ContainsKey(name))
 			{
-				if (!_headers.ContainsKey(name)) _headers.Add(name, new List<string>());
+				_headers.Add(name, new List<string>());
 			}
-			_headers[name].Add(value);
+			if (!_headers[name].Contains(value))
+			{
+				_headers[name].Add(value);
+			}
 			return this;
 		}
-
 
 		/// <summary>
 		/// Headers
@@ -190,9 +193,6 @@ namespace ShiftIt.Http
 
 			a(_verb); a(" "); a(_url); a(" HTTP/1.1");
 			crlf();
-			k("Host"); a(Target.Host); a(":"); n(Target.Port); crlf();
-			k("Accept"); a(_accept); crlf();
-			k("Accept-Encoding"); a("gzip, deflate"); crlf();
 
 			foreach (var header in _headers)
 			{
@@ -208,13 +208,13 @@ namespace ShiftIt.Http
 			return sb.ToString();
 		}
 
-
 		void StdVerb(string verb, Uri target)
 		{
 			Target = target;
+			SetHeader("Host", string.Format("{0}:{1}", target.Host, target.Port));
 			_verb = verb;
 			_url = target.GetComponents(UriComponents.PathAndQuery, UriFormat.UriEscaped);
-			_accept = "*/*";
+			Accept("*/*");
 		}
 
 		/// <summary>
@@ -227,17 +227,12 @@ namespace ShiftIt.Http
 		/// </summary>
 		public bool Secure
 		{
-			get
-			{
-				if (Target == null) return false;
-				return Target.Scheme.ToLowerInvariant() == "https";
-			}
+			get { return Target.Scheme.ToLowerInvariant() == "https"; }
 		}
 
 		/// <summary>
 		/// Body data stream
 		/// </summary>
 		public Stream DataStream { get; private set; }
-
 	}
 }
