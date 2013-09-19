@@ -33,5 +33,10 @@ namespace ShiftIt.Unit.Tests.Helpers
 		{
 			return Sample("failed");
 		}
+
+		public static Stream WithMixedCaseHeaders()
+		{
+			return Sample("mixed_case_headers");
+		}
 	}
 }
