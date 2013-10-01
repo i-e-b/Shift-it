@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Threading;
 using NUnit.Framework;
 using ShiftIt.Http;
@@ -142,7 +143,8 @@ namespace ShiftIt.Integration.Tests
 
 			using (var result = _subject.Request(rq))
 			{
-				Assert.Throws<TimeoutException>(() => result.BodyReader.ReadStringToLength());
+				var exception = Assert.Throws<Http.TimeoutException>(() => result.BodyReader.ReadStringToLength());
+				Assert.That(exception.ErrorCode, Is.EqualTo((int)SocketError.TimedOut));
 			}
 		}
 

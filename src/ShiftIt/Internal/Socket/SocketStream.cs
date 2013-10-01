@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net.Sockets;
 using System.Threading;
+using ShiftIt.Http;
 
 namespace ShiftIt.Internal.Socket
 {
@@ -37,7 +37,7 @@ namespace ShiftIt.Internal.Socket
 		/// </summary>
 		~SocketStream()
 		{
-			Dispose();
+			Dispose(false);
 		}
 
 		/// <summary>
@@ -50,7 +50,6 @@ namespace ShiftIt.Internal.Socket
 			if (sock.Connected)
 			{
 				sock.Disconnect(false);
-				sock.Close();
 			}
 			sock.Dispose();
 			base.Dispose(disposing);
@@ -74,8 +73,8 @@ namespace ShiftIt.Internal.Socket
 			if (err != SocketError.Success && err != SocketError.WouldBlock)
 			{
 				if (err == SocketError.TimedOut)
-					throw new TimeoutException("Socket timed out during read");
-				throw new IOException("Socket error during read: "+err);
+					throw new TimeoutException();
+				throw new SocketException((int) err);
 			}
 			Position += len;
 			return len;
@@ -92,8 +91,8 @@ namespace ShiftIt.Internal.Socket
 			if (err != SocketError.Success)
 			{
 				if (err == SocketError.TimedOut)
-					throw new TimeoutException("Socket timed out during send");
-				throw new IOException("Socket error during send: "+err);
+					throw new TimeoutException();
+				throw new SocketException((int)err);
 			}
 			_writtenLength += count;
 		}
