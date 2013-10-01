@@ -129,13 +129,19 @@ namespace ShiftIt.Internal.Socket
 		/// </summary>
 		~HttpSingleResponseStream()
 		{
-			Dispose();
+			Dispose(false);
 		}
 
 		/// <summary>
 		/// Close and dispose the underlying stream
 		/// </summary>
 		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
 		{
 			var sock = Interlocked.Exchange(ref _source, null);
 			if (sock == null) return;

@@ -51,6 +51,7 @@
     <Compile Include="Http\IHttpResponse.cs" />
     <Compile Include="Http\Internal\IHttpResponseParser.cs" />
     <Compile Include="Http\StatusClass.cs" />
+    <Compile Include="Http\TimeoutException.cs" />
     <Compile Include="Internal\Streaming\HttpChunkedResponseStream.cs" />
     <Compile Include="Internal\Streaming\HttpSingleResponseStream.cs" />
     <Compile Include="Internal\Socket\IConnectableStreamSource.cs" />

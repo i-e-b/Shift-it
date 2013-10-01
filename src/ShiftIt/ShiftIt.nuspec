@@ -13,4 +13,7 @@
     <copyright>Copyright 2013</copyright>
     <tags>http ftp sockets client</tags>
   </metadata>
+  <files>
+    <file src="bin\Release\*.pdb" target="lib\net40"/>
+  </files>
 </package>

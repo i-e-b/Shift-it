@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using TimeoutException = ShiftIt.Http.TimeoutException;
 
 namespace ShiftIt.Internal.Socket
 {
@@ -34,7 +35,7 @@ namespace ShiftIt.Internal.Socket
 				var got = source.Read(buf, 0, len);
 
 				if (got > 0) lastData[0] = now();
-				else if (waiting() > timeout.TotalMilliseconds) throw new TimeoutException("Timeout while reading from result stream");
+				else if (waiting() > timeout.TotalMilliseconds) throw new TimeoutException();
 
 				read += got;
 				dest.Write(buf, 0, got);

@@ -23,6 +23,8 @@ namespace ShiftIt.Http
 		/// <summary>
 		/// Verb used
 		/// </summary>
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033",
+			Justification = "Builder and Request are the same object, but exposed differently.")]
 		string IHttpRequest.Verb { get { return _verb; }}
 
 		/// <summary>
