@@ -38,7 +38,7 @@ namespace ShiftIt.Internal.Socket
 		/// </summary>
 		~HttpChunkedResponseStream()
 		{
-			Dispose();
+			Dispose(false);
 		}
 
 		/// <summary>
@@ -187,6 +187,12 @@ namespace ShiftIt.Internal.Socket
 		/// Dispose of the underlying stream
 		/// </summary>
 		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
 		{
 			var sock = Interlocked.Exchange(ref _source, null);
 			if (sock == null) return;

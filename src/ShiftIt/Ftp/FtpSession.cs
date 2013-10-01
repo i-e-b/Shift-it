@@ -71,7 +71,8 @@ namespace ShiftIt.Ftp {
 		/// </summary>
 		public void Dispose()
 		{
-			Close();
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		/// <summary>
@@ -636,14 +637,9 @@ namespace ShiftIt.Ftp {
 		/// <summary>
 		/// Close the FTP connection.
 		/// </summary>
-		public void Close () {
-
-			if (_clientSocket != null) {
-				SendCommand("QUIT");
-			}
-
-			Cleanup();
-			Console.WriteLine("Closing...");
+		public void Close ()
+		{
+			Dispose(true);
 		}
 
 		/// <summary>
@@ -706,6 +702,16 @@ namespace ShiftIt.Ftp {
 		/// </summary>
 		public void SetDebug (Boolean debug) {
 			_debug = debug;
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (_clientSocket != null)
+			{
+				SendCommand("QUIT");
+			}
+
+			Cleanup();
 		}
 
 		#region Arcane Inner Workings
