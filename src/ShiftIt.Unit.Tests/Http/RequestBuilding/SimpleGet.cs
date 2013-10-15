@@ -26,7 +26,7 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		[Test]
 		public void get_verb_is_given()
 		{
-			Assert.That(_subject.Build().RequestHead(), Is.StringStarting("GET "));
+			Assert.That(_subject.Build().RequestHead, Is.StringStarting("GET "));
 
 			Assert.That(_subject.Build().Verb, Is.EqualTo("GET"));
 		}
@@ -34,20 +34,20 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		[Test]
 		public void http_version_is_given_as_1_1()
 		{
-			Assert.That(_subject.Build().RequestHead().Lines().First(), Is.StringEnding(" HTTP/1.1"));
+			Assert.That(_subject.Build().RequestHead.Lines().First(), Is.StringEnding(" HTTP/1.1"));
 		}
 
 		[Test]
 		public void request_path_is_given()
 		{
-			Assert.That(_subject.Build().RequestHead().Lines().First(), Is.StringContaining(_localTarget));
+			Assert.That(_subject.Build().RequestHead.Lines().First(), Is.StringContaining(_localTarget));
 		}
 
 		[Test]
 		public void message_ends_in_two_sets_of_crlf_and_has_no_other_instance_of_crlfcrlf()
 		{
-			Assert.That(_subject.Build().RequestHead(), Is.StringEnding("\r\n\r\n"));
-			Assert.That(_subject.Build().RequestHead().CountOf("\r\n\r\n"), Is.EqualTo(1));
+			Assert.That(_subject.Build().RequestHead, Is.StringEnding("\r\n\r\n"));
+			Assert.That(_subject.Build().RequestHead.CountOf("\r\n\r\n"), Is.EqualTo(1));
 		}
 	}
 }

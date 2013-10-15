@@ -24,7 +24,7 @@ namespace ShiftIt.Integration.Tests
 			_client = new HttpClient();
 			_uri_src = new Uri("http://encoderraid0.7digital.local/testing/files/hello.txt");
 			_uri_dst = new Uri("http://encoderraid0.7digital.local/testing/files/hello2.txt");
-			_putRq = new HttpRequestBuilder().Put(_uri_src).StringData("Hello, world").Build();
+			_putRq = new HttpRequestBuilder().Put(_uri_src).Build("Hello, world");
 			_getRq = new HttpRequestBuilder().Get(_uri_src).Build();
 			_deleteRq = new HttpRequestBuilder().Delete(_uri_src).Build();
 			_deleteRq2 = new HttpRequestBuilder().Delete(_uri_dst).Build();
@@ -54,7 +54,7 @@ namespace ShiftIt.Integration.Tests
 			using (var getTx = _client.Request(_getRq)) // get source
 			{
 				var putRq = new HttpRequestBuilder().Put(_uri_dst)
-					.Data(getTx.RawBodyStream, getTx.BodyReader.ExpectedLength).Build();
+					.Build(getTx.RawBodyStream, getTx.BodyReader.ExpectedLength);
 				using (var putTx = _client.Request(putRq)) // write out to dest
 				{
 					Assert.That(putTx.StatusClass, Is.EqualTo(StatusClass.Success));

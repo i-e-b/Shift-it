@@ -21,7 +21,7 @@ namespace ShiftIt.Http
 		/// <summary>
 		/// Headers
 		/// </summary>
-		string RequestHead();
+		string RequestHead { get; }
 
 		/// <summary>
 		/// Body data stream
