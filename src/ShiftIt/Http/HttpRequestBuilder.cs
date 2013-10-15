@@ -9,23 +9,12 @@ namespace ShiftIt.Http
 	/// <summary>
 	/// HTTP requests builder and request object
 	/// </summary>
-	public class HttpRequestBuilder : IHttpRequestBuilder, IHttpRequest
+	public class HttpRequestBuilder : IHttpRequestBuilder
 	{
 		string _verb;
 		string _url;
 		readonly Dictionary<string, List<string>> _headers;
-
-		/// <summary>
-		/// Target resource
-		/// </summary>
-		public Uri Target { get; private set; }
-
-		/// <summary>
-		/// Verb used
-		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033",
-			Justification = "Builder and Request are the same object, but exposed differently.")]
-		string IHttpRequest.Verb { get { return _verb; }}
+		private Uri _target;
 
 		/// <summary>
 		/// Start building a new request
@@ -36,7 +25,6 @@ namespace ShiftIt.Http
 			{
 				{"Accept-Encoding",new List<string> {"gzip", "deflate"}}
 			};
-			DataLength = -1;
 		}
 
 		/// <summary>
@@ -108,31 +96,6 @@ namespace ShiftIt.Http
 		}
 
 		/// <summary>
-		/// Provide a data stream for the request. It will be sent to the target resource's
-		/// hosting server.
-		/// </summary>
-		/// <param name="stream">Data stream</param>
-		/// <param name="length">Length of data. Must be provided.</param>
-		public IHttpRequestBuilder Data(Stream stream, long length)
-		{
-			DataStream = stream;
-			DataLength = length;
-			return this;
-		}
-
-		/// <summary>
-		/// Provide string data for the request. It will be sent to the target resource's
-		/// hosting server.
-		/// </summary>
-		public IHttpRequestBuilder StringData(string data)
-		{
-			var bytes = Encoding.UTF8.GetBytes(data);
-			DataStream = new MemoryStream(bytes);
-			DataLength = bytes.Length;
-			return this;
-		}
-
-		/// <summary>
 		/// Provide basic authentication details for the target resource.
 		/// WARNING: this will be sent in the clear. Use only in internal networks
 		/// or over SSL connections.
@@ -145,11 +108,33 @@ namespace ShiftIt.Http
 		}
 
 		/// <summary>
+		/// Build the request, providing a data stream for the request. It will be sent to the target resource's
+		/// hosting server.
+		/// </summary>
+		/// <param name="stream">Data stream</param>
+		/// <param name="length">Length of data. Must be provided.</param>
+		public IHttpRequest Build(Stream stream, long length)
+		{
+			return new HttpRequest(_target, _verb, stream, length, RequestHead(length));
+		}
+
+		/// <summary>
+		/// Build the request, providing string data for the request. It will be sent to the target resource's
+		/// hosting server.
+		/// </summary>
+		public IHttpRequest Build(string data)
+		{
+			var bytes = Encoding.UTF8.GetBytes(data);
+			var dataLength = bytes.Length;
+			return new HttpRequest(_target, _verb, new MemoryStream(bytes), dataLength, RequestHead(dataLength));
+		}
+
+		/// <summary>
 		/// Build the request
 		/// </summary>
 		public IHttpRequest Build()
 		{
-			return this;
+			return new HttpRequest(_target, _verb, null, -1, RequestHead(-1));
 		}
 
 		/// <summary>
@@ -182,10 +167,7 @@ namespace ShiftIt.Http
 			return this;
 		}
 
-		/// <summary>
-		/// Headers
-		/// </summary>
-		public string RequestHead()
+		string RequestHead(long dataLength)
 		{
 			var sb = new StringBuilder();
 			Action crlf = () => sb.Append("\r\n");
@@ -201,9 +183,9 @@ namespace ShiftIt.Http
 				k(header.Key); a(string.Join(",", header.Value)); crlf();
 			}
 
-			if (DataLength >= 0)
+			if (dataLength >= 0)
 			{
-				k("Content-Length"); n(DataLength); crlf();
+				k("Content-Length"); n(dataLength); crlf();
 			}
 			crlf();
 
@@ -212,29 +194,61 @@ namespace ShiftIt.Http
 
 		void StdVerb(string verb, Uri target)
 		{
-			Target = target;
+			_target = target;
 			SetHeader("Host", string.Format("{0}:{1}", target.Host, target.Port));
 			_verb = verb;
 			_url = target.GetComponents(UriComponents.PathAndQuery, UriFormat.UriEscaped);
 			Accept("*/*");
 		}
 
-		/// <summary>
-		/// Length of body data
-		/// </summary>
-		public long DataLength { get; private set; }
-
-		/// <summary>
-		/// Returns true if a HTTPS resource is being requested.
-		/// </summary>
-		public bool Secure
+		private class HttpRequest : IHttpRequest
 		{
-			get { return Target.Scheme.ToLowerInvariant() == "https"; }
-		}
+			private readonly Uri _target;
+			private readonly string _verb;
+			private readonly Stream _dataStream;
+			private readonly long _dataLength;
+			private readonly string _requestHead;
+			private readonly bool _secure;
 
-		/// <summary>
-		/// Body data stream
-		/// </summary>
-		public Stream DataStream { get; private set; }
+			public HttpRequest(Uri target, string verb, Stream dataStream, long dataLength, string requestHead)
+			{
+				_target = target;
+				_verb = verb;
+				_dataStream = dataStream;
+				_dataLength = dataLength;
+				_requestHead = requestHead;
+				_secure = _target.Scheme.ToLowerInvariant() == "https";
+			}
+
+			public Uri Target
+			{
+				get { return _target; }
+			}
+
+			public string Verb
+			{
+				get { return _verb; }
+			}
+
+			public string RequestHead
+			{
+				get { return _requestHead; }
+			}
+
+			public Stream DataStream
+			{
+				get { return _dataStream; }
+			}
+
+			public long DataLength
+			{
+				get { return _dataLength; }
+			}
+
+			public bool Secure
+			{
+				get { return _secure; }
+			}
+		}
 	}
 }
