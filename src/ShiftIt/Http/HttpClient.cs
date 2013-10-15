@@ -28,7 +28,7 @@ namespace ShiftIt.Http
 		/// <summary>
 		/// Create a new HttpClient with a specified connection and parser
 		/// </summary>
-		internal HttpClient(IConnectableStreamSource conn, IHttpResponseParser parser)
+		private HttpClient(IConnectableStreamSource conn, IHttpResponseParser parser)
 		{
 			_conn = conn;
 			_parser = parser;
@@ -52,7 +52,7 @@ namespace ShiftIt.Http
 				: _conn.ConnectUnsecured(request.Target, Timeout);
 
 			var Tx = new StreamWriter(socket);
-			Tx.Write(request.RequestHead());
+			Tx.Write(request.RequestHead);
 			Tx.Flush();
 
 			if (request.DataStream != null)
@@ -82,7 +82,7 @@ namespace ShiftIt.Http
 					throw new HttpTransferException(getTx.Headers, loadRequest.Target, getTx.StatusCode);
 
 
-				var storeRq = storeRequest.Data(getTx.RawBodyStream, getTx.BodyReader.ExpectedLength).Build();
+				var storeRq = storeRequest.Build(getTx.RawBodyStream, getTx.BodyReader.ExpectedLength);
 				using (var storeRs = Request(storeRq))
 				{
 					if (storeRs.StatusClass != StatusClass.Success)
@@ -110,7 +110,7 @@ namespace ShiftIt.Http
 					throw new HttpTransferException(getTx.Headers, loadRequest.Target, getTx.StatusCode);
 
 				var hashStream = new HashingReadStream(getTx.RawBodyStream, hash);
-				var storeRq = storeRequest.Data(hashStream, getTx.BodyReader.ExpectedLength).Build();
+				var storeRq = storeRequest.Build(hashStream, getTx.BodyReader.ExpectedLength);
 				using (var storeRs = Request(storeRq))
 				{
 					if (storeRs.StatusClass != StatusClass.Success)

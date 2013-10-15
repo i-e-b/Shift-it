@@ -59,25 +59,25 @@ namespace ShiftIt.Http
 		IHttpRequestBuilder Accept(string mimeTypes);
 
 		/// <summary>
-		/// Provide a data stream for the request. It will be sent to the target resource's
-		/// hosting server.
-		/// </summary>
-		/// <param name="stream">Data stream</param>
-		/// <param name="length">Length of data. Must be provided.</param>
-		IHttpRequestBuilder Data(Stream stream, long length);
-
-		/// <summary>
-		/// Provide string data for the request. It will be sent to the target resource's
-		/// hosting server.
-		/// </summary>
-		IHttpRequestBuilder StringData(string data);
-
-		/// <summary>
 		/// Provide basic authentication details for the target resource.
 		/// WARNING: this will be sent in the clear. Use only in internal networks
 		/// or over SSL connections.
 		/// </summary>
 		IHttpRequestBuilder BasicAuthentication(string userName, string password);
+
+		/// <summary>
+		/// Build the request, providing a data stream for the request. It will be sent to the target resource's
+		/// hosting server.
+		/// </summary>
+		/// <param name="stream">Data stream</param>
+		/// <param name="length">Length of data. Must be provided.</param>
+		IHttpRequest Build(Stream stream, long length);
+
+		/// <summary>
+		/// Build the request, providing string data for the request. It will be sent to the target resource's
+		/// hosting server.
+		/// </summary>
+		IHttpRequest Build(string data);
 
 		/// <summary>
 		/// Build the request

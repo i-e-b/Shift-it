@@ -25,7 +25,7 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		[Test]
 		public void correct_basic_authentication_string_is_used ()
 		{
-			Assert.That(_subject.Build().RequestHead().Lines(),
+			Assert.That(_subject.Build().RequestHead.Lines(),
 				Contains.Item("Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="));
 		}
 		
