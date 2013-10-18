@@ -1,9 +1,11 @@
-﻿using NUnit.Framework;
+﻿using System.Diagnostics.CodeAnalysis;
+using NUnit.Framework;
 using ShiftIt.Ftp;
 
 namespace ShiftIt.Integration.Tests
 {
 	[TestFixture]
+	[SuppressMessage("Design", "CA1001", Justification = "Field is being cleaned in teardown.")]
 	public class FtpSessionTests
 	{
 		IFtpSession _subject;

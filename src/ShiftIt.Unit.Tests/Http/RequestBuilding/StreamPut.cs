@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ using ShiftIt.Unit.Tests.Helpers;
 namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 {
 	[TestFixture]
+	[SuppressMessage("Design", "CA1001", Justification = "Field is being cleaned in teardown.")]
 	public class StreamPut
 	{
 		IHttpRequestBuilder _subject;
@@ -28,6 +30,12 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 			_dataStream = new MemoryStream(Encoding.UTF8.GetBytes(_data));
 
 			_request = _subject.Put(_target).SetHeader("User-Agent", "Phil's face").Build(_dataStream, _data.Length);
+		}
+
+		[TearDown]
+		public void Teardown()
+		{
+			_dataStream.Dispose();
 		}
 
 		[Test]
