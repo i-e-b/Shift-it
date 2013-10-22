@@ -15,13 +15,23 @@ namespace ShiftIt.Http
 		IHttpResponse Request(IHttpRequest request);
 
 		/// <summary>
+		/// Issue a request to a server, and return the (IDisposable) response. Throws if the response status code was not a success.
+		/// </summary>
+		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+		/// <exception cref="ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets.</exception>
+		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+		IHttpResponse RequestOrThrow(IHttpRequest request);
+
+		/// <summary>
 		/// Request data from one resource and provide to another.
 		/// This is done in a memory-efficient manner.
 		/// </summary>
 		/// <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
 		/// <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
+		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+		/// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
 		void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest);
-
 
 		/// <summary>
 		/// Request data from one resource and provide to another, calculating a 
@@ -31,6 +41,9 @@ namespace ShiftIt.Http
 		/// <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
 		/// <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
 		/// <param name="hashAlgorithmName">Name of hash algorithm to use (should a name supported by System.Security.Cryptography.HashAlgorithm)</param>
+		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+		/// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
 		byte[] CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, string hashAlgorithmName);
 
 		/// <summary>
