@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
-using ShiftIt.Http.Internal;
+using ShiftIt.Internal.Http;
 using ShiftIt.Internal.Socket;
 using ShiftIt.Internal.Streaming;
 
@@ -28,7 +28,7 @@ namespace ShiftIt.Http
 		/// <summary>
 		/// Create a new HttpClient with a specified connection and parser
 		/// </summary>
-		private HttpClient(IConnectableStreamSource conn, IHttpResponseParser parser)
+		public HttpClient(IConnectableStreamSource conn, IHttpResponseParser parser)
 		{
 			_conn = conn;
 			_parser = parser;
@@ -69,6 +69,21 @@ namespace ShiftIt.Http
 		}
 
 		/// <summary>
+		/// Issue a request to a server, and return the (IDisposable) response. Throws if the response status code was not a success.
+		/// </summary>
+		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+		/// <exception cref="ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets.</exception>
+		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+		public IHttpResponse RequestOrThrow(IHttpRequest request)
+		{
+			var response = Request(request);
+			if (response.StatusClass == StatusClass.Success) return response;
+
+			response.Dispose();
+			throw new HttpTransferException(response.Headers, request.Target, response.StatusCode, response.StatusMessage);
+		}
+
+		/// <summary>
 		/// Request data from one resource and provide to another.
 		/// This is done in a memory-efficient manner.
 		/// </summary>
@@ -79,17 +94,11 @@ namespace ShiftIt.Http
 		/// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
 		public void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest)
 		{
-			using (var getTx = Request(loadRequest)) // get source
+			using (var getTx = RequestOrThrow(loadRequest)) // get source
 			{
-				if (getTx.StatusClass != StatusClass.Success)
-					throw new HttpTransferException(getTx.Headers, loadRequest.Target, getTx.StatusCode);
-
-
 				var storeRq = storeRequest.Build(getTx.RawBodyStream, getTx.BodyReader.ExpectedLength);
-				using (var storeRs = Request(storeRq))
+				using (RequestOrThrow(storeRq)) // dispose of the response stream
 				{
-					if (storeRs.StatusClass != StatusClass.Success)
-						throw new HttpTransferException(storeRs.Headers, storeRq.Target, storeRs.StatusCode);
 				}
 			}
 		}
@@ -102,24 +111,19 @@ namespace ShiftIt.Http
 		/// </summary>
 		/// <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
 		/// <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
-		/// <param name="hashAlgorithmName">Name of hash algorithm to use (should a name supported by System.Security.Cryptography.HashAlgorithm)</param>
+		/// <param name="hashAlgorithmName">Name of hash algorithm to use (should be a name supported by <see cref="System.Security.Cryptography.HashAlgorithm"/>)</param>
 		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
 		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
 		/// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
 		public byte[] CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, string hashAlgorithmName)
 		{
 			var hash = HashAlgorithm.Create(hashAlgorithmName);
-			using (var getTx = Request(loadRequest))
+			using (var getTx = RequestOrThrow(loadRequest))
 			{
-				if (getTx.StatusClass != StatusClass.Success)
-					throw new HttpTransferException(getTx.Headers, loadRequest.Target, getTx.StatusCode);
-
 				var hashStream = new HashingReadStream(getTx.RawBodyStream, hash);
 				var storeRq = storeRequest.Build(hashStream, getTx.BodyReader.ExpectedLength);
-				using (var storeRs = Request(storeRq))
+				using (RequestOrThrow(storeRq)) // dispose of the response stream
 				{
-					if (storeRs.StatusClass != StatusClass.Success)
-						throw new HttpTransferException(storeRs.Headers, storeRq.Target, storeRs.StatusCode);
 				}
 				return hashStream.GetHashValue();
 			}

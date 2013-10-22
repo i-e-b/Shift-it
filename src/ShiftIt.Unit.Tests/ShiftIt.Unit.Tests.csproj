@@ -57,6 +57,7 @@
     <Compile Include="Http\RequestBuilding\Lorem.cs" />
     <Compile Include="Http\RequestBuilding\SimplePost.cs" />
     <Compile Include="Http\RequestBuilding\SimpleGet.cs" />
+    <Compile Include="Http\HttpClient\RequestOrThrow.cs" />
     <Compile Include="Http\Responses\WithMixedCaseHeaders.cs" />
     <Compile Include="Http\Responses\FailedRequest.cs" />
     <Compile Include="Http\Responses\WithDuplicatedHeaders.cs" />

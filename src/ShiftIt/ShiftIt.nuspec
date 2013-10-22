@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/i-e-b/Shift-it</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Changed data stream approach to avoid confusing failure scenarios.</releaseNotes>
+    <releaseNotes>Added RequestOrThrow overload to HttpClient.</releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>http ftp sockets client</tags>
   </metadata>

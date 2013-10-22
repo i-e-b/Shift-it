@@ -44,12 +44,12 @@
     <Compile Include="Http\HttpTransferException.cs" />
     <Compile Include="Http\IHttpClient.cs" />
     <Compile Include="Http\IHttpRequest.cs" />
-    <Compile Include="Http\Internal\HttpReponse.cs" />
+    <Compile Include="Internal\Http\HttpResponse.cs" />
     <Compile Include="Http\HttpRequestBuilder.cs" />
-    <Compile Include="Http\Internal\HttpResponseParser.cs" />
+    <Compile Include="Internal\Http\HttpResponseParser.cs" />
     <Compile Include="Http\IHttpRequestBuilder.cs" />
     <Compile Include="Http\IHttpResponse.cs" />
-    <Compile Include="Http\Internal\IHttpResponseParser.cs" />
+    <Compile Include="Internal\Http\IHttpResponseParser.cs" />
     <Compile Include="Http\StatusClass.cs" />
     <Compile Include="Http\TimeoutException.cs" />
     <Compile Include="Internal\Streaming\HttpChunkedResponseStream.cs" />
@@ -62,7 +62,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\Socket\SocketStreamFactory.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="ShiftIt.nuspec" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
