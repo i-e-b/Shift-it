@@ -2,7 +2,7 @@
 using System.IO;
 using NUnit.Framework;
 using ShiftIt.Http;
-using ShiftIt.Http.Internal;
+using ShiftIt.Internal.Http;
 using ShiftIt.Unit.Tests.Helpers;
 
 namespace ShiftIt.Unit.Tests.Http.Responses

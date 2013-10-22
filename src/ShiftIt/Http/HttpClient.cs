@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
-using ShiftIt.Http.Internal;
+using ShiftIt.Internal.Http;
 using ShiftIt.Internal.Socket;
 using ShiftIt.Internal.Streaming;
 

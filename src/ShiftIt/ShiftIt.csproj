@@ -44,12 +44,12 @@
     <Compile Include="Http\HttpTransferException.cs" />
     <Compile Include="Http\IHttpClient.cs" />
     <Compile Include="Http\IHttpRequest.cs" />
-    <Compile Include="Http\Internal\HttpReponse.cs" />
+    <Compile Include="Internal\Http\HttpResponse.cs" />
     <Compile Include="Http\HttpRequestBuilder.cs" />
-    <Compile Include="Http\Internal\HttpResponseParser.cs" />
+    <Compile Include="Internal\Http\HttpResponseParser.cs" />
     <Compile Include="Http\IHttpRequestBuilder.cs" />
     <Compile Include="Http\IHttpResponse.cs" />
-    <Compile Include="Http\Internal\IHttpResponseParser.cs" />
+    <Compile Include="Internal\Http\IHttpResponseParser.cs" />
     <Compile Include="Http\StatusClass.cs" />
     <Compile Include="Http\TimeoutException.cs" />
     <Compile Include="Internal\Streaming\HttpChunkedResponseStream.cs" />
