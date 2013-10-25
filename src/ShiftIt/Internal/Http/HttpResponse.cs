@@ -134,7 +134,8 @@ namespace ShiftIt.Internal.Http
 			while (true)
 			{
 				var line = NextLine(rawResponse);
-				if (string.IsNullOrWhiteSpace(line)) yield break;
+				if (string.IsNullOrWhiteSpace(line))
+					yield break;
 				yield return line;
 			}
 		}

@@ -19,7 +19,7 @@ namespace ShiftIt.Unit.Tests.Http.Responses
 		{
 			_rawSample = HttpSample.WithMixedCaseHeaders();
 			_subject = new HttpResponseParser();
-			_result = _subject.Parse(_rawSample, TimeSpan.Zero);
+			_result = _subject.Parse(_rawSample, TimeSpan.FromSeconds(1));
 		}
 
 		[TearDown]
