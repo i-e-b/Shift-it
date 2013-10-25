@@ -9,7 +9,7 @@ namespace ShiftIt.Internal.Socket
 	/// </summary>
 	public static class StreamTools
 	{
-		const int BufferSize = 4096;
+		private const int DefaultBufferSize = 32*1024;
 		
 		/// <summary>
 		/// Copy a specific number of bytes from a source to a destination stream, with a timeout.
@@ -21,8 +21,9 @@ namespace ShiftIt.Internal.Socket
 		/// <param name="timeout">Maximum time to wait for data</param>
 		public static void CopyBytesToLength(Stream source, Stream dest, long length, TimeSpan timeout)
 		{
+			var bufferSize = (int)Math.Min(length, DefaultBufferSize);
 			long read = 0;
-			var buf = new byte[BufferSize];
+			var buf = new byte[bufferSize];
 			long remaining;
 
 			Func<int> now = () => Environment.TickCount;
@@ -31,7 +32,7 @@ namespace ShiftIt.Internal.Socket
 
 			while ((remaining = length - read) > 0)
 			{
-				var len = remaining > BufferSize ? BufferSize : (int)remaining;
+				var len = remaining > bufferSize ? bufferSize : (int)remaining;
 				var got = source.Read(buf, 0, len);
 
 				if (got > 0) lastData[0] = now();
@@ -49,7 +50,7 @@ namespace ShiftIt.Internal.Socket
 		/// <param name="dest">Stream to write to</param>
 		public static void CopyBytesToTimeout(Stream source, Stream dest)
 		{
-			try { source.CopyTo(dest); }
+			try { source.CopyTo(dest, DefaultBufferSize); }
 			catch (TimeoutException) { }
 		}
 	}

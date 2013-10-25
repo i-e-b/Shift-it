@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/i-e-b/Shift-it</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Added RequestOrThrow overload to HttpClient.</releaseNotes>
+    <releaseNotes>Increased default buffer size.</releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>http ftp sockets client</tags>
   </metadata>
