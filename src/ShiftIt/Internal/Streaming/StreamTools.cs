@@ -9,7 +9,7 @@ namespace ShiftIt.Internal.Socket
 	/// </summary>
 	public static class StreamTools
 	{
-		private const int DefaultBufferSize = 32*1024;
+		private const int DefaultBufferSize = 32*1024*1024;
 		
 		/// <summary>
 		/// Copy a specific number of bytes from a source to a destination stream, with a timeout.
