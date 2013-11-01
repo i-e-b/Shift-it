@@ -9,8 +9,8 @@ using ShiftIt.Unit.Tests.Helpers;
 
 namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 {
+	[SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
 	[TestFixture]
-	[SuppressMessage("Design", "CA1001", Justification = "Field is being cleaned in teardown.")]
 	public class StreamPut
 	{
 		IHttpRequestBuilder _subject;

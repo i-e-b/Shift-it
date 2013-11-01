@@ -4,8 +4,8 @@ using ShiftIt.Ftp;
 
 namespace ShiftIt.Integration.Tests
 {
+	[SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
 	[TestFixture]
-	[SuppressMessage("Design", "CA1001", Justification = "Field is being cleaned in teardown.")]
 	public class FtpSessionTests
 	{
 		IFtpSession _subject;
