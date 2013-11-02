@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/i-e-b/Shift-it</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Increased default buffer size.</releaseNotes>
+    <releaseNotes>Added convenience overload to IHttpRequestBuilder.Build()</releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>http ftp sockets client</tags>
   </metadata>

@@ -80,6 +80,16 @@ namespace ShiftIt.Http
 		IHttpRequest Build(string data);
 
 		/// <summary>
+		/// Build the request, providing object data for the request. It will be sent to the target resource's
+		/// hosting server.
+		/// </summary>
+		/// <example><code>
+		/// // sends out "targetId=142&amp;value=Hello%2C+Jim"
+		/// builder.Build(new {targetId = 142, value = "Hello, Jim" });
+		/// </code></example>
+		IHttpRequest Build(object data);
+
+		/// <summary>
 		/// Build the request
 		/// </summary>
 		IHttpRequest Build();
