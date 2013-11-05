@@ -5,7 +5,6 @@ using ShiftIt.Http;
 using ShiftIt.Internal.Http;
 using System.IO;
 using System.Text;
-using System.Web;
 
 namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 {
@@ -71,20 +70,11 @@ namespace ShiftIt.Unit.Tests.Http.RequestBuilding
 		}
 
 		[Test]
-		public void Request_builder_throws_when_content_type_for_data_doesnt_match()
+		public void Request_builder_changes_content_type_for_form_data()
 		{
-			var exc = Assert.Throws<ArgumentException>(
-				() => new HttpRequestBuilder().Put(new Uri("http://test")).Build(new {}));
-			Assert.That(exc, Has.Message.EqualTo(
-				"Automated data serialisation is only supported for Content-Type:application/x-www-form-urlencoded."));
-		}
+			var request =  new HttpRequestBuilder().Put(new Uri("http://test")).BuildForm(new {});
 
-		[Test]
-		public void Request_builder_doesnt_throw_when_content_type_for_data_is_correct()
-		{
-			Assert.DoesNotThrow(
-				() => new HttpRequestBuilder().Put(new Uri("http://test")).AddHeader("Content-Type", "application/x-www-form-urlencoded")
-					.Build(new { }));
+			Assert.That(request.RequestHead, Contains.Substring("\r\nContent-Type: application/x-www-form-urlencoded\r\n"));
 		}
 	}
 }

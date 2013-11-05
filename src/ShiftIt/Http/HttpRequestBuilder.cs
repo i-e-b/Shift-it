@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using ShiftIt.Internal.Http;
 
@@ -130,29 +129,28 @@ namespace ShiftIt.Http
 			var dataLength = bytes.Length;
 			return new HttpRequest(_target, _verb, new MemoryStream(bytes), dataLength, RequestHead(dataLength));
 		}
-
+		
 		/// <summary>
-		/// Build the request, providing object data for the request. It will be sent to the target resource's
-		/// hosting server.
+		/// Build the request, providing object data for the request.
+		/// Each public property on the object will be sent as a form value to the target resource's
+		/// hosting server. This will force Content-Type to application/x-www-form-urlencoded
 		/// </summary>
 		/// <example><code>
 		/// // sends out "targetId=142&amp;value=Hello%2C+Jim"
 		/// builder.Build(new {targetId = 142, value = "Hello, Jim" });
 		/// </code></example>
-		public IHttpRequest Build(object data)
+		public IHttpRequest BuildForm(object data)
 		{
-			if (!_headers.ContainsKey("Content-Type")
-				|| _headers["Content-Type"].Single() != "application/x-www-form-urlencoded")
-				throw new ArgumentException(
-					"Automated data serialisation is only supported for Content-Type:application/x-www-form-urlencoded.");
+			SetHeader("Content-Type", "application/x-www-form-urlencoded");
 
 			var dataStream = new ObjectToRequestStreamConverter().ConvertToStream(data);
 			var dataLength = dataStream.Length;
+				
 			return new HttpRequest(_target, _verb, dataStream, dataLength, RequestHead(dataLength));
 		}
 
 		/// <summary>
-		/// Build the request
+		/// Build the request, suppling no data.
 		/// </summary>
 		public IHttpRequest Build()
 		{

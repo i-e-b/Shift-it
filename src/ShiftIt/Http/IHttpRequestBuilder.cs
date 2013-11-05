@@ -80,17 +80,18 @@ namespace ShiftIt.Http
 		IHttpRequest Build(string data);
 
 		/// <summary>
-		/// Build the request, providing object data for the request. It will be sent to the target resource's
-		/// hosting server.
+		/// Build the request, providing object data for the request.
+		/// Each public property on the object will be sent as a form value to the target resource's
+		/// hosting server. This will force Content-Type to application/x-www-form-urlencoded
 		/// </summary>
 		/// <example><code>
 		/// // sends out "targetId=142&amp;value=Hello%2C+Jim"
 		/// builder.Build(new {targetId = 142, value = "Hello, Jim" });
 		/// </code></example>
-		IHttpRequest Build(object data);
+		IHttpRequest BuildForm(object data);
 
 		/// <summary>
-		/// Build the request
+		/// Build the request, suppling no data.
 		/// </summary>
 		IHttpRequest Build();
 	}
