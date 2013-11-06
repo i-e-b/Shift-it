@@ -18,6 +18,11 @@ namespace ShiftIt.Unit.Tests.Helpers
 		{
 			return Sample("gzipped");
 		}
+		
+		public static Stream PlainTextWithIncorrectGzipHeader()
+		{
+			return Sample("uncompressed_but_marked_as_gzip");
+		}
 
 		static Stream Sample(string f)
 		{

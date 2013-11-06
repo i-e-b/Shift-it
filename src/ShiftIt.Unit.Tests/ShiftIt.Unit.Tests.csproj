@@ -59,6 +59,7 @@
     <Compile Include="Http\RequestBuilding\SimplePost.cs" />
     <Compile Include="Http\RequestBuilding\SimpleGet.cs" />
     <Compile Include="Http\HttpClient\RequestOrThrow.cs" />
+    <Compile Include="Http\Responses\IncorrectlyMarkedUncompressedResponse.cs" />
     <Compile Include="Http\Responses\WithMixedCaseHeaders.cs" />
     <Compile Include="Http\Responses\FailedRequest.cs" />
     <Compile Include="Http\Responses\WithDuplicatedHeaders.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Http\Responses\UncompressedEmpty.cs" />
     <Compile Include="Http\Responses\UncompressedWithBody.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
+    <Compile Include="Streams\Pushback_input_stream_tests_with_seekable_stream.cs" />
     <Compile Include="Streams\Zero_size_expected_length_stream.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +79,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Helpers\uncompressed_but_marked_as_gzip.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Helpers\mixed_case_headers.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

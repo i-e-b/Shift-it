@@ -38,14 +38,13 @@ namespace ShiftIt.Internal.Socket
 		public HttpSingleResponseStream(Stream source, int expectedLength)
 		{
 			_lock = new Object();
-			_source = source;
 			_expectedLength = expectedLength;
 			_firstByte = -1;
 			_readSoFar = 0;
 
 			Timeout = HttpClient.DefaultTimeout;
 			VerifiedLength = true;
-			TryDirtyCompressedStreamReading(source, ref _expectedLength);
+			_source = TryDirtyCompressedStreamReading(source, ref _expectedLength);
 		}
 		
 		/// <summary>
@@ -152,25 +151,27 @@ namespace ShiftIt.Internal.Socket
 		/// This pile of dirt digs out the compressed stream length if it can.
 		/// Blame the bad .Net api!
 		/// </summary>
-		void TryDirtyCompressedStreamReading(Stream ins, ref int expectedLength)
+		Stream TryDirtyCompressedStreamReading(Stream ins, ref int expectedLength)
 		{
+			VerifiedLength = false;
+			return ins;
+			/*DeflateStream s = null;
 			try
 			{
-				DeflateStream s;
 				if (ins is GZipStream)
 				{
 					var g = ins.GetType().GetField("deflateStream", BindingFlags.Instance | BindingFlags.NonPublic);
-					if (g == null) return;
+					if (g == null) return ins;
 					s = (DeflateStream)g.GetValue(ins);
 				}
 				else s = ins as DeflateStream;
 
-				if (s == null) return;
+				if (s == null) return ins;
 				// need to pull a byte to get the deflate stream to decode...
 				_firstByte = s.ReadByte();
 
 				var f = s.GetType().GetField("inflater", BindingFlags.Instance | BindingFlags.NonPublic);
-				if (f == null) return;
+				if (f == null) return ins;
 				var fo = f.GetValue(s);
 
 				var avf = fo.GetType().GetProperty("AvailableOutput");
@@ -179,10 +180,25 @@ namespace ShiftIt.Internal.Socket
 				var reportedLength = (int)avv;
 				if (reportedLength > expectedLength) expectedLength = reportedLength;
 			}
+			catch (InvalidDataException) // This is probably not a valid compressed stream
+			{
+				if (s == null || s.BaseStream == null) return ins;
+				// TODO: set a flag that to note that we did this!
+
+				Stream sx = s.BaseStream;
+				int b;
+				while ((b = sx.ReadByte()) >= 0)
+				{
+					Console.Write((char)b);
+				}
+
+				return s.BaseStream;
+			}
 			catch (Exception)
 			{
 				VerifiedLength = false;
 			}
+			return ins;*/
 		}
 	}
 }
