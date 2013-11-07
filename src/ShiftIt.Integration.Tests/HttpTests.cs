@@ -6,7 +6,6 @@ using System.Net.Sockets;
 using System.Threading;
 using NUnit.Framework;
 using ShiftIt.Http;
-using ShiftIt.Internal.Socket;
 
 namespace ShiftIt.Integration.Tests
 {
@@ -50,8 +49,6 @@ namespace ShiftIt.Integration.Tests
 			{
 				var reader = result.BodyReader;
 
-				Assert.That(reader, Is.InstanceOf<HttpChunkedResponseStream>());
-
 				var body = reader.ReadStringToLength();
 
 				Console.WriteLine(Write(result.Headers));
@@ -59,32 +56,7 @@ namespace ShiftIt.Integration.Tests
 
 				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
 				Assert.That(body, Contains.Substring("<html"));
-			}
-		}
-
-		[Test]
-		public void can_read_chunked_responses_in_parts ()
-		{
-			var rq = new HttpRequestBuilder().Get(new Uri("http://www.httpwatch.com/httpgallery/chunked/")).Build();
-			using (var result = _subject.Request(rq))
-			{
-				var reader = result.BodyReader;
-
-				Assert.That(reader, Is.InstanceOf<HttpChunkedResponseStream>());
-
-				string bodyChunk = "wrong";
-
-				Console.WriteLine(Write(result.Headers));
-				while (!reader.Complete)
-				{
-					var chunk = reader.ReadStringToTimeout();
-					Console.WriteLine(">>> " + chunk);
-					if (!string.IsNullOrEmpty(chunk)) bodyChunk = chunk;
-				}
-
-
-				Assert.That(result.StatusMessage, Is.EqualTo("OK"));
-				Assert.That(bodyChunk, Contains.Substring("</html"));
+				Assert.That(body, Contains.Substring("</html>"));
 			}
 		}
 

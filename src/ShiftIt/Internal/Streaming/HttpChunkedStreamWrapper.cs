@@ -11,7 +11,7 @@ namespace ShiftIt.Internal.Streaming
 	/// </summary>
 	public class HttpChunkedStreamWrapper: Stream, ISelfTerminatingStream
 	{
-		readonly PushbackInputStream _source;
+		readonly Stream _source;
 		readonly PushbackBuffer _buffer;
 		readonly TimeSpan _timeout;
 		bool _complete;
@@ -19,10 +19,9 @@ namespace ShiftIt.Internal.Streaming
 		const byte LF = 0x0A;
 
 		/// <summary>
-		/// Wrap a push-back stream to de-chunk.
-		/// Must be push-back to cope with non-compliant HTTP server.
+		/// Wrap a stream to de-chunk.
 		/// </summary>
-		public HttpChunkedStreamWrapper(PushbackInputStream source, TimeSpan timeout)
+		public HttpChunkedStreamWrapper(Stream source, TimeSpan timeout)
 		{
 			_source = source;
 			_timeout = timeout;
@@ -76,8 +75,7 @@ namespace ShiftIt.Internal.Streaming
 			StreamTools.CopyBytesToLength(_source, ms, length, _timeout);
 
 			// Should end with CRLF:
-			//if (!SkipCRLF(_source)) throw new InvalidDataException("HTTP Chunk did not end in CRLF");
-			SkipCRLF(_source);
+			if (!SkipCRLF(_source)) throw new InvalidDataException("HTTP Chunk did not end in CRLF");
 
 			return ms.ToArray();
 		}
@@ -86,13 +84,13 @@ namespace ShiftIt.Internal.Streaming
 		/// Will skip one of CRLF, LFCR, CRCR, LFLF, LF, CR
 		/// because HTTP servers are tricky.
 		/// </summary>
-		static bool SkipCRLF(PushbackInputStream source)
+		bool SkipCRLF(Stream source)
 		{
 			var cr = source.ReadByte();
 			if (cr < 0) return false;
 			if ((cr != CR) && (cr != LF)) return false;
 			var lf = source.ReadByte();
-			if (lf >= 0 && lf != LF && lf != CR) source.UnReadByte((byte)lf);
+			if (lf >= 0 && lf != LF && lf != CR) _buffer.UnRead(new []{(byte)lf}, 0, 1);
 			return true;
 		}
 
@@ -148,6 +146,7 @@ namespace ShiftIt.Internal.Streaming
 		}
 
 		public override long Position { get; set; }
+
 		public bool IsComplete()
 		{
 			return _complete && _buffer.Available() <= 0;
