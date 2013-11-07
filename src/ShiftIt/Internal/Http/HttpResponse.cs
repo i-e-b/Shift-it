@@ -212,6 +212,9 @@ namespace ShiftIt.Internal.Http
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Internal dispose
+		/// </summary>
 		protected virtual void Dispose(bool disposing)
 		{
 			var stream = Interlocked.Exchange(ref _rawResponse, null);

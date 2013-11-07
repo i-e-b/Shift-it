@@ -704,6 +704,9 @@ namespace ShiftIt.Ftp {
 			_debug = debug;
 		}
 
+		/// <summary>
+		/// Close session and cleanup
+		/// </summary>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (_clientSocket != null)

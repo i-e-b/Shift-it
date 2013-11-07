@@ -192,6 +192,9 @@ namespace ShiftIt.Internal.Socket
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Internal dispose
+		/// </summary>
 		protected virtual void Dispose(bool disposing)
 		{
 			var sock = Interlocked.Exchange(ref _source, null);
