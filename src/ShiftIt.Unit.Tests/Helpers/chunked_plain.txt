@@ -1,0 +1,11 @@
+﻿HTTP/1.1 200 OK
+Content-Type: text/xml
+Transfer-Encoding: chunked
+
+33
+<response><build buildId="72759" buildTypeId="bt76"
+80
+ text="Execute test" successful="true" buildTypeSuccessful="true" remainingTime="2m:43s" exceededEstimatedDurationTime="&lt; 1s"
+4E
+ elapsedTime="1m:28s" completedPercent="35" hasArtifacts="false" /></response>
+0

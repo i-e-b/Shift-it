@@ -33,7 +33,26 @@ namespace ShiftIt.Unit.Tests.Streams
 			Assert.That(length, Is.EqualTo(_sample_data.Length));
 		}
 
+		[Test]
+		public void can_unread_single_byte_reads ()
+		{
+			var a = _subject.ReadByte();
+			_subject.UnRead(new[]{(byte)a}, 0, 1);
+			var b = _subject.ReadByte();
+
+			Assert.That(a, Is.EqualTo(b));
+		}
 		
+		[Test]
+		public void can_unread_single_bytes ()
+		{
+			var a = _subject.ReadByte();
+			_subject.UnReadByte((byte)a);
+			var b = _subject.ReadByte();
+
+			Assert.That(a, Is.EqualTo(b));
+		}
+
 		[Test]
 		public void unread_data_can_be_read_again ()
 		{

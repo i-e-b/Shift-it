@@ -8,6 +8,11 @@ namespace ShiftIt.Unit.Tests.Helpers
 		{
 			return Sample("uncompressed");
 		}
+		
+		public static Stream ChunkedResponse()
+		{
+			return Sample("chunked_plain");
+		}
 
 		public static Stream EmptyResponse()
 		{

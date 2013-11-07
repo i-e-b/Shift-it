@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using ShiftIt.Http;
+using ShiftIt.Internal.Streaming;
 
 namespace ShiftIt.Internal.Socket
 {

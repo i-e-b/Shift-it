@@ -11,7 +11,7 @@ namespace ShiftIt.Internal.Streaming
 	{
 		readonly Stream _baseStream;
 		long _position;
-		readonly Queue<byte> _unreadBuffer;
+		readonly PushbackBuffer _pushbackBuffer;
 
 		/// <summary>
 		/// Create a pushback wrapper around another stream.
@@ -22,7 +22,7 @@ namespace ShiftIt.Internal.Streaming
 		{
 			_baseStream = baseStream;
 			_position = _baseStream.Position;
-			_unreadBuffer = new Queue<byte>();
+			_pushbackBuffer = new PushbackBuffer(_baseStream);
 		}
 
 		/// <summary>
@@ -30,18 +30,7 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			var remains = count;
-			var pos = offset;
-			while (remains > 0 && _unreadBuffer.Count > 0)
-			{
-				// write to buffer, advance offset
-				remains--;
-				buffer[pos] = _unreadBuffer.Dequeue();
-				pos++;
-			}
-			//any left, read from stream
-			if (remains > 0) pos += _baseStream.Read(buffer, pos, remains);
-			var total = pos - offset;
+			var total = _pushbackBuffer.Read(buffer, offset, count);
 			_position += total;
 			return total;
 		}
@@ -61,14 +50,20 @@ namespace ShiftIt.Internal.Streaming
 			if (_baseStream.CanSeek)
 			{
 				_position = _baseStream.Seek(-length, SeekOrigin.Current);
-				return;
 			}
-			var end = offset+length;
-			for (var i = offset; i < end; i++)
+			else
 			{
-				_unreadBuffer.Enqueue(buffer[i]);
-				_position--;
+				_pushbackBuffer.UnRead(buffer, offset, length);
+				_position-= length;
 			}
+		}
+		
+		/// <summary>
+		/// Push back a single byte
+		/// </summary>
+		public void UnReadByte(byte b)
+		{
+			UnRead(new []{b}, 0, 1);
 		}
 
 		/// <summary>
@@ -130,7 +125,5 @@ namespace ShiftIt.Internal.Streaming
 		/** <summary>Passed to underlying stream</summary>*/public override bool CanWrite { get { return _baseStream.CanWrite; } }
 		/** <summary>Passed to underlying stream</summary>*/public override long Length { get { return _baseStream.Length; } }
 		#endregion
-
-		
 	}
 }
