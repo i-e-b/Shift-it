@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using ShiftIt.Http;
 using ShiftIt.Internal.Socket;
+using ShiftIt.Internal.Streaming;
 
 namespace ShiftIt.Internal.Http
 {
@@ -66,14 +67,28 @@ namespace ShiftIt.Internal.Http
 		{
 			rawResponse.ReadByte(); // eat one spare byte
 			if (rawResponse is SocketStream) ((SocketStream)rawResponse).ResetCounts();
+
 			if (!Headers.ContainsKey("Content-Encoding")) return rawResponse; // plain body
+
+			var pushbackStream = new PushbackInputStream(rawResponse);
 
 			switch (Headers["Content-Encoding"])
 			{
-				case "gzip": return GzipUnwrap(rawResponse);
-				case "deflate": return DeflateUnwrap(rawResponse);
+				case "gzip": 
+					if (LooksLikeGzip(pushbackStream)) return GzipUnwrap(pushbackStream);
+					return pushbackStream; // misreported gzip -- this happens :-(
+				case "deflate": return DeflateUnwrap(rawResponse); // no good way to determine this
 				default: throw new Exception("Unknown compression scheme: " + Headers["Content-Encoding"]);
 			}
+		}
+
+		static bool LooksLikeGzip(PushbackInputStream s)
+		{
+			var magic = new byte[10];
+			var len = s.Read(magic, 0, 10);
+			s.UnRead(magic, 0, 10); // always reset the stream.
+
+			return (len == 10 && magic[0] == 0x1F && magic[1] == 0x8B);
 		}
 
 		static Stream DeflateUnwrap(Stream rawResponse)

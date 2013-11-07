@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.IO.Compression;
+using System.Reflection;
 using TimeoutException = ShiftIt.Http.TimeoutException;
 
 namespace ShiftIt.Internal.Socket
@@ -9,7 +11,10 @@ namespace ShiftIt.Internal.Socket
 	/// </summary>
 	public static class StreamTools
 	{
-		private const int DefaultBufferSize = 64 * 1024;
+		/// <summary>
+		/// Default buffer size for transfers. 64KiB
+		/// </summary>
+		public const int DefaultBufferSize = 64 * 1024;
 		
 		/// <summary>
 		/// Copy a specific number of bytes from a source to a destination stream, with a timeout.
@@ -19,19 +24,30 @@ namespace ShiftIt.Internal.Socket
 		/// <param name="dest">Stream to write to</param>
 		/// <param name="length">Maximum length to read</param>
 		/// <param name="timeout">Maximum time to wait for data</param>
-		public static void CopyBytesToLength(Stream source, Stream dest, long length, TimeSpan timeout)
+		public static long CopyBytesToLength(Stream source, Stream dest, long length, TimeSpan timeout)
 		{
 			var bufferSize = (int)Math.Min(length, DefaultBufferSize);
 			long read = 0;
 			var buf = new byte[bufferSize];
 			long remaining;
+			var realLength = length;
 
 			Func<int> now = () => Environment.TickCount;
 			int[] lastData = {now()};
 			Func<int> waiting = () => now() - lastData[0];
 
-			while ((remaining = length - read) > 0)
+			Func<int> gzipLength = GzipLengthAvailable(source);
+
+			while ((remaining = realLength - read) > 0)
 			{
+				// Deal with crappy GZipStream behaviour:
+				if (gzipLength != null)
+				{
+					var glen = gzipLength();
+					if (glen > 0) realLength = read + glen; // adjust length
+					else realLength = read + (bufferSize * 2); // keep going
+				}
+
 				var len = remaining > bufferSize ? bufferSize : (int)remaining;
 				var got = source.Read(buf, 0, len);
 
@@ -41,7 +57,33 @@ namespace ShiftIt.Internal.Socket
 				read += got;
 				dest.Write(buf, 0, got);
 			}
+			return read;
 		}
+
+		/// <summary>
+		/// Function so that: If the stream is a GZipStream, and the length is known,
+		/// return that length. Otherwise return zero.
+		/// Returns null if stream is not a GZipStream.
+		/// </summary>
+		public static Func<int> GzipLengthAvailable(Stream ins)
+		{
+			try
+			{
+				if (!(ins is GZipStream)) return null;
+				var g = ins.GetType().GetField("deflateStream", BindingFlags.Instance | BindingFlags.NonPublic);
+				if (g == null) return null;
+				var s = (DeflateStream)g.GetValue(ins);
+				if (s == null) return null;
+				var f = s.GetType().GetField("inflater", BindingFlags.Instance | BindingFlags.NonPublic);
+				if (f == null) return null;
+				var fo = f.GetValue(s);
+				var avf = fo.GetType().GetProperty("AvailableOutput");
+				return () => (int)avf.GetValue(fo, new object[0]);
+			}
+			catch (Exception)
+			{
+				return null;
+			}		}
 
 		/// <summary>
 		/// Copy bytes from a source to a destination stream, with a timeout.

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.IO.Compression;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using ShiftIt.Http;
@@ -14,9 +12,8 @@ namespace ShiftIt.Internal.Socket
 	public class HttpSingleResponseStream : IHttpResponseStream
 	{
 		Stream _source;
-		readonly int _expectedLength;
+		long _expectedLength;
 		readonly object _lock;
-		int _firstByte;
 		long _readSoFar;
 
 		/// <summary>
@@ -39,19 +36,11 @@ namespace ShiftIt.Internal.Socket
 		{
 			_lock = new Object();
 			_expectedLength = expectedLength;
-			_firstByte = -1;
 			_readSoFar = 0;
 
 			Timeout = HttpClient.DefaultTimeout;
-			VerifiedLength = true;
-			_source = TryDirtyCompressedStreamReading(source, ref _expectedLength);
+			_source = source;
 		}
-		
-		/// <summary>
-		/// True if length should be treated as reliable.
-		/// If false, the length field will likely be inaccurate
-		/// </summary>
-		protected bool VerifiedLength { get; private set; }
 
 		/// <summary>
 		/// Length that server reported for the response.
@@ -62,7 +51,6 @@ namespace ShiftIt.Internal.Socket
 		public long ExpectedLength
 		{
 			get {
-				if (_firstByte >= 0) return _expectedLength + 1;
 				return _expectedLength;
 			}
 		}
@@ -73,7 +61,6 @@ namespace ShiftIt.Internal.Socket
 		/// </summary>
 		public string ReadStringToLength()
 		{
-			if (!VerifiedLength) return ReadStringToTimeout();
 			return Encoding.UTF8.GetString(ReadBytesToLength());
 		}
 
@@ -92,12 +79,10 @@ namespace ShiftIt.Internal.Socket
 		/// </summary>
 		public byte[] ReadBytesToLength()
 		{
-			if (!VerifiedLength) return ReadBytesToTimeout();
-			var ms = new MemoryStream(_expectedLength);
+			var ms = new MemoryStream((int)_expectedLength);
 			lock (_lock)
 			{
-				if (_firstByte >= 0) ms.WriteByte((byte)_firstByte);
-				StreamTools.CopyBytesToLength(_source, ms, _expectedLength, Timeout);
+				_expectedLength = StreamTools.CopyBytesToLength(_source, ms, _expectedLength, Timeout);
 			}
 			_readSoFar += ms.Length;
 			return ms.ToArray();
@@ -108,8 +93,7 @@ namespace ShiftIt.Internal.Socket
 		/// </summary>
 		public byte[] ReadBytesToTimeout()
 		{
-			var ms = new MemoryStream(_expectedLength);
-			if (_firstByte >= 0) ms.WriteByte((byte)_firstByte);
+			var ms = new MemoryStream((int)_expectedLength);
 			StreamTools.CopyBytesToTimeout(_source, ms);
 			_readSoFar += ms.Length;
 			return ms.ToArray();
@@ -145,60 +129,6 @@ namespace ShiftIt.Internal.Socket
 			var sock = Interlocked.Exchange(ref _source, null);
 			if (sock == null) return;
 			sock.Dispose();
-		}
-
-		/// <summary>
-		/// This pile of dirt digs out the compressed stream length if it can.
-		/// Blame the bad .Net api!
-		/// </summary>
-		Stream TryDirtyCompressedStreamReading(Stream ins, ref int expectedLength)
-		{
-			VerifiedLength = false;
-			return ins;
-			/*DeflateStream s = null;
-			try
-			{
-				if (ins is GZipStream)
-				{
-					var g = ins.GetType().GetField("deflateStream", BindingFlags.Instance | BindingFlags.NonPublic);
-					if (g == null) return ins;
-					s = (DeflateStream)g.GetValue(ins);
-				}
-				else s = ins as DeflateStream;
-
-				if (s == null) return ins;
-				// need to pull a byte to get the deflate stream to decode...
-				_firstByte = s.ReadByte();
-
-				var f = s.GetType().GetField("inflater", BindingFlags.Instance | BindingFlags.NonPublic);
-				if (f == null) return ins;
-				var fo = f.GetValue(s);
-
-				var avf = fo.GetType().GetProperty("AvailableOutput");
-				var avv = avf.GetValue(fo, new object[0]);
-
-				var reportedLength = (int)avv;
-				if (reportedLength > expectedLength) expectedLength = reportedLength;
-			}
-			catch (InvalidDataException) // This is probably not a valid compressed stream
-			{
-				if (s == null || s.BaseStream == null) return ins;
-				// TODO: set a flag that to note that we did this!
-
-				Stream sx = s.BaseStream;
-				int b;
-				while ((b = sx.ReadByte()) >= 0)
-				{
-					Console.Write((char)b);
-				}
-
-				return s.BaseStream;
-			}
-			catch (Exception)
-			{
-				VerifiedLength = false;
-			}
-			return ins;*/
 		}
 	}
 }

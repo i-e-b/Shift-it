@@ -97,7 +97,7 @@ namespace ShiftIt.Internal.Socket
 		}
 
 		/// <summary>
-		/// Sets read and write counts (Position, Lenght) to 0
+		/// Sets read and write counts (Position, Length) to 0
 		/// </summary>
 		public void ResetCounts()
 		{
@@ -105,14 +105,22 @@ namespace ShiftIt.Internal.Socket
 			Position = 0;
 		}
 
+		long _writtenLength;
+		/// <summary>
+		/// Number of bytes written to socket
+		/// </summary>
+		public override long Length { get { return _writtenLength; } }
+
+		/// <summary>
+		/// Number of bytes read from socket
+		/// </summary>
+		public override long Position { get; set; }
+
 		/**<summary> No action </summary>*/ public override long Seek(long offset, SeekOrigin origin) { return 0; }
 		/**<summary> No action </summary>*/ public override void SetLength(long value) {  }
 
 		/**<summary> No action </summary>*/ public override bool CanRead { get { return true; } }
 		/**<summary> No action </summary>*/ public override bool CanSeek { get { return false; } }
 		/**<summary> No action </summary>*/ public override bool CanWrite { get { return true; } } 
-		long _writtenLength;
-		/**<summary> No action </summary>*/ public override long Length { get { return _writtenLength; } }
-		/**<summary> No action </summary>*/ public override long Position { get; set; }
 	}
 }
