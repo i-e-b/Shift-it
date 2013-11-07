@@ -12,7 +12,7 @@ namespace ShiftIt.Unit.Tests.Streams
 		public void a_zero_length_uncompressed_stream_should_result_in_an_empty_string()
 		{
 			var src = new MemoryStream();
-			var subject = new HttpSingleResponseStream(src, 0);
+			var subject = new HttpResponseStream(src, 0);
 
 			var result = subject.ReadStringToLength();
 
@@ -24,7 +24,7 @@ namespace ShiftIt.Unit.Tests.Streams
 		{
 			var src = new MemoryStream();
 			var cmp = new DeflateStream(src, CompressionMode.Decompress);
-			var subject = new HttpSingleResponseStream(cmp, 0);
+			var subject = new HttpResponseStream(cmp, 0);
 
 			var result = subject.ReadStringToLength();
 

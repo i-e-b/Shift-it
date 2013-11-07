@@ -11,16 +11,50 @@ namespace ShiftIt.Internal.Streaming
 	/// </summary>
 	public class GZipStreamWrapper : Stream, ISelfTerminatingStream
 	{
-		readonly GZipStream _source;
-		readonly Func<bool> _isDone;
+		readonly PushbackInputStream _source;
+		Stream _decompressedStream;
+		Func<bool> _isDone;
 
 		/// <summary>
 		/// Wrap gzip stream
 		/// </summary>
-		public GZipStreamWrapper(GZipStream source)
+		public GZipStreamWrapper(PushbackInputStream source)
 		{
 			_source = source;
-			_isDone = GzipFinished(source) ?? (() => true);
+			_isDone = () => false;
+			_decompressedStream = null;
+		}
+
+
+		/// <summary>
+		/// Read decompressed data from the source
+		/// </summary>
+		public override int Read(byte[] buffer, int offset, int count)
+		{
+			if (_decompressedStream == null) _decompressedStream = PrepareGzip(_source);
+
+			return _decompressedStream.Read(buffer, offset, count);
+		}
+
+		Stream PrepareGzip(PushbackInputStream src)
+		{
+			if (LooksLikeGzip(src))
+			{
+				var gz = new GZipStream(src, CompressionMode.Decompress, true);
+				_isDone = GzipFinished(gz) ?? (() => true);
+				return gz;
+			}
+			_isDone = () => true;
+			return src;
+		}
+
+		static bool LooksLikeGzip(PushbackInputStream s)
+		{
+			var magic = new byte[10];
+			var len = s.Read(magic, 0, 10);
+			s.UnRead(magic, 0, 10); // always reset the stream.
+
+			return (len == 10 && magic[0] == 0x1F && magic[1] == 0x8B);
 		}
 
 		static Func<bool> GzipFinished(GZipStream ins)
@@ -58,58 +92,62 @@ namespace ShiftIt.Internal.Streaming
 		}
 
 		#region Pass-through
-		public override void Flush()
+		/**<summary>Not used</summary>*/public override void Flush()
 		{
-			_source.Flush();
+			throw new NotSupportedException();
 		}
 
-		public override long Seek(long offset, SeekOrigin origin)
+		/**<summary>Not used</summary>*/public override long Seek(long offset, SeekOrigin origin)
 		{
-			return _source.Seek(offset, origin);
+			throw new NotSupportedException();
 		}
 
-		public override void SetLength(long value)
+		/**<summary>Not used</summary>*/public override void SetLength(long value)
 		{
-			_source.SetLength(value);
+			throw new NotSupportedException();
 		}
 
-		public override int Read(byte[] buffer, int offset, int count)
+		/**<summary>Not used</summary>*/public override void Write(byte[] buffer, int offset, int count)
 		{
-			return _source.Read(buffer, offset, count);
+			throw new NotSupportedException();
 		}
 
-		public override void Write(byte[] buffer, int offset, int count)
-		{
-			_source.Write(buffer, offset, count);
-		}
-
-		public override bool CanRead
+		/**<summary>Not used</summary>*/public override bool CanRead
 		{
 			get { return _source.CanRead; }
 		}
 
-		public override bool CanSeek
+		/**<summary>Not used</summary>*/public override bool CanSeek
 		{
-			get { return _source.CanSeek; }
+			get { return false; }
 		}
 
-		public override bool CanWrite
+		/**<summary>Not used</summary>*/public override bool CanWrite
 		{
-			get { return _source.CanWrite; }
+			get { return false; }
 		}
 
-		public override long Length
+		/**<summary>Not used</summary>*/public override long Length
 		{
 			get { return _source.Length; }
 		}
 
-		public override long Position
+		/**<summary>Not used</summary>*/public override long Position
 		{
 			get { return _source.Position; }
 			set { _source.Position = value; }
 		}
 		#endregion
 
+		/// <summary>
+		/// Closes the current stream and releases any resources (such as sockets and file handles) associated with the current stream.
+		/// </summary>
+		/// <filterpriority>1</filterpriority>
+		public override void Close()
+		{
+			if (_decompressedStream != null) _decompressedStream.Close();
+			_source.Close();
+		}
 
 	}
 }

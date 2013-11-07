@@ -38,12 +38,14 @@ namespace ShiftIt.Internal.Http
 			_rawResponse.ReadByte(); // eat one spare byte
 			if (_rawResponse is SocketStream) ((SocketStream)_rawResponse).ResetCounts();
 
+			RawBodyStream = _rawResponse;
+
 			// I am scared of this code:
 			var buffered = new PushbackInputStream(_rawResponse);
 			var dechunked = IsChunked() ? (Stream)new HttpChunkedStreamWrapper(buffered, timeout) : buffered;
 			var decompressed = RestOfStreamDecompressed(dechunked);
 	
-			BodyReader = new HttpSingleResponseStream(decompressed, ReportedBodyLength()) {Timeout = timeout};
+			BodyReader = new HttpResponseStream(decompressed, ReportedBodyLength()) {Timeout = timeout};
 		}
 
 		bool IsChunked()
@@ -70,25 +72,9 @@ namespace ShiftIt.Internal.Http
 
 			switch (Headers["Content-Encoding"])
 			{
-				case "gzip": return LooksLikeGzip(pushbackStream) ? GzipUnwrap(pushbackStream) : pushbackStream;
+				case "gzip": return GzipUnwrap(pushbackStream);
 				case "deflate": return DeflateUnwrap(unchunked); // no good way to determine this
 				default: throw new Exception("Unknown compression scheme: " + Headers["Content-Encoding"]);
-			}
-		}
-
-		static bool LooksLikeGzip(PushbackInputStream s)
-		{
-			try
-			{
-				var magic = new byte[10];
-				var len = s.Read(magic, 0, 10);
-				s.UnRead(magic, 0, 10); // always reset the stream.
-
-				return (len == 10 && magic[0] == 0x1F && magic[1] == 0x8B);
-			}
-			catch (ShiftIt.Http.TimeoutException) // no body to check
-			{
-				return false;
 			}
 		}
 
@@ -98,9 +84,9 @@ namespace ShiftIt.Internal.Http
 			return new DeflateStream(rawResponse, CompressionMode.Decompress, true);
 		}
 
-		static Stream GzipUnwrap(Stream rawResponse)
+		static Stream GzipUnwrap(PushbackInputStream rawResponse)
 		{
-			return new GZipStreamWrapper(new GZipStream(rawResponse, CompressionMode.Decompress, true));
+			return new GZipStreamWrapper(rawResponse);
 		}
 
 		void AddHeader(string headerLine)

@@ -56,7 +56,7 @@
     <Compile Include="Internal\Http\ObjectToRequestStreamConverter.cs" />
     <Compile Include="Internal\Streaming\GZipStreamWrapper.cs" />
     <Compile Include="Internal\Streaming\HttpChunkedStreamWrapper.cs" />
-    <Compile Include="Internal\Streaming\HttpSingleResponseStream.cs" />
+    <Compile Include="Internal\Streaming\HttpResponseStream.cs" />
     <Compile Include="Internal\Socket\IConnectableStreamSource.cs" />
     <Compile Include="Internal\Streaming\HashingReadStream.cs" />
     <Compile Include="Internal\Streaming\IHttpResponseStream.cs" />

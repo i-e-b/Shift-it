@@ -29,19 +29,30 @@ namespace ShiftIt.Internal.Streaming
 			_buffer = new PushbackBuffer();
 		}
 
-		public override void Flush() { }
+		/// <summary>
+		/// Closes the current stream and releases any resources (such as sockets and file handles) associated with the current stream.
+		/// </summary>
+		/// <filterpriority>1</filterpriority>
+		public override void Close()
+		{
+			_source.Close();
+		}
 
-		public override long Seek(long offset, SeekOrigin origin)
+		/**<summary>Not used</summary>*/public override void Flush() { }
+
+		/**<summary>Not used</summary>*/public override long Seek(long offset, SeekOrigin origin)
 		{
 			throw new NotSupportedException();
 		}
 
-		public override void SetLength(long value)
+		/**<summary>Not used</summary>*/public override void SetLength(long value)
 		{
 			throw new NotSupportedException();
 		}
 
-
+		/// <summary>
+		/// Read bytes from stream, reading and joining chunks as needed.
+		/// </summary>
 		public override int Read(byte[] buffer, int offset, int count)
 		{
 			if (count > _buffer.Available() && !_complete)
@@ -120,33 +131,37 @@ namespace ShiftIt.Internal.Streaming
 			return result;
 		}
 
-		public override void Write(byte[] buffer, int offset, int count)
+		/**<summary>Not used</summary>*/public override void Write(byte[] buffer, int offset, int count)
 		{
 			throw new NotSupportedException();
 		}
 
-		public override bool CanRead
+		/**<summary>Not used</summary>*/public override bool CanRead
 		{
 			get { return _source.CanRead; }
 		}
 
-		public override bool CanSeek
+		/**<summary>Not used</summary>*/public override bool CanSeek
 		{
 			get { return false; }
 		}
 
-		public override bool CanWrite
+		/**<summary>Not used</summary>*/public override bool CanWrite
 		{
 			get { return false; }
 		}
 
-		public override long Length
+		/**<summary>Not used</summary>*/public override long Length
 		{
 			get { return 0; }
 		}
 
-		public override long Position { get; set; }
+		/**<summary>Not used</summary>*/public override long Position { get; set; }
 
+		/// <summary>
+		/// Returns true if the stream has terminated,
+		/// false otherwise.
+		/// </summary>
 		public bool IsComplete()
 		{
 			return _complete && _buffer.Available() <= 0;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace ShiftIt.Internal.Streaming
@@ -12,6 +11,13 @@ namespace ShiftIt.Internal.Streaming
 		readonly Stream _baseStream;
 		long _position;
 		readonly PushbackBuffer _pushbackBuffer;
+
+		/// <summary>
+		/// Internal
+		/// </summary>
+		protected PushbackInputStream()
+		{
+		}
 
 		/// <summary>
 		/// Create a pushback wrapper around another stream.
@@ -125,5 +131,14 @@ namespace ShiftIt.Internal.Streaming
 		/** <summary>Passed to underlying stream</summary>*/public override bool CanWrite { get { return _baseStream.CanWrite; } }
 		/** <summary>Passed to underlying stream</summary>*/public override long Length { get { return _baseStream.Length; } }
 		#endregion
+
+		/// <summary>
+		/// Closes the current stream and releases any resources (such as sockets and file handles) associated with the current stream.
+		/// </summary>
+		/// <filterpriority>1</filterpriority>
+		public override void Close()
+		{
+			_baseStream.Close();
+		}
 	}
 }

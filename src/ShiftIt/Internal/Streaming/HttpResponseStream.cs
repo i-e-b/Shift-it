@@ -7,9 +7,9 @@ using ShiftIt.Http;
 namespace ShiftIt.Internal.Socket
 {
 	/// <summary>
-	/// Wrapper around a non-chunked http body stream
+	/// Wrapper around a http body stream
 	/// </summary>
-	public class HttpSingleResponseStream : IHttpResponseStream
+	public class HttpResponseStream : IHttpResponseStream
 	{
 		Stream _source;
 		long _expectedLength;
@@ -32,7 +32,7 @@ namespace ShiftIt.Internal.Socket
 		/// <summary>
 		/// Wrap a non-chunked http body stream, with an expected length
 		/// </summary>
-		public HttpSingleResponseStream(Stream source, int expectedLength)
+		public HttpResponseStream(Stream source, int expectedLength)
 		{
 			_lock = new Object();
 			_expectedLength = expectedLength;
@@ -110,7 +110,7 @@ namespace ShiftIt.Internal.Socket
 		/// <summary>
 		/// Dispose of the underlying stream
 		/// </summary>
-		~HttpSingleResponseStream()
+		~HttpResponseStream()
 		{
 			Dispose(false);
 		}
@@ -129,9 +129,9 @@ namespace ShiftIt.Internal.Socket
 		/// </summary>
 		protected virtual void Dispose(bool disposing)
 		{
-			var sock = Interlocked.Exchange(ref _source, null);
-			if (sock == null) return;
-			sock.Dispose();
+			var stream = Interlocked.Exchange(ref _source, null);
+			if (stream == null) return;
+			stream.Close();
 		}
 	}
 }

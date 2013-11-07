@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using System.IO.Compression;
-using System.Reflection;
 using ShiftIt.Internal.Streaming;
 using TimeoutException = ShiftIt.Http.TimeoutException;
 

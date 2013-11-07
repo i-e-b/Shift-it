@@ -73,6 +73,7 @@
     <Compile Include="Streams\Dechunking_stream_tests.cs" />
     <Compile Include="Streams\Pushback_input_stream_tests_with_unseekable_stream.cs" />
     <Compile Include="Streams\Pushback_input_stream_tests_with_seekable_stream.cs" />
+    <Compile Include="Streams\Wrapper_disposal_tests.cs" />
     <Compile Include="Streams\Zero_size_expected_length_stream.cs" />
   </ItemGroup>
   <ItemGroup>
