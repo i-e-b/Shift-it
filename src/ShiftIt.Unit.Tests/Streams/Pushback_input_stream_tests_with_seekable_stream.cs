@@ -20,6 +20,7 @@ namespace ShiftIt.Unit.Tests.Streams
 			_underlying.Read(Arg.Any<byte[]>(), 0, 100).Returns(99);
 			_underlying.CanSeek.Returns(true);
 			_underlying.Seek(-100, SeekOrigin.Current).Returns(1);
+			_underlying.Seek(10, SeekOrigin.Begin).Returns(9);
 
 			_subject = new PushbackInputStream(_underlying);
 		}
@@ -46,5 +47,12 @@ namespace ShiftIt.Unit.Tests.Streams
 			Assert.Throws<NotSupportedException>(() => _subject.Position = 10);
 		}
 
+		[Test]
+		public void seek_is_passed_directly_to_underlying_stream ()
+		{
+			_subject.Seek(10, SeekOrigin.Begin);
+			_underlying.Received().Seek(10, SeekOrigin.Begin);
+			Assert.That(_subject.Position, Is.EqualTo(9));
+		}
 	}
 }

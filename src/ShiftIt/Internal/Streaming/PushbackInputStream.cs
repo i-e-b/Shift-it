@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ShiftIt.Internal.Streaming
@@ -10,11 +11,13 @@ namespace ShiftIt.Internal.Streaming
 	{
 		readonly Stream _baseStream;
 		long _position;
+		readonly Queue<byte> _unreadBuffer;
 
 		public PushbackInputStream(Stream baseStream)
 		{
 			_baseStream = baseStream;
 			_position = _baseStream.Position;
+			_unreadBuffer = new Queue<byte>();
 		}
 
 		/// <summary>
@@ -22,9 +25,20 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			var actual = _baseStream.Read(buffer, offset, count);
-			_position += Math.Max(0, actual);
-			return actual;
+			var remains = count;
+			var pos = offset;
+			while (remains > 0 && _unreadBuffer.Count > 0)
+			{
+				// write to buffer, advance offset
+				remains--;
+				buffer[pos] = _unreadBuffer.Dequeue();
+				pos++;
+			}
+			//any left, read from stream
+			if (remains > 0) pos += _baseStream.Read(buffer, pos, remains);
+			var total = pos - offset;
+			_position += total;
+			return total;
 		}
 		
 		/// <summary>
@@ -44,7 +58,12 @@ namespace ShiftIt.Internal.Streaming
 				_position = _baseStream.Seek(-length, SeekOrigin.Current);
 				return;
 			}
-
+			var end = offset+length;
+			for (var i = offset; i < end; i++)
+			{
+				_unreadBuffer.Enqueue(buffer[i]);
+				_position--;
+			}
 		}
 
 		/// <summary>
@@ -66,6 +85,11 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public override long Seek(long offset, SeekOrigin origin)
 		{
+			if (_baseStream.CanSeek)
+			{
+				_position = _baseStream.Seek(offset, origin);
+				return _position;
+			}
 			return 0;
 		}
 
