@@ -20,7 +20,7 @@ This is a blocking, synchronous library that uses only .Net sockets, not WebClie
 
 Performance
 ===========
-Thanks to @skolima for these:
+Thanks to [skolima](https://github.com/skolima) for these:
 
 ```
 === 14MB file
