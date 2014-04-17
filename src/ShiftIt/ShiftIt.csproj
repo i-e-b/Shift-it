@@ -36,9 +36,6 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ftp\DirectoryListMode.cs" />
-    <Compile Include="Ftp\FtpSession.cs" />
-    <Compile Include="Ftp\IFtpSession.cs" />
     <Compile Include="Http\HttpClient.cs" />
     <Compile Include="Http\HttpResponseExtensions.cs" />
     <Compile Include="Http\HttpTransferException.cs" />
