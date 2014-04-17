@@ -59,6 +59,7 @@
     <Compile Include="Http\RequestBuilding\SimplePost.cs" />
     <Compile Include="Http\RequestBuilding\SimpleGet.cs" />
     <Compile Include="Http\HttpClient\RequestOrThrow.cs" />
+    <Compile Include="Http\Responses\BadHeaderResponse.cs" />
     <Compile Include="Http\Responses\UncompressedChunkedWithBody.cs" />
     <Compile Include="Http\Responses\IncorrectlyMarkedUncompressedResponse.cs" />
     <Compile Include="Http\Responses\WithMixedCaseHeaders.cs" />
@@ -84,6 +85,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Helpers\chunked_plain.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Helpers\bad_header.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Helpers\uncompressed_but_marked_as_gzip.txt">
