@@ -10,12 +10,14 @@ using ShiftIt.Internal.Streaming;
 
 namespace ShiftIt.Internal.Http
 {
+
 	/// <summary>
 	/// Wrapper for HTTP response streams
 	/// </summary>
 	public class HttpResponse : IHttpResponse
 	{
 		Stream _rawResponse;
+		private readonly StringBuilder _debugResponse;
 
 		private readonly ISet<string> _singleItemHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 			{
@@ -28,6 +30,7 @@ namespace ShiftIt.Internal.Http
 		/// </summary>
 		public HttpResponse(Stream rawResponse, TimeSpan timeout)
 		{
+			_debugResponse = new StringBuilder();
 			_rawResponse = rawResponse;
 			Headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 			ReadStatusLine(NextLine(_rawResponse));
@@ -94,7 +97,7 @@ namespace ShiftIt.Internal.Http
 			var parts = headerLine.Split(new[] { ": " }, StringSplitOptions.None);
 			if (parts.Length < 2)
 			{
-				throw new ArgumentException("Bad header -- " + headerLine);
+				throw new ArgumentException(FormatError(headerLine));
 			}
 			var name = parts[0];
 			var value = parts[1];
@@ -111,16 +114,34 @@ namespace ShiftIt.Internal.Http
 			else Headers[name] += "," + value;
 		}
 
-		static string NextLine(Stream stream)
+		private string FormatError(string headerLine)
+		{
+			ReadRestOfHeaderIntoDebugResponse();
+			return string.Format("Bad header -- {0}{1}Full headers:{2}", headerLine, "\r\n", _debugResponse);
+		}
+
+		private void ReadRestOfHeaderIntoDebugResponse()
+		{
+			while (true)
+			{
+				var line = NextLine(_rawResponse);
+				if (string.IsNullOrWhiteSpace(line))
+					break;
+			}
+		}
+
+		string NextLine(Stream stream)
 		{
 			var sb = new StringBuilder();
 			int b;
 			int s = 0;
+			
 			while ((b = stream.ReadByte()) >= 0)
 			{
+				_debugResponse.Append((char) b);
 				if (b == '\r' || b == '\n')
 				{
-					if (s == 2) break;
+					if (s == 2) {break;}
 					if (s == 1 && b != '\n') break;
 					s++;
 				}
@@ -130,9 +151,11 @@ namespace ShiftIt.Internal.Http
 					sb.Append((char)b);
 				}
 			}
-			return sb.ToString();
+
+			var nextLine = sb.ToString();
+			return nextLine;
 		}
-		static IEnumerable<string> NonBlankLines(Stream rawResponse)
+		IEnumerable<string> NonBlankLines(Stream rawResponse)
 		{
 			while (true)
 			{

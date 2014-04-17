@@ -28,6 +28,11 @@ namespace ShiftIt.Unit.Tests.Helpers
 		{
 			return Sample("uncompressed_but_marked_as_gzip");
 		}
+		
+		public static Stream BadHeader()
+		{
+			return Sample("bad_header");
+		}
 
 		static Stream Sample(string f)
 		{
