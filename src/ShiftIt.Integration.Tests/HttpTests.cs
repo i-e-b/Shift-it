@@ -123,8 +123,7 @@ namespace ShiftIt.Integration.Tests
 		[Test]
 		public void connection_to_rabbit_mq_api()
 		{
-			//var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/overview")).BasicAuthentication("guest", "guest").Build();
-			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:55672/api/overview")).BasicAuthentication("guest", "guest").Build();
+			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/overview")).BasicAuthentication("guest", "guest").Build();
 			using (var result = _subject.Request(rq))
 			{
 				var body = result.BodyReader.ReadStringToLength();
@@ -138,7 +137,7 @@ namespace ShiftIt.Integration.Tests
 		public void leak_test_over_result_object()
 		{
 			var start = Connections();
-			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:55672/api/vhosts")).BasicAuthentication("guest", "guest").Build();
+			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/vhosts")).BasicAuthentication("guest", "guest").Build();
 			for (int i = 0; i < 512; i++)
 			{
 				using (var result = _subject.Request(rq))
@@ -158,7 +157,7 @@ namespace ShiftIt.Integration.Tests
 		public void leak_test_over_stream_object()
 		{
 			var start = Connections();
-			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:55672/api/vhosts")).BasicAuthentication("guest", "guest").Build();
+			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/vhosts")).BasicAuthentication("guest", "guest").Build();
 			for (int i = 0; i < 512; i++)
 			{
 				var result = _subject.Request(rq);
@@ -179,7 +178,7 @@ namespace ShiftIt.Integration.Tests
 		public void leak_test_anti_test()
 		{
 			var start = Connections();
-			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:55672/api/vhosts")).BasicAuthentication("guest", "guest").Build();
+			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/vhosts")).BasicAuthentication("guest", "guest").Build();
 			for (int i = 0; i < 110; i++)
 			{
 				var result = _subject.Request(rq);
@@ -194,7 +193,7 @@ namespace ShiftIt.Integration.Tests
 			var end = Connections();
 
 			Console.WriteLine("Before: " + start + ", after: " + end);
-			Assert.That(end, Is.LessThanOrEqualTo(start));
+			Assert.That(end, Is.GreaterThan(start));
 		}
 
 		static long Connections()
