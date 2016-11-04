@@ -1,5 +1,5 @@
 [package]
-name = "shift-it"
+name = "shift_it"
 version = "0.1.0"
 authors = ["Iain Ballard <iain.ballard@gmail.com>"]
 
