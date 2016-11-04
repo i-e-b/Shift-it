@@ -39,9 +39,7 @@ namespace ShiftIt.Ftp {
 		/// </summary>
 		public bool PassiveMode { get; set; }
 
-		const int BlockSize = 512;
-
-		readonly Byte[] _buffer = new Byte[BlockSize];
+	    readonly Byte[] _buffer = new Byte[10240];
 		readonly Encoding ASCII = Encoding.ASCII;
 
 		/// <summary>

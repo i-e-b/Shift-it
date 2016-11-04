@@ -76,9 +76,9 @@ namespace ShiftIt.Integration.Tests
 		}
 
 		[Test]
-		public void read_from_wikipedia()
+		public void read_from_common_site()
 		{
-			var rq = new HttpRequestBuilder().Get(new Uri("http://en.wikipedia.org/wiki/Ternary_search_tree")).Build();
+            var rq = new HttpRequestBuilder().Get(new Uri("http://xkcd.com/1269/")).Build();
 			using (var result = _subject.Request(rq))
 			{
 				var body = result.BodyReader.ReadStringToLength();
@@ -97,9 +97,9 @@ namespace ShiftIt.Integration.Tests
 		}
 
 		[Test]
-		public void head_from_wikipedia()
+		public void head_from_common_site()
 		{
-			var rq = new HttpRequestBuilder().Head(new Uri("http://en.wikipedia.org/wiki/Ternary_search_tree")).Build();
+            var rq = new HttpRequestBuilder().Head(new Uri("http://xkcd.com/1269/")).Build();
 			using (var result = _subject.Request(rq))
 			{
 				Assert.That(result.StatusCode == 200);
@@ -109,7 +109,7 @@ namespace ShiftIt.Integration.Tests
 		[Test]
 		public void reading_the_body_of_a_head_request_results_in_a_timeout()
 		{
-			var rq = new HttpRequestBuilder().Head(new Uri("http://en.wikipedia.org/wiki/Ternary_search_tree")).Build();
+            var rq = new HttpRequestBuilder().Head(new Uri("http://xkcd.com/1269/")).Build();
 
 			_subject.Timeout = TimeSpan.FromSeconds(0.5);
 
@@ -120,7 +120,7 @@ namespace ShiftIt.Integration.Tests
 			}
 		}
 
-		[Test]
+		[Test, Explicit]
 		public void connection_to_rabbit_mq_api()
 		{
 			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/overview")).BasicAuthentication("guest", "guest").Build();

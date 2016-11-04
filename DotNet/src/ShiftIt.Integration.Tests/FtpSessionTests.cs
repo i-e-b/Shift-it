@@ -25,8 +25,8 @@ namespace ShiftIt.Integration.Tests
 		[Test]
 		public void should_be_able_to_connect_to_a_public_ftp_server_and_list_files ()
 		{
-			_subject.SetRemoteHost("ftp.mozilla.org");
-			_subject.SetRemotePath("pub");
+            _subject.SetRemoteHost("ftp.heanet.ie");
+            _subject.SetRemotePath("pub/vim/doc");
 			_subject.ListMode = DirectoryListMode.NameList;
 			var list = _subject.GetFileList("*");
 
