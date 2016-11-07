@@ -4,6 +4,8 @@ use std::net::{TcpStream, Shutdown};
 use std::io::{Read, Write, Error};
 use std::time::Duration;
 
+pub mod http_request;
+
 static SAMPLE_REQUEST: &'static str =
 r#"GET http://www.purple.com/ HTTP/1.1
 Host: www.purple.com
