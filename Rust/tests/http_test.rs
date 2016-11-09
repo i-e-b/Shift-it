@@ -12,7 +12,8 @@ Accept: text/html
 
 #[test]
 fn very_simple_http_call() {
-    let rq = shift_it::http_request::HttpRequest::new();
+    let rq = shift_it::http_request::HttpRequest::new("www.purple.com:80");
+
     let result = shift_it::raw_call("www.purple.com:80", SAMPLE_REQUEST);
     match result {
         Ok(body) => assert_eq!(body, "test"),
