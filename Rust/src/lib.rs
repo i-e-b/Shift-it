@@ -1,20 +1,25 @@
 // a quick test of HTTP over a plain TCP socket.
 
+extern crate native_tls;
+
+use native_tls::TlsConnector;
+
 use std::net::{TcpStream, Shutdown};
 use std::io::{Read, Write, Error};
 use std::time::Duration;
 
 pub mod http_request;
 
+// These strings aren't good, they don't have the correct newlines for HTTP.
 static SAMPLE_REQUEST: &'static str =
-r#"GET http://www.purple.com/ HTTP/1.1
-Host: www.purple.com
+r#"GET https://www.google.co.uk/ HTTP/1.1
+Host: www.google.co.uk
 Accept: text/html
+
 
 "#;
 
 pub fn raw_call(target: &str, request: &str) -> Result<String, Error> {
-    let mut result: Vec<u8> = Vec::new();
     let mut stream = TcpStream::connect(target).unwrap();
 
     stream.set_read_timeout(Some(Duration::from_millis(500))).unwrap();
@@ -23,52 +28,37 @@ pub fn raw_call(target: &str, request: &str) -> Result<String, Error> {
     try!(stream.write(&(request.to_string().into_bytes())));
     try!(stream.flush());
 
+
+    let mut result = vec![];
     let mut buf = &mut[0u8;1024];
     while let Ok(len) = stream.read(buf) {
         if len < 1 {break;}
         result.extend(buf[0..len].iter().cloned());
     }
-
+    //stream.read_to_end(&mut result).unwrap(); // this doesn't behave well.
     try!(stream.shutdown(Shutdown::Both));
 
-    let result_str = String::from_utf8_lossy(&result).into_owned(); // the `into_owned` here is critical
-    // for the return lifetime
-
+    // the `into_owned` here is critical for the return lifetime
+    let result_str = String::from_utf8_lossy(&result).into_owned();
     return Ok(result_str);
 }
 
-pub fn example() {
-    let mut result: Vec<u8> = Vec::new();
-    println!("Connecting");
-    let mut stream = TcpStream::connect("www.purple.com:80").unwrap();
-    // This is equivalent to `TcpStream::connect("153.104.63.227:80")` due to the
-    // std::net::ToSocketAddrs trait.
+pub fn raw_tls(target: &str, request: &str) -> Result<String, Error> {
+    let connector = TlsConnector::builder().unwrap().build().unwrap();
 
+    let stream = TcpStream::connect("www.google.co.uk:443").unwrap();
     stream.set_read_timeout(Some(Duration::from_millis(500))).unwrap();
     stream.set_write_timeout(Some(Duration::from_millis(500))).unwrap();
-    // stream.set_nonblocking(false).unwrap(); // The socket is blocking by default.
 
-    println!("Writing request");
-    if let Err(e) = stream.write(&(SAMPLE_REQUEST.to_string().into_bytes())) {
-        println!("Failed to write socket:{:?}", e);
-        return;
-    }
-    println!("Flushing");
-    stream.flush().expect("Could not flush tcp stream");
+    let mut stream = connector.connect("www.google.co.uk", stream).unwrap();
 
-    print!("Reading response");
-    let mut buf = &mut[0u8;1024];
-    while let Ok(len) = stream.read(buf) {
-        if len < 1 {break;}
-        print!(".");
-        result.extend(buf[0..len].iter().cloned()); // Does the equivalent of `result.push(&buf[0..len]);`
-        // but copies the values from the buffer into
-        // the result vector.
-    }
-    println!("");
+    //stream.write_all(&(SAMPLE_REQUEST.to_string().into_bytes())).unwrap();
+    //                    ^^^ the wrong newlines are hurting...
+    stream.write_all(b"GET / HTTP/1.0\r\nHost: www.google.co.uk\r\nAccept: text/html\r\n\r\n").unwrap();
+    let mut res = vec![];
+    stream.read_to_end(&mut res).unwrap();
 
-    let result_str = String::from_utf8_lossy(&result);
-    println!("{}", &result_str);
-
-    stream.shutdown(Shutdown::Both).expect("Could not close connection");
+    let result_str = String::from_utf8_lossy(&res).into_owned();
+    return Ok(result_str);
 }
+

@@ -21,3 +21,12 @@ fn very_simple_http_call() {
     };
 
 }
+
+#[test]
+fn very_simple_https_call() {
+    let result = shift_it::raw_tls("google.com:443", SAMPLE_REQUEST);
+    match result {
+        Ok(body) => assert_eq!(body, "test"),
+        Err(e) => panic!(e)
+    };
+}

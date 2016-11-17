@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Iain Ballard <iain.ballard@gmail.com>"]
 
 [dependencies]
+native-tls = "0.1"
