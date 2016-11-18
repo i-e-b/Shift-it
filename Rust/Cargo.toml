@@ -5,3 +5,4 @@ authors = ["Iain Ballard <iain.ballard@gmail.com>"]
 
 [dependencies]
 native-tls = "0.1"
+url = "1.2.3"

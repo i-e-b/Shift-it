@@ -1,5 +1,6 @@
 // a quick test of HTTP over a plain TCP socket.
 
+extern crate url;
 extern crate native_tls;
 
 use native_tls::TlsConnector;
@@ -9,15 +10,6 @@ use std::io::{Read, Write, Error};
 use std::time::Duration;
 
 pub mod http_request;
-
-// These strings aren't good, they don't have the correct newlines for HTTP.
-static SAMPLE_REQUEST: &'static str =
-r#"GET https://www.google.co.uk/ HTTP/1.1
-Host: www.google.co.uk
-Accept: text/html
-
-
-"#;
 
 pub fn raw_call(target: &str, request: &str) -> Result<String, Error> {
     let mut stream = TcpStream::connect(target).unwrap();

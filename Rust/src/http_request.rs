@@ -1,20 +1,22 @@
 
 
+use url::{Url, ParseError}; // https://docs.rs/url/1.2.3/url/
 use std::collections::BTreeMap;
+use std::io;
 
 pub struct HttpRequest {
     verb: String,
-    url: String,
+    url: Url,
     headers: BTreeMap<String, Vec<String>>,
 }
 
 impl HttpRequest {
-    pub fn new(target_url: &str) -> HttpRequest {
-        HttpRequest {
+    pub fn new(target_url: &str) -> Result<HttpRequest, ParseError> {
+        Ok(HttpRequest {
             verb: "GET".to_string(),
-            url: target_url.to_string(),
+            url: try!(Url::parse(target_url)),
             headers: BTreeMap::new(),
-        }
+        })
     }
 
     pub fn add_header(&mut self, header: &str, value: &str) {
@@ -35,7 +37,7 @@ impl HttpRequest {
 
         // Mandatory 'Host' header:
         req.push_str("Host: ");
-        req.push_str(&self.url);
+        req.push_str(self.url.host_str().unwrap());
         req.push_str("\r\n");
 
         // Headers
