@@ -1,6 +1,6 @@
 
 
-use url::{Url, ParseError}; // https://docs.rs/url/1.2.3/url/
+use url::{Url, ParseError, Position}; // https://docs.rs/url/1.2.3/url/
 use std::collections::BTreeMap;
 use std::io;
 
@@ -31,8 +31,7 @@ impl HttpRequest {
         // primary line
         req.push_str(&self.verb);
         req.push(' ');
-        //req.push_str(&self.url); // TODO: url parsing
-        req.push('/');
+        req.push_str(&(self.url[Position::BeforePath..]));
         req.push_str(" HTTP/1.1\r\n");
 
         // Mandatory 'Host' header:
