@@ -17,15 +17,10 @@ impl HttpRequest {
         }
     }
 
-    pub fn add_header(& self, header: &str, value: &str) {
-        match self.headers.get(header) {
-            Some(list) => {
-                // add to the list
-            },
-            None => {
-                // add a new list to the hashmap
-            }
-        }
+    pub fn add_header(&mut self, header: &str, value: &str) {
+        let header = header.to_owned();
+
+        self.headers.entry(header).or_insert(vec![]).push(value.to_owned());
     }
 
     pub fn request_bytes(& self) -> Vec<u8> {
@@ -34,8 +29,14 @@ impl HttpRequest {
         // primary line
         req.push_str(&self.verb);
         req.push(' ');
-        req.push_str(&self.url);
+        //req.push_str(&self.url); // TODO: url parsing
+        req.push('/');
         req.push_str(" HTTP/1.1\r\n");
+
+        // Mandatory 'Host' header:
+        req.push_str("Host: ");
+        req.push_str(&self.url);
+        req.push_str("\r\n");
 
         // Headers
         for (key, values) in &self.headers {
