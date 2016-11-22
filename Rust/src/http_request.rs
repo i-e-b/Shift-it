@@ -2,7 +2,6 @@
 
 use url::{Url, ParseError, Position}; // https://docs.rs/url/1.2.3/url/
 use std::collections::BTreeMap;
-use std::io;
 
 pub struct HttpRequest {
     verb: String,
@@ -47,6 +46,10 @@ impl HttpRequest {
             "https" => HttpTarget::Secure(conn),
             _       => HttpTarget::NoTarget
         };
+    }
+
+    pub fn domain(& self) -> String {
+        self.url.host_str().unwrap_or("localhost").to_owned()
     }
 
     pub fn request_bytes(& self) -> Vec<u8> {

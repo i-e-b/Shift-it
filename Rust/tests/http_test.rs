@@ -62,10 +62,11 @@ fn very_simple_http_call() {
 
 #[test]
 fn very_simple_https_call() {
-    let result = shift_it::raw_tls("google.com:443", SAMPLE_REQUEST);
+    let result = shift_it::raw_tls("google.com:443", "GET /search?q=term&oq=term&sourceid=chrome&ie=UTF-8#q=term&start=10 HTTP/1.1\r\nHost: www.google.co.uk\r\n\r\n");
     match result {
         Ok(body) => assert_eq!(body, "test"),
         Err(e) => panic!(e)
     };
 }
+
 */
