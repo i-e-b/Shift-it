@@ -4,7 +4,6 @@ use url::{Url, ParseError, Position}; // https://docs.rs/url/1.2.3/url/
 use std::collections::BTreeMap;
 
 pub struct HttpRequest {
-    verb: String,
     url: Url,
     headers: BTreeMap<String, Vec<String>>,
 }
@@ -20,7 +19,6 @@ impl HttpRequest {
     /// Create a new request with a complete URL
     pub fn new(target_url: &str) -> Result<HttpRequest, ParseError> {
         Ok(HttpRequest {
-            verb: "GET".to_string(),
             url: try!(Url::parse(target_url)),
             headers: BTreeMap::new(),
         })
@@ -48,15 +46,18 @@ impl HttpRequest {
         };
     }
 
+    /// return the target domain. This is used to check TLS certificates.
     pub fn domain(& self) -> String {
         self.url.host_str().unwrap_or("localhost").to_owned()
     }
 
-    pub fn request_bytes(& self) -> Vec<u8> {
+    /// Return the utf-8 bytes that form the get line, headers, and header terminator orf tihs
+    /// request.
+    pub fn request_bytes(& self, verb: &str, content_length: Option<u64>) -> Vec<u8> {
         let mut req = String::new();
 
         // primary line
-        req.push_str(&self.verb);
+        req.push_str(verb);
         req.push(' ');
         req.push_str(&(self.url[Position::BeforePath..]));
         req.push_str(" HTTP/1.1\r\n");
@@ -64,6 +65,12 @@ impl HttpRequest {
         // Mandatory 'Host' header:
         req.push_str("Host: ");
         req.push_str(self.url.host_str().unwrap());
+        req.push_str("\r\n");
+
+        // Not entirely mandatory Content-Length header:
+        //    https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.4
+        req.push_str("Content-Length: ");
+        req.push_str(&(content_length.unwrap_or(0).to_string()));
         req.push_str("\r\n");
 
         // Headers
