@@ -62,16 +62,14 @@ fn raw_tls<R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -
     stream.set_read_timeout(Some(Duration::from_millis(1500))).unwrap();
     stream.set_write_timeout(Some(Duration::from_millis(1500))).unwrap();
 
-    let mut stream = connector.connect(domain, stream).unwrap();
+    let mut stream = connector.connect(domain, stream).expect("Failed to connect");
 
-stream.write_all(&request).unwrap();
-    //try!(stream.write_all(&request));
-    //try!(io::copy(&mut body, &mut stream));
+    try!(stream.write_all(&request));
+    try!(io::copy(&mut body, &mut stream));
     try!(stream.flush());
 
     let mut res = vec![];
-stream.read_to_end(&mut res).unwrap();
-    //try!(stream.read_to_end(&mut res));
+    try!(stream.read_to_end(&mut res));
 
     let result_str = String::from_utf8_lossy(&res).into_owned();
     return Ok(result_str);

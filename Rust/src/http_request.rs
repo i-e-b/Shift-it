@@ -67,6 +67,9 @@ impl HttpRequest {
         req.push_str(self.url.host_str().unwrap());
         req.push_str("\r\n");
 
+        // Optional connection header. This simple client only supports 'close' at the moment.
+        req.push_str("Connection: close\r\n");
+
         // Not entirely mandatory Content-Length header:
         //    https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.4
         req.push_str("Content-Length: ");
