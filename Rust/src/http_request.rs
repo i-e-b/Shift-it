@@ -1,4 +1,5 @@
 
+// HTTP request generator
 
 use url::{Url, ParseError, Position}; // https://docs.rs/url/1.2.3/url/
 use std::collections::BTreeMap;

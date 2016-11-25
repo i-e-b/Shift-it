@@ -11,12 +11,14 @@ use std::io::{Read, Write, Error, ErrorKind};
 use std::time::Duration;
 
 pub mod http_request;
+pub mod http_response;
 
 use self::http_request::{HttpRequest, HttpTarget};
+use self::http_response::{HttpResponse};
 
 pub fn call_no_data(rq: HttpRequest) -> Result<String, Error> { call(rq, io::empty()) }
 
-pub fn call<R: Read>(rq: HttpRequest, mut body_stream: R) -> Result<String, Error> {
+pub fn call<R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse, Error> {
     let domain = rq.domain();
     let target = rq.request_target();
     let request = rq.request_bytes("GET", None);
@@ -29,7 +31,7 @@ pub fn call<R: Read>(rq: HttpRequest, mut body_stream: R) -> Result<String, Erro
 }
 
 /// target is like `www.purple.com:80`. Request is the http request string.
-fn raw_call<R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<String, Error> {
+fn raw_call<R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse, Error> {
     let mut stream = TcpStream::connect(target).unwrap();
 
     stream.set_read_timeout(Some(Duration::from_millis(500))).unwrap();
@@ -39,6 +41,8 @@ fn raw_call<R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<Stri
     try!(io::copy(&mut body, &mut stream));
     try!(stream.flush());
 
+    return HttpResponse::new(stream);
+    /*
     let mut result = vec![];
     let mut buf = &mut[0u8;1024];
     while let Ok(len) = stream.read(buf) {
@@ -50,12 +54,12 @@ fn raw_call<R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<Stri
 
     // the `into_owned` here is critical for the return lifetime
     let result_str = String::from_utf8_lossy(&result).into_owned();
-    return Ok(result_str);
+    return Ok(result_str);*/
 }
 
 /// target is like `www.google.com:443`. Domain is needed to match the cert, like `www.google.com`.
 /// Request is the http request string.
-fn raw_tls<R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -> Result<String, Error> {
+fn raw_tls<R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse, Error> {
     let connector = TlsConnector::builder().unwrap().build().unwrap();
 
     let stream = TcpStream::connect(target).unwrap();
@@ -68,10 +72,12 @@ fn raw_tls<R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -
     try!(io::copy(&mut body, &mut stream));
     try!(stream.flush());
 
-    let mut res = vec![];
+    return HttpResponse::new(stream);
+
+    /*let mut res = vec![];
     try!(stream.read_to_end(&mut res));
 
     let result_str = String::from_utf8_lossy(&res).into_owned();
-    return Ok(result_str);
+    return Ok(result_str);*/
 }
 
