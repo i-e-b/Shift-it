@@ -11,7 +11,6 @@ pub struct HttpResponse {
     status_class: StatusClass,
     status_message: String,
     headers: BTreeMap<String, Vec<String>>,
-    body: Read,
 }
 
 pub enum StatusClass {
@@ -19,26 +18,30 @@ pub enum StatusClass {
 }
 
 impl HttpResponse {
-    pub fn new<R: Read>(mut response_stream: R) -> Result<HttpResponse, Error> {
-        let mut response = HttpResponse {
+    pub fn new() -> HttpResponse {
+        HttpResponse {
             status_code: 0,
             status_class: StatusClass::Invalid,
             status_message: String::new(),
             headers: BTreeMap::new(),
-            body: io::empty,
-        };
-        try!(response.read_status_line(next_line(response_stream)));
+        }
+    }
+
+    pub fn read<R: Read>(&mut self, mut response_stream: &mut R) -> Result<(), Error> {
+        try!(self.read_status_line(next_line(&mut response_stream)));
+
+        return Ok(());
     }
 
     fn read_status_line(&mut self, status_line: String) -> Result<(), Error> {
-        let parts = status_line.split(' ');
+        let mut parts = status_line.split(' ');
         if let Some(http_version) = parts.next() {
             if http_version != "HTTP/1.1" {
                 return Err(Error::new(ErrorKind::Other, "unexpected HTTP version returned"));
             }
         }
         if let Some(status_string) = parts.next() {
-            try!(self.status_code = status_string.parse::<u16>());
+            self.status_code = status_string.parse::<u16>().unwrap_or(0);
             self.status_class = match self.status_code {
                 100...199 => StatusClass::Information,
                 200...299 => StatusClass::Success,
@@ -48,12 +51,13 @@ impl HttpResponse {
                 _        => StatusClass::Invalid
             };
         };
-        self.status_message = parts.join(" ");
+        //TODO:  self.status_message = parts.join(" ");
+        return Ok(());
     }
 }
 
 
-fn next_line(&mut stream: Read) -> String {
+fn next_line<R: Read>(stream: &mut R) -> String {
     let mut sb = String::new();
     let mut buf: Vec<u8> = vec![0];
     let mut s = 0u8;

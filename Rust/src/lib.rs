@@ -16,7 +16,7 @@ pub mod http_response;
 use self::http_request::{HttpRequest, HttpTarget};
 use self::http_response::{HttpResponse};
 
-pub fn call_no_data(rq: HttpRequest) -> Result<String, Error> { call(rq, io::empty()) }
+pub fn call_no_data(rq: HttpRequest) -> Result<HttpResponse, Error> { call(rq, io::empty()) }
 
 pub fn call<R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse, Error> {
     let domain = rq.domain();
@@ -41,7 +41,9 @@ fn raw_call<R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<Http
     try!(io::copy(&mut body, &mut stream));
     try!(stream.flush());
 
-    return HttpResponse::new(stream);
+    let mut response = HttpResponse::new();
+    try!(response.read(&mut stream));
+    return Ok(response);
     /*
     let mut result = vec![];
     let mut buf = &mut[0u8;1024];
@@ -72,7 +74,9 @@ fn raw_tls<R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -
     try!(io::copy(&mut body, &mut stream));
     try!(stream.flush());
 
-    return HttpResponse::new(stream);
+    let mut response = HttpResponse::new();
+    try!(response.read(&mut stream));
+    return Ok(response);
 
     /*let mut res = vec![];
     try!(stream.read_to_end(&mut res));
