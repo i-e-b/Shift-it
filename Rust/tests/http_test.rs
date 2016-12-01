@@ -67,9 +67,9 @@ fn domain(){
 
 #[test]
 fn very_simple_http_call() {
-    let result = shift_it::call_no_data(HttpRequest::new("http://purple.com").unwrap());
+    let result = shift_it::call_no_data(HttpRequest::new("http://www.purple.com/").unwrap());
     match result {
-        Ok(body) => println!("{}", body),
+        Ok(body) => println!("{:?}", body),
         Err(e) => panic!(e)
     };
 
@@ -83,7 +83,7 @@ fn very_simple_https_call() {
     let result = shift_it::call_no_data(rq);
 
     match result {
-        Ok(body) => println!("{}", body),
+        Ok(body) => println!("{:?}", body),
         Err(e) => panic!(e)
     };
 }
