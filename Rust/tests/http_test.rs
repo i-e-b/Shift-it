@@ -61,7 +61,6 @@ fn request_targets() {
 #[test]
 fn domain(){
     let domain = HttpRequest::new("https://www.google.com").unwrap().domain();
-
     assert_eq!(domain, "www.google.com");
 }
 
@@ -88,4 +87,8 @@ fn very_simple_https_call() {
     };
 }
 
+#[test]
+fn iterating_result_body() {
+
+}
 
