@@ -32,6 +32,11 @@ pub fn call<'a, R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse
 
 /// target is like `www.purple.com:80`. Request is the http request string.
 fn raw_call<'a, R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse<'a>, Error> {
+    // something like this?
+    let stream: &'a = TcpStream::connect(target));
+    let stream: &'a = try!(stream);
+    let mut stream = stream;
+
     let wha = try!(TcpStream::connect(target));
     let mut stream: &'a TcpStream = &mut wha;
 
