@@ -2,16 +2,17 @@
 // HTTP Response parser
 
 use std::collections::BTreeMap;
-use std::io;
+use std::rc::Rc;
+use std::cell::{RefCell, RefMut};
 use std::io::{Read, Error, ErrorKind};
 use std::fmt;
 
-pub struct HttpResponse<'a> {
+pub struct HttpResponse {
     status_code: u16,
     status_class: StatusClass,
     status_message: String,
     headers: BTreeMap<String, Vec<String>>,
-    body: Box<Read + 'a>
+    body: Rc<RefCell<Read>>
 }
 
 #[derive(Debug)]
@@ -26,20 +27,22 @@ pub enum StatusClass {
     Invalid, Information, Success, Redirection, ClientError, ServerError
 }
 
-impl<'a> fmt::Debug for HttpResponse<'a> {
+impl fmt::Debug for HttpResponse {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "HTTP {} {}\r\n{:?}\r\n<Body not shown in debug>", self.status_code, self.status_message, self.headers)
     }
 }
 
-impl<'a> HttpResponse<'a> {
-    pub fn new<R: Read>(mut response_stream: &'a mut R) -> Result<HttpResponse<'a>, Error> {
-        let status = try!(read_status_line(next_line(&mut response_stream)));
+impl HttpResponse {
+    pub fn new<R: 'static + Read>(response_ref: Rc<RefCell<R>>) -> Result<HttpResponse, Error> {
+        let mut response_stream: RefMut<R> = response_ref.borrow_mut();
+
+        let status = try!(read_status_line(next_line(&mut *response_stream)));
 
         // read headers until we get an empty line
         let mut headers:BTreeMap<String, Vec<String>> = BTreeMap::new();
         loop {
-            let line = next_line(&mut response_stream);
+            let line = next_line(&mut *response_stream);
             if line == "" { break; }
             try!(read_header(&mut headers, line));
         }
@@ -49,7 +52,7 @@ impl<'a> HttpResponse<'a> {
             status_class: status.class,
             status_message: status.message,
             headers: headers,
-            body: Box::new(response_stream)
+            body: response_ref.clone()
         };
 
         return Ok(result);
@@ -105,7 +108,7 @@ fn read_status_line(status_line: String) -> Result<HttpStatus, Error> {
 }
 
 /// read the next line string from a byte stream.
-fn next_line<R: Read>(stream: &mut R) -> String {
+fn next_line<R: Read>(mut stream: &mut R) -> String {
     let mut sb = String::new();
     let mut buf: Vec<u8> = vec![0];
     let mut s = 0u8;

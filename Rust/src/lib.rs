@@ -9,6 +9,9 @@ use std::net::{TcpStream};
 use std::io;
 use std::io::{Read, Write, Error, ErrorKind};
 use std::time::Duration;
+use std::rc::Rc;
+use std::cell::RefCell;
+
 
 pub mod http_request;
 pub mod http_response;
@@ -16,9 +19,9 @@ pub mod http_response;
 use self::http_request::{HttpRequest, HttpTarget};
 use self::http_response::{HttpResponse};
 
-pub fn call_no_data<'a>(rq: HttpRequest) -> Result<HttpResponse<'a>, Error> { call(rq, io::empty()) }
+pub fn call_no_data(rq: HttpRequest) -> Result<HttpResponse, Error> { call(rq, io::empty()) }
 
-pub fn call<'a, R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse<'a>, Error> {
+pub fn call<R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse, Error> {
     let domain = rq.domain();
     let target = rq.request_target();
     let request = rq.request_bytes("GET", None);
@@ -31,14 +34,9 @@ pub fn call<'a, R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse
 }
 
 /// target is like `www.purple.com:80`. Request is the http request string.
-fn raw_call<'a, R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse<'a>, Error> {
+fn raw_call<R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse, Error> {
     // something like this?
-    let stream: &'a = TcpStream::connect(target));
-    let stream: &'a = try!(stream);
-    let mut stream = stream;
-
-    let wha = try!(TcpStream::connect(target));
-    let mut stream: &'a TcpStream = &mut wha;
+    let mut stream = try!(TcpStream::connect(target));
 
     stream.set_read_timeout(Some(Duration::from_millis(500))).unwrap();
     stream.set_write_timeout(Some(Duration::from_millis(500))).unwrap();
@@ -47,13 +45,15 @@ fn raw_call<'a, R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<
     try!(io::copy(&mut body, &mut stream));
     try!(stream.flush());
 
-    let response = try!(HttpResponse::new(&mut stream));
+    let stream_ref = Rc::new(RefCell::new(stream));
+    let response = try!(HttpResponse::new(stream_ref));
+
     return Ok(response);
 }
 
 /// target is like `www.google.com:443`. Domain is needed to match the cert, like `www.google.com`.
 /// Request is the http request string.
-fn raw_tls<'a, R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse<'a>, Error> {
+fn raw_tls<R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse, Error> {
     let connector = TlsConnector::builder().unwrap().build().unwrap();
 
     let stream = TcpStream::connect(target).unwrap();
@@ -66,7 +66,9 @@ fn raw_tls<'a, R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: 
     try!(io::copy(&mut body, &mut stream));
     try!(stream.flush());
 
-    let response = try!(HttpResponse::new(&mut stream));
+    let stream_ref = Rc::new(RefCell::new(stream));
+    let response = try!(HttpResponse::new(stream_ref));
+
     return Ok(response);
 }
 
