@@ -19,9 +19,9 @@ pub mod http_response;
 use self::http_request::{HttpRequest, HttpTarget};
 use self::http_response::{HttpResponse};
 
-pub fn call_no_data(rq: HttpRequest) -> Result<HttpResponse, Error> { call(rq, io::empty()) }
+pub fn call_no_data<'a>(rq: HttpRequest) -> Result<HttpResponse<'a>, Error> { call(rq, io::empty()) }
 
-pub fn call<R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse, Error> {
+pub fn call<'a, R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse<'a>, Error> {
     let domain = rq.domain();
     let target = rq.request_target();
     let request = rq.request_bytes("GET", None);
@@ -34,7 +34,7 @@ pub fn call<R: Read>(rq: HttpRequest, body_stream: R) -> Result<HttpResponse, Er
 }
 
 /// target is like `www.purple.com:80`. Request is the http request string.
-fn raw_call<R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse, Error> {
+fn raw_call<'a, R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse<'a>, Error> {
     // something like this?
     let mut stream = try!(TcpStream::connect(target));
 
@@ -53,7 +53,7 @@ fn raw_call<R: Read>(target: &str, request: Vec<u8>, mut body: R) -> Result<Http
 
 /// target is like `www.google.com:443`. Domain is needed to match the cert, like `www.google.com`.
 /// Request is the http request string.
-fn raw_tls<R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse, Error> {
+fn raw_tls<'a, R: Read>(target: &str, domain: &str, request: Vec<u8>, mut body: R) -> Result<HttpResponse<'a>, Error> {
     let connector = TlsConnector::builder().unwrap().build().unwrap();
 
     let stream = TcpStream::connect(target).unwrap();

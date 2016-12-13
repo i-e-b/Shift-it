@@ -7,12 +7,12 @@ use std::cell::{RefCell, RefMut};
 use std::io::{Read, Error, ErrorKind};
 use std::fmt;
 
-pub struct HttpResponse {
+pub struct HttpResponse<'a> {
     status_code: u16,
     status_class: StatusClass,
     status_message: String,
     headers: BTreeMap<String, Vec<String>>,
-    body: Rc<RefCell<Read>>
+    body: Rc<RefCell<Read + 'a>>
 }
 
 #[derive(Debug)]
@@ -27,14 +27,14 @@ pub enum StatusClass {
     Invalid, Information, Success, Redirection, ClientError, ServerError
 }
 
-impl fmt::Debug for HttpResponse {
+impl<'a> fmt::Debug for HttpResponse<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "HTTP {} {}\r\n{:?}\r\n<Body not shown in debug>", self.status_code, self.status_message, self.headers)
     }
 }
 
-impl HttpResponse {
-    pub fn new<R: 'static + Read>(response_ref: Rc<RefCell<R>>) -> Result<HttpResponse, Error> {
+impl<'a> HttpResponse<'a> {
+    pub fn new<R: 'a + Read>(response_ref: Rc<RefCell<R>>) -> Result<HttpResponse<'a>, Error> {
         let mut response_stream: RefMut<R> = response_ref.borrow_mut();
 
         let status = try!(read_status_line(next_line(&mut *response_stream)));
