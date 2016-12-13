@@ -2,6 +2,7 @@
 extern crate shift_it;
 
 use shift_it::http_request::{HttpRequest, HttpTarget};
+use std::io::Read;
 
 #[test]
 fn request_bytes_for_a_simple_request() {
@@ -89,6 +90,34 @@ fn very_simple_https_call() {
 
 #[test]
 fn iterating_result_body() {
+    let result = shift_it::call_no_data(HttpRequest::new("http://www.purple.com/").unwrap()).unwrap();
 
+    for byte in result {
+        print!("{}", byte as char);
+    }
+    println!("");
 }
+
+#[test]
+fn reading_result_body() {
+    let mut result = shift_it::call_no_data(HttpRequest::new("http://www.purple.com/").unwrap()).unwrap();
+    let mut body_str = String::new();
+
+    result.read_to_string(&mut body_str).unwrap();
+
+    println!("{}", body_str);
+}
+
+// run this test, and the tests will lock up. Check memory usage with your OS.
+// I detected no major leaks.
+/*
+#[test]
+fn leak_test() {
+    loop {
+        {
+            let mut result = shift_it::call_no_data(HttpRequest::new("http://www.purple.com/").unwrap()).unwrap();
+            print!("{}", result.next().unwrap());
+        }
+    }
+}*/
 

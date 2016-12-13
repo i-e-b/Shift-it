@@ -5,6 +5,7 @@ use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::cell::{RefCell, RefMut};
 use std::io::{Read, Error, ErrorKind};
+use std::io;
 use std::fmt;
 
 pub struct HttpResponse<'a> {
@@ -58,6 +59,34 @@ impl<'a> HttpResponse<'a> {
         return Ok(result);
     }
 
+}
+
+/// Iterate over the bytes of the response body
+impl<'a> Iterator for HttpResponse<'a> {
+    type Item = u8;
+
+    /// Next byte of the body. Returns `None` when complete.
+    fn next(&mut self) -> Option<u8> {
+        let mut one_buf = [0];
+
+        let local_body = self.body.clone();
+        let mut response_stream: RefMut<Read + 'a> = local_body.borrow_mut();
+        let res = match (*response_stream).read(&mut one_buf) {
+            Err(_) => None,
+            Ok(len) => if len == 1 {Some(one_buf[0])} else {None}
+        };
+
+        return res;
+    }
+}
+
+/// Access to the underlying reader without needing to unpack the `Rc` yourself.
+impl<'a> Read for HttpResponse<'a> {
+    fn read(&mut self, mut buf: &mut [u8]) -> io::Result<usize> {
+        let local_body = self.body.clone();
+        let mut response_stream: RefMut<Read + 'a> = local_body.borrow_mut();
+        return (*response_stream).read(&mut buf);
+    }
 }
 
 fn read_header(headers: &mut BTreeMap<String, Vec<String>>, header_line: String) -> Result<(), Error> {
