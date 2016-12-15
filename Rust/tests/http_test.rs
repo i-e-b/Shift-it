@@ -2,6 +2,7 @@
 extern crate shift_it;
 
 use shift_it::http_request::{HttpRequest, HttpTarget};
+use shift_it::http_response::{/*HttpResponse, */StatusClass};
 use std::io::Read;
 
 #[test]
@@ -86,6 +87,14 @@ fn very_simple_https_call() {
         Ok(body) => println!("{:?}", body),
         Err(e) => panic!(e)
     };
+}
+
+#[test]
+fn status_code_and_class() {
+    let result = shift_it::call_no_data(HttpRequest::new("http://www.purple.com/").unwrap()).unwrap();
+
+    assert_eq!(result.status_code, 200);
+    assert_eq!(result.status_class, StatusClass::Success);
 }
 
 #[test]

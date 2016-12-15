@@ -4,11 +4,15 @@
 use url::{Url, ParseError, Position}; // https://docs.rs/url/1.2.3/url/
 use std::collections::BTreeMap;
 
+/// A URL and headers needed to make a HTTP request.
+/// Client data and verb given at request time to make these a bit more flexible.
 pub struct HttpRequest {
     url: Url,
     headers: BTreeMap<String, Vec<String>>,
 }
 
+/// An enumeration with the connection target and type
+/// (for example, `http://x.y.z -> Unsecure("x.y.z:80")` )
 #[derive(Debug, PartialEq)]
 pub enum HttpTarget {
     Unsecure (String),

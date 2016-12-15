@@ -8,11 +8,12 @@ use std::io::{Read, Error, ErrorKind};
 use std::io;
 use std::fmt;
 
+/// Response received from a completed HTTP call
 pub struct HttpResponse<'a> {
-    status_code: u16,
-    status_class: StatusClass,
-    status_message: String,
-    headers: BTreeMap<String, Vec<String>>,
+    pub status_code: u16,
+    pub status_class: StatusClass,
+    pub status_message: String,
+    pub headers: BTreeMap<String, Vec<String>>,
     body: Rc<RefCell<Read + 'a>>
 }
 
@@ -23,7 +24,8 @@ struct HttpStatus {
     message: String,
 }
 
-#[derive(Debug)]
+/// General state of the HTTP status (for use with `match` blocks)
+#[derive(Debug, PartialEq)]
 pub enum StatusClass {
     Invalid, Information, Success, Redirection, ClientError, ServerError
 }
@@ -35,6 +37,9 @@ impl<'a> fmt::Debug for HttpResponse<'a> {
 }
 
 impl<'a> HttpResponse<'a> {
+    /// Wrap a read stream in a HTTP decoder.
+    /// Needs the stream to be inside a counted ref cell, so
+    /// pass like `Rc::new(RefCell::new(stream))`
     pub fn new<R: 'a + Read>(response_ref: Rc<RefCell<R>>) -> Result<HttpResponse<'a>, Error> {
         let mut response_stream: RefMut<R> = response_ref.borrow_mut();
 
@@ -46,6 +51,7 @@ impl<'a> HttpResponse<'a> {
             let line = next_line(&mut *response_stream);
             if line == "" { break; }
             try!(read_header(&mut headers, line));
+            // TODO: gather all the headers we can and then return? Would allow partial recovery.
         }
 
         let result = HttpResponse {
@@ -69,6 +75,9 @@ impl<'a> Iterator for HttpResponse<'a> {
     fn next(&mut self) -> Option<u8> {
         let mut one_buf = [0];
 
+        // TODO: Need to add decode for compressed and/or chunked responses here, and
+        // also below in the `read` implementation.
+        // Ideally, we can make a wrapper implementation that owns the original stream reader.
         let local_body = self.body.clone();
         let mut response_stream: RefMut<Read + 'a> = local_body.borrow_mut();
         let res = match (*response_stream).read(&mut one_buf) {
@@ -83,15 +92,17 @@ impl<'a> Iterator for HttpResponse<'a> {
 /// Access to the underlying reader without needing to unpack the `Rc` yourself.
 impl<'a> Read for HttpResponse<'a> {
     fn read(&mut self, mut buf: &mut [u8]) -> io::Result<usize> {
+        // TODO: add decode here (see above in `iter.next()`)
         let local_body = self.body.clone();
         let mut response_stream: RefMut<Read + 'a> = local_body.borrow_mut();
         return (*response_stream).read(&mut buf);
     }
 }
 
+/// Fill an existing header map with the values of a single header line
 fn read_header(headers: &mut BTreeMap<String, Vec<String>>, header_line: String) -> Result<(), Error> {
     let colon = header_line.find(": ");
-    if colon == None { // TODO: gather all the headers we can and then return? Would allow partial recovery.
+    if colon == None {
         return Err(Error::new(ErrorKind::InvalidData, "invalid header line"));
     }
     let colon = colon.unwrap();
@@ -106,6 +117,7 @@ fn read_header(headers: &mut BTreeMap<String, Vec<String>>, header_line: String)
     return Ok(());
 }
 
+/// Return a status object for a HTTP response's first line
 fn read_status_line(status_line: String) -> Result<HttpStatus, Error> {
     let mut status = HttpStatus {
         code: 0,
@@ -137,6 +149,8 @@ fn read_status_line(status_line: String) -> Result<HttpStatus, Error> {
 }
 
 /// read the next line string from a byte stream.
+/// Attempts to handle variable line endings (even though the HTTP
+/// spec insists on `\r\n`, many servers are non compliant)
 fn next_line<R: Read>(mut stream: &mut R) -> String {
     let mut sb = String::new();
     let mut buf: Vec<u8> = vec![0];
@@ -157,3 +171,4 @@ fn next_line<R: Read>(mut stream: &mut R) -> String {
 
     return sb;
 }
+
