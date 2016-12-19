@@ -26,29 +26,29 @@ Thanks to [skolima](https://github.com/skolima) for these:
 === 14MB file
 
 Measured on Windows
-Time taken        Mem        Method
-->2849ms        29MB    Web client
-->2657ms        20MB    Web Client - stream copy, no hash
-->2647ms        16MB    Web Client - stream copy, Shift-It hash
-->1575ms        0MB     ShiftIt [current]
-->1592ms        0MB     ShiftIt - no hashing [current]
-->1616ms        0MB     ShiftIt - no compression [current]
-->1574ms        0MB     ShiftIt - no hashing, no compression [current]
+Time taken        Mem         Method
+->2849ms          29MB        Web client
+->2657ms          20MB        Web Client - stream copy, no hash
+->2647ms          16MB        Web Client - stream copy, Shift-It hash
+->1575ms          0MB         ShiftIt [current]
+->1592ms          0MB         ShiftIt - no hashing [current]
+->1616ms          0MB         ShiftIt - no compression [current]
+->1574ms          0MB         ShiftIt - no hashing, no compression [current]
 
 
 Measured on Mono + Linux + fast connection
-Time taken        Mem        Method
-->1763ms        30MB    Web client
-->403ms 1MB     Web Client - stream copy, no hash
-->651ms 16MB     Web Client - stream copy, Shift-It hash
-->755ms 0MB     ShiftIt [current]
-->603ms 0MB     ShiftIt - no hashing [current]
-->762ms 0MB     ShiftIt - no compression [current]
-->669ms 0MB     ShiftIt - no hashing, no compression [current]
-->833ms 0MB     ShiftIt [previous]
-->602ms 0MB     ShiftIt - no hashing [previous]
-->903ms 0MB     ShiftIt - no compression [previous]
-->601ms 0MB     ShiftIt - no hashing, no compression [previous]
+Time taken        Mem     Method
+->1763ms          30MB    Web client
+->403ms           1MB     Web Client - stream copy, no hash
+->651ms           16MB    Web Client - stream copy, Shift-It hash
+->755ms           0MB     ShiftIt [current]
+->603ms           0MB     ShiftIt - no hashing [current]
+->762ms           0MB     ShiftIt - no compression [current]
+->669ms           0MB     ShiftIt - no hashing, no compression [current]
+->833ms           0MB     ShiftIt [previous]
+->602ms           0MB     ShiftIt - no hashing [previous]
+->903ms           0MB     ShiftIt - no compression [previous]
+->601ms           0MB     ShiftIt - no hashing, no compression [previous]
 
 === 191MB file
 
@@ -70,7 +70,7 @@ Time taken        Mem        Method
 ->12948ms       0MB     ShiftIt [current]
 ->8529ms        0MB     ShiftIt - no hashing [current]
 ->13472ms       0MB     ShiftIt - no compression [current]
-->8108ms       0MB     ShiftIt - no hashing, no compression [current]
+->8108ms        0MB     ShiftIt - no hashing, no compression [current]
 ->13584ms       0MB     ShiftIt [previous]
 ->8237ms        0MB     ShiftIt - no hashing [previous]
 ->10648ms       0MB     ShiftIt - no compression [previous]

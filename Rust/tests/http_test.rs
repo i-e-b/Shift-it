@@ -117,6 +117,18 @@ fn reading_result_body() {
     println!("{}", body_str);
 }
 
+#[test]
+fn chunked_response() {
+    let mut result = shift_it::call_no_data(HttpRequest::new("https://jigsaw.w3.org/HTTP/ChunkedScript").unwrap()).unwrap();
+    let mut body_str = String::new();
+
+    result.read_to_string(&mut body_str).unwrap();
+
+    assert!(body_str.starts_with("This output")); // a bad result will have the chunk size instead.
+
+    //println!("{}", body_str);
+}
+
 // run this test, and the tests will lock up. Check memory usage with your OS.
 // I detected no major leaks.
 /*

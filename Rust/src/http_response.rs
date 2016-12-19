@@ -14,7 +14,11 @@ pub struct HttpResponse<'a> {
     pub status_class: StatusClass,
     pub status_message: String,
     pub headers: BTreeMap<String, Vec<String>>,
-    body: Rc<RefCell<Read + 'a>>
+
+    // The underlying reader, plus some buffers for decoding
+    body: Rc<RefCell<Read + 'a>>,
+    readBuf: Vec<u8>,
+    chunked: bool // TODO: Replace by adjustable wrapping after headers are read?
 }
 
 #[derive(Debug)]
@@ -54,12 +58,17 @@ impl<'a> HttpResponse<'a> {
             // TODO: gather all the headers we can and then return? Would allow partial recovery.
         }
 
+        // Transfer encoding flags:
+        let chunked = header_match_any_case(&headers, "Transfer-Encoding", "chunked");
+
         let result = HttpResponse {
             status_code: status.code,
             status_class: status.class,
             status_message: status.message,
             headers: headers,
-            body: response_ref.clone()
+            body: response_ref.clone(),
+            readBuf: Vec::with_capacity(10240),
+            chunked: chunked
         };
 
         return Ok(result);
@@ -74,29 +83,45 @@ impl<'a> Iterator for HttpResponse<'a> {
     /// Next byte of the body. Returns `None` when complete.
     fn next(&mut self) -> Option<u8> {
         let mut one_buf = [0];
-
-        // TODO: Need to add decode for compressed and/or chunked responses here, and
-        // also below in the `read` implementation.
-        // Ideally, we can make a wrapper implementation that owns the original stream reader.
-        let local_body = self.body.clone();
-        let mut response_stream: RefMut<Read + 'a> = local_body.borrow_mut();
-        let res = match (*response_stream).read(&mut one_buf) {
+        match self.read(&mut one_buf) { // use our own Read implementation, to get all the unwrapping
             Err(_) => None,
             Ok(len) => if len == 1 {Some(one_buf[0])} else {None}
-        };
-
-        return res;
+        }
     }
 }
 
 /// Access to the underlying reader without needing to unpack the `Rc` yourself.
 impl<'a> Read for HttpResponse<'a> {
     fn read(&mut self, mut buf: &mut [u8]) -> io::Result<usize> {
-        // TODO: add decode here (see above in `iter.next()`)
+        // TODO: Need to add decode for compressed and/or chunked responses here.
+        // Ideally, we can make a wrapper implementation that owns the original stream reader.
+
         let local_body = self.body.clone();
         let mut response_stream: RefMut<Read + 'a> = local_body.borrow_mut();
+
+        if self.chunked {
+            let len = try!(read_chunk_length(*response_stream));
+            // read the length header
+            // if zero, stream over, EOF
+            // else read that many into the buffer and trim end
+        }
         return (*response_stream).read(&mut buf);
     }
+
+}
+
+fn read_chunk_length<R: Read>(mut stream: &mut R) {
+    let mut one_buf = [0];
+    let mut len_str = String::new();
+    loop {
+
+    }
+}
+
+/// Checks the given key to see if any of the values match the given one, ignoring case
+fn header_match_any_case(headers: &BTreeMap<String, Vec<String>>, header_key: &str, expected_value: &str) -> bool {
+    let target = expected_value.to_lowercase();
+    return headers.get(header_key).unwrap_or(&vec![]).iter().any(|ref v| v.to_lowercase() == target);
 }
 
 /// Fill an existing header map with the values of a single header line
