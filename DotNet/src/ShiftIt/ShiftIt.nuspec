@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Shift-it</id>
+    <id>Shift-it_Ancient</id>
     <version>$version$</version>
     <authors>$author$</authors>
     <owners>$author$</owners>
@@ -9,11 +9,11 @@
     <projectUrl>https://github.com/i-e-b/Shift-it</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Added convenience overload to IHttpRequestBuilder.Build()</releaseNotes>
-    <copyright>Copyright 2013</copyright>
+    <releaseNotes>A version of Shift-it that will work with .Net 3.5</releaseNotes>
+    <copyright>Copyright 2013-2017</copyright>
     <tags>http ftp sockets client</tags>
   </metadata>
   <files>
-    <file src="bin\Release\*.pdb" target="lib\net40"/>
+    <file src="bin\Release\*.pdb" target="lib\net35"/>
   </files>
 </package>

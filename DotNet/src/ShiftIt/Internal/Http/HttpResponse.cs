@@ -19,7 +19,7 @@ namespace ShiftIt.Internal.Http
 		Stream _rawResponse;
 		private readonly StringBuilder _debugResponse;
 
-		private readonly ISet<string> _singleItemHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		private readonly HashSet<string> _singleItemHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 			{
 				"Content-Length"
 			};
@@ -125,7 +125,7 @@ namespace ShiftIt.Internal.Http
 			while (true)
 			{
 				var line = NextLine(_rawResponse);
-				if (string.IsNullOrWhiteSpace(line))
+				if (string.IsNullOrEmpty(line))
 					break;
 			}
 		}
@@ -160,7 +160,7 @@ namespace ShiftIt.Internal.Http
 			while (true)
 			{
 				var line = NextLine(rawResponse);
-				if (string.IsNullOrWhiteSpace(line))
+				if (line == null || string.IsNullOrEmpty(line.Trim()))
 					yield break;
 				yield return line;
 			}

@@ -71,8 +71,18 @@ namespace ShiftIt.Internal.Socket
 		/// <param name="dest">Stream to write to</param>
 		public static void CopyBytesToTimeout(Stream source, Stream dest)
 		{
-			try { source.CopyTo(dest, DefaultBufferSize); }
+			try { CopyStreams(source, dest, DefaultBufferSize); }
 			catch (TimeoutException) { }
 		}
+
+        private static void CopyStreams(Stream src, Stream dst, int bufSz) {
+            var buf = new byte[bufSz];
+            int read;
+
+            while ((read = src.Read(buf, 0, bufSz)) > 0)
+            {
+                dst.Write(buf, 0, read);
+            }
+        }
 	}
 }

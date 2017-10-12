@@ -51,7 +51,7 @@ namespace ShiftIt.Internal.Socket
 			{
 				sock.Disconnect(false);
 			}
-			sock.Dispose();
+			sock.Close();
 			base.Dispose(disposing);
 		}
 

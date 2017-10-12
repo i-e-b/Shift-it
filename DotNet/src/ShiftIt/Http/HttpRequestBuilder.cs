@@ -200,7 +200,7 @@ namespace ShiftIt.Http
 
 			foreach (var header in _headers)
 			{
-				k(header.Key); a(string.Join(",", header.Value)); crlf();
+				k(header.Key); a(string.Join(",", header.Value.ToArray())); crlf();
 			}
 
 			if (dataLength >= 0)
