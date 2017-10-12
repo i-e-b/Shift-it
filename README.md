@@ -18,6 +18,22 @@ HTTP
 A HTTP client that can accept a reasonable level of invalid protocol from servers.
 This is a blocking, synchronous library that uses only .Net sockets, not WebClient or HttpWebRequest, and has a lot of replaceable components.
 
+Example GET:
+```csharp
+var rq = new HttpRequestBuilder().Get(new Uri("https://www.nuget.org/")).Build();
+using (var result = _subject.Request(rq)) {
+    var body = result.BodyReader.ReadStringToLength();
+    // . . .
+}
+```
+
+Example POST string data, without reading result:
+```csharp
+var client = new HttpClient();
+var postRq = new HttpRequestBuilder().Put(new Uri("https://target.example.com/resource")).Build("Hello, world");
+client.Request(postRq).Dispose();
+```
+
 Performance
 ===========
 Thanks to [skolima](https://github.com/skolima) for these:
