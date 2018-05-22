@@ -3,6 +3,8 @@ Shift-it
 
 Collection of low-level HTTP and FTP file transfer tools
 
+https://www.nuget.org/packages/Shift-it/
+
 Why?
 -----
 .Net has some pretty good FTP and HTTP libraries built in. However, they aren't amazingly unit-test friendly. They also wrap a lot of status results in exceptions.
@@ -32,6 +34,24 @@ Example POST string data, without reading result:
 var client = new HttpClient();
 var postRq = new HttpRequestBuilder().Put(new Uri("https://target.example.com/resource")).Build("Hello, world");
 client.Request(postRq).Dispose();
+```
+
+Example with upload and download with files and progress:
+```csharp
+long uploadBytes = 0;
+long downloadBytes = 0;
+
+using (var fs = File.OpenRead(@"C:\my\file.dat"))
+{
+    var rq = new HttpRequestBuilder()
+    .Post(new Uri("http://myserver.com/whatever"))
+    .Build(fs, fs.Length);
+
+    using (var result = new HttpClient().Request(rq, b => uploadBytes = b))
+    {
+        var responseString = result.BodyReader.ReadStringToLength(b => downloadBytes = b);
+    }
+}
 ```
 
 Performance
