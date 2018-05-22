@@ -30,7 +30,7 @@ namespace ShiftIt.Unit.Tests.Streams
 			Assert.That(_subject.IsComplete(), Is.False);
 
 			var ms = new MemoryStream();
-			StreamTools.CopyBytesToTimeout(_subject, ms);
+			StreamTools.CopyBytesToTimeout(_subject, ms, null);
 			var result = Encoding.UTF8.GetString(ms.ToArray());
 
 			Assert.That(result, Is.EqualTo(expected));

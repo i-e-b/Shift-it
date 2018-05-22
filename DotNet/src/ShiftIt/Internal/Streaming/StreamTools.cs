@@ -1,9 +1,8 @@
 using System;
 using System.IO;
-using ShiftIt.Internal.Streaming;
 using TimeoutException = ShiftIt.Http.TimeoutException;
 
-namespace ShiftIt.Internal.Socket
+namespace ShiftIt.Internal.Streaming
 {
 	/// <summary>
 	/// Helpers for byte streams
@@ -14,23 +13,24 @@ namespace ShiftIt.Internal.Socket
 		/// Default buffer size for transfers. 64KiB
 		/// </summary>
 		public const int DefaultBufferSize = 64 * 1024;
-		
-		/// <summary>
-		/// Copy a specific number of bytes from a source to a destination stream, with a timeout.
-		/// The timeout is measured from last data received.
-		/// </summary>
-		/// <param name="source">Stream to read from</param>
-		/// <param name="dest">Stream to write to</param>
-		/// <param name="length">Maximum length to read</param>
-		/// <param name="timeout">Maximum time to wait for data</param>
-		public static long CopyBytesToLength(Stream source, Stream dest, long length, TimeSpan timeout)
+
+	    /// <summary>
+	    /// Copy a specific number of bytes from a source to a destination stream, with a timeout.
+	    /// The timeout is measured from last data received.
+	    /// </summary>
+	    /// <param name="source">Stream to read from</param>
+	    /// <param name="dest">Stream to write to</param>
+	    /// <param name="length">Maximum length to read</param>
+	    /// <param name="timeout">Maximum time to wait for data</param>
+	    /// <param name="progress">Action to receive progress updates</param>
+	    public static long CopyBytesToLength(Stream source, Stream dest, long length, TimeSpan timeout, Action<long> progress)
 		{
 			var bufferSize = (int)Math.Min(length, DefaultBufferSize);
 			if (bufferSize < 256) bufferSize = DefaultBufferSize;
 			long read = 0;
 			var buf = new byte[bufferSize];
 			long remaining;
-			var realLength = AdjustedLength(source, length, read, bufferSize);
+			var realLength = AdjustedLength(source, length, read);
 
 			Func<int> now = () => Environment.TickCount;
 			int[] lastData = {now()};
@@ -44,17 +44,18 @@ namespace ShiftIt.Internal.Socket
 				if (got > 0) lastData[0] = now();
 				else
 				{
-					realLength = AdjustedLength(source, length, read, bufferSize);
+					realLength = AdjustedLength(source, length, read);
 					if (waiting() > timeout.TotalMilliseconds) throw new TimeoutException();
 				}
 
 				read += got;
 				dest.Write(buf, 0, got);
-			}
+                progress?.Invoke(read);
+            }
 			return read;
 		}
 
-		static long AdjustedLength(Stream source, long length, long read, int bufferSize)
+		static long AdjustedLength(Stream source, long length, long read)
 		{
 			if (!(source is ISelfTerminatingStream)) return length;
 
@@ -64,15 +65,27 @@ namespace ShiftIt.Internal.Socket
 		}
 
 
-		/// <summary>
-		/// Copy bytes from a source to a destination stream, with a timeout.
-		/// </summary>
-		/// <param name="source">Stream to read from</param>
-		/// <param name="dest">Stream to write to</param>
-		public static void CopyBytesToTimeout(Stream source, Stream dest)
+	    /// <summary>
+	    /// Copy bytes from a source to a destination stream, with a timeout.
+	    /// </summary>
+	    /// <param name="source">Stream to read from</param>
+	    /// <param name="dest">Stream to write to</param>
+	    /// <param name="progress">Action to receive progress updates</param>
+	    public static void CopyBytesToTimeout(Stream source, Stream dest, Action<long> progress)
 		{
-			try { source.CopyTo(dest, DefaultBufferSize); }
-			catch (TimeoutException) { }
-		}
-	}
+            try
+            {
+                byte[] buffer = new byte[DefaultBufferSize];
+                int count;
+                long total = 0;
+                while ((count = source.Read(buffer, 0, buffer.Length)) != 0)
+                {
+                    total += count;
+                    dest.Write(buffer, 0, count);
+                    progress?.Invoke(total);
+                }
+            }
+            catch (TimeoutException) { }
+        }
+    }
 }

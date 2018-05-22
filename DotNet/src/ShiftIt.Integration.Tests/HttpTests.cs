@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using NUnit.Framework;
 using ShiftIt.Http;
 
 namespace ShiftIt.Integration.Tests
 {
-	[TestFixture]//, Explicit, Description("These connect to the internet")]
+    [TestFixture]//, Explicit, Description("These connect to the internet")]
 	public class HttpTests
 	{
 		IHttpClient _subject;
@@ -120,7 +122,75 @@ namespace ShiftIt.Integration.Tests
 			}
 		}
 
-		[Test, Explicit]
+        [Test]
+        public void upload_progress_gives_call_back () {
+            // note, this all happens on one thread, so you want to respond quickly!
+            _subject.Timeout = TimeSpan.FromSeconds(5);
+
+            var progressList = new List<long>();
+            var uploadData = Encoding.ASCII.GetBytes("Here is some data I will send");
+
+            using (var testServer = new TestServer(AcceptSlow))
+            {
+                var rq = new HttpRequestBuilder()
+                    .Post(new Uri("http://localhost:" + testServer.Port + "/whatever"))
+                    .Build(uploadData);
+
+                using (var result = _subject.Request(rq, tx_bytes=>{ progressList.Add(tx_bytes);}))
+                {
+                    result.BodyReader.ReadStringToLength();
+
+                    Assert.That(progressList, Is.Not.Empty);
+                    Assert.That(progressList.Last(), Is.EqualTo(uploadData.Length));
+                }
+            }
+        }
+        
+	    [Test]
+	    public void download_progress_gives_call_back () {
+	        // note, this all happens on one thread, so you want to respond quickly!
+	        _subject.Timeout = TimeSpan.FromSeconds(5);
+
+	        var progressList = new List<long>();
+
+	        using (var testServer = new TestServer(AcceptSlow))
+	        {
+	            var rq = new HttpRequestBuilder()
+	                .Post(new Uri("http://localhost:" + testServer.Port + "/whatever"))
+	                .Build("Here is some data I will send");
+
+	            using (var result = _subject.Request(rq))
+	            {
+	                result.BodyReader.ReadStringToLength(tx_bytes=>{ progressList.Add(tx_bytes);});
+	                Assert.That(progressList, Is.Not.Empty);
+	                Assert.That(progressList.Last(), Is.EqualTo(sentDataLength));
+	            }
+	        }
+	    }
+
+        long sentDataLength; 
+	    private string AcceptSlow(HttpListenerRequest rq, HttpListenerResponse tx)
+	    {
+
+            var data = Encoding.ASCII.GetBytes("Hello, world. Here is my slow reply.");
+            var repeats = 10; // make the response a bit bigger
+
+            tx.ContentType = "text/plain";
+
+	        sentDataLength = data.Length * repeats;
+            tx.ContentLength64 = sentDataLength;
+            tx.StatusCode = 200;
+
+            for (int i = 0; i < repeats; i++)
+            {
+                tx.OutputStream.Write(data, 0, data.Length);
+            }
+            tx.OutputStream.Flush();
+
+            return null;
+	    }
+
+	    [Test, Explicit]
 		public void connection_to_rabbit_mq_api()
 		{
 			var rq = new HttpRequestBuilder().Get(new Uri("http://localhost:15672/api/overview")).BasicAuthentication("guest", "guest").Build();

@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using ShiftIt.Internal.Socket;
 
 namespace ShiftIt.Internal.Streaming
 {
@@ -83,7 +82,7 @@ namespace ShiftIt.Internal.Streaming
 				length--;
 			}
 
-			StreamTools.CopyBytesToLength(_source, ms, length, _timeout);
+			StreamTools.CopyBytesToLength(_source, ms, length, _timeout, null);
 
 			// Should end with CRLF:
 			if (!SkipCRLF(_source)) throw new InvalidDataException("HTTP Chunk did not end in CRLF");

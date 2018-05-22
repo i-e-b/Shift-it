@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using NUnit.Framework;
-using ShiftIt.Internal.Socket;
+using ShiftIt.Internal.Streaming;
 
 namespace ShiftIt.Unit.Tests.Streams
 {

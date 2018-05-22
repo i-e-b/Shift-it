@@ -19,14 +19,14 @@ namespace ShiftIt.Http
 		IHttpRequestBuilder Head(Uri target);
 
 		/// <summary>
-		/// Post data to a target resource. You should use the `Data` or `StringData`
-		/// methods to provide this data.
+		/// Post data to a target resource. You should use the stream or string data options of the `Build`
+		/// or `BuildForm` methods to provide this data.
 		/// </summary>
 		IHttpRequestBuilder Post(Uri target);
 
 		/// <summary>
-		/// Put data to a target resource. You should use the `Data` or `StringData`
-		/// methods to provide this data.
+		/// Put data to a target resource. You should use the stream or string data options of the `Build`
+		/// or `BuildForm` methods to provide this data.
 		/// </summary>
 		IHttpRequestBuilder Put(Uri target);
 
@@ -72,10 +72,17 @@ namespace ShiftIt.Http
 		/// <param name="stream">Data stream</param>
 		/// <param name="length">Length of data. Must be provided.</param>
 		IHttpRequest Build(Stream stream, long length);
+        
+	    /// <summary>
+	    /// Build the request, providing a data buffer for the request. It will be sent to the target resource's
+	    /// hosting server.
+	    /// </summary>
+	    /// <param name="uploadData">Bytes to be uploaded. The entire buffer will be sent</param>
+	    IHttpRequest Build(byte[] uploadData);
 
 		/// <summary>
 		/// Build the request, providing string data for the request. It will be sent to the target resource's
-		/// hosting server.
+		/// hosting server. The string will be UTF-8 encoded.
 		/// </summary>
 		IHttpRequest Build(string data);
 

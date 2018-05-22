@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using ShiftIt.Http;
 
-namespace ShiftIt.Internal.Socket
+namespace ShiftIt.Internal.Streaming
 {
 	/// <summary>
 	/// Wrapper around a http body stream
@@ -59,30 +59,30 @@ namespace ShiftIt.Internal.Socket
 		/// Read string up to the declared response length.
 		/// If response is chunked, this will read until an empty chunk is received.
 		/// </summary>
-		public string ReadStringToLength()
+		public string ReadStringToLength(Action<long> receiveProgress = null)
 		{
-			return Encoding.UTF8.GetString(ReadBytesToLength());
+			return Encoding.UTF8.GetString(ReadBytesToLength(receiveProgress));
 		}
 
 		/// <summary>
 		/// Read string while data is on the stream, waiting up to the timeout value for more data.
 		/// If response is chunked, this will read the next chunk.
 		/// </summary>
-		public string ReadStringToTimeout()
+		public string ReadStringToTimeout(Action<long> receiveProgress = null)
 		{
-			return Encoding.UTF8.GetString(ReadBytesToTimeout());
+			return Encoding.UTF8.GetString(ReadBytesToTimeout(receiveProgress));
 		}
 
 		/// <summary>
 		/// Read raw bytes up to the declared response length.
 		/// If response is chunked, this will read until an empty chunk is received.
 		/// </summary>
-		public byte[] ReadBytesToLength()
+		public byte[] ReadBytesToLength(Action<long> receiveProgress = null)
 		{
 			var ms = new MemoryStream((int)_expectedLength);
 			lock (_lock)
 			{
-				_expectedLength = StreamTools.CopyBytesToLength(_source, ms, _expectedLength, Timeout);
+				_expectedLength = StreamTools.CopyBytesToLength(_source, ms, _expectedLength, Timeout, receiveProgress);
 			}
 			_readSoFar += ms.Length;
 			return ms.ToArray();
@@ -91,10 +91,10 @@ namespace ShiftIt.Internal.Socket
 		/// <summary>
 		/// Read raw bytes while data is on the stream, waiting up to the timeout value for more data.
 		/// </summary>
-		public byte[] ReadBytesToTimeout()
+		public byte[] ReadBytesToTimeout(Action<long> receiveProgress = null)
 		{
 			var ms = new MemoryStream((int)_expectedLength);
-			StreamTools.CopyBytesToTimeout(_source, ms);
+			StreamTools.CopyBytesToTimeout(_source, ms, receiveProgress);
 			_readSoFar += ms.Length;
 			return ms.ToArray();
 		}

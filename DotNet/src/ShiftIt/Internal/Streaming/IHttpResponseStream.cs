@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ShiftIt.Internal.Socket
+namespace ShiftIt.Internal.Streaming
 {
 	/// <summary>
 	/// Wrapper around a HTTP response body.
@@ -33,25 +33,25 @@ namespace ShiftIt.Internal.Socket
 		/// Read string up to the declared response length.
 		/// If response is chunked, this will read until an empty chunk is received.
 		/// </summary>
-		string ReadStringToLength();
+		string ReadStringToLength(Action<long> receiveProgress = null);
 
 		/// <summary>
 		/// Read string while data is on the stream, waiting up to the timeout value for more data.
 		/// If response is chunked, this will read the next chunk.
 		/// </summary>
-		string ReadStringToTimeout();
+		string ReadStringToTimeout(Action<long> receiveProgress = null);
 
 		
 		/// <summary>
 		/// Read raw bytes up to the declared response length.
 		/// If response is chunked, this will read until an empty chunk is received.
 		/// </summary>
-		byte[] ReadBytesToLength();
+		byte[] ReadBytesToLength(Action<long> receiveProgress = null);
 		
 		/// <summary>
 		/// Read raw bytes while data is on the stream, waiting up to the timeout value for more data.
 		/// </summary>
-		byte[] ReadBytesToTimeout();
+		byte[] ReadBytesToTimeout(Action<long> receiveProgress = null);
 
 		/// <summary>
 		/// Read raw bytes from the response into a buffer, returning number of bytes read.

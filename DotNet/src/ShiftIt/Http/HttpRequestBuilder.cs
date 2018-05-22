@@ -47,8 +47,8 @@ namespace ShiftIt.Http
 		}
 
 		/// <summary>
-		/// Post data to a target resource. You should use the `Data` or `StringData`
-		/// methods to provide this data.
+		/// Post data to a target resource. You should use the stream or string data options of the `Build`
+		/// or `BuildForm` methods to provide this data.
 		/// </summary>
 		public IHttpRequestBuilder Post(Uri target)
 		{
@@ -57,8 +57,8 @@ namespace ShiftIt.Http
 		}
 
 		/// <summary>
-		/// Put data to a target resource. You should use the `Data` or `StringData`
-		/// methods to provide this data.
+		/// Put data to a target resource. You should use the stream or string data options of the `Build`
+		/// or `BuildForm` methods to provide this data.
 		/// </summary>
 		public IHttpRequestBuilder Put(Uri target)
 		{
@@ -119,15 +119,24 @@ namespace ShiftIt.Http
 			return new HttpRequest(_target, _verb, stream, length, RequestHead(length));
 		}
 
-		/// <summary>
+	    /// <summary>
+	    /// Build the request, providing a data buffer for the request. It will be sent to the target resource's
+	    /// hosting server.
+	    /// </summary>
+	    /// <param name="uploadData">Bytes to be uploaded. The entire buffer will be sent</param>
+	    public IHttpRequest Build(byte[] uploadData)
+	    {
+	        var dataLength = uploadData.Length;
+	        return new HttpRequest(_target, _verb, new MemoryStream(uploadData), dataLength, RequestHead(dataLength));
+	    }
+
+	    /// <summary>
 		/// Build the request, providing string data for the request. It will be sent to the target resource's
 		/// hosting server.
 		/// </summary>
 		public IHttpRequest Build(string data)
 		{
-			var bytes = Encoding.UTF8.GetBytes(data);
-			var dataLength = bytes.Length;
-			return new HttpRequest(_target, _verb, new MemoryStream(bytes), dataLength, RequestHead(dataLength));
+            return Build(Encoding.UTF8.GetBytes(data));
 		}
 		
 		/// <summary>

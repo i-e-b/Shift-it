@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using ShiftIt.Internal.Socket;
+using ShiftIt.Internal.Streaming;
 
 namespace ShiftIt.Http
 {

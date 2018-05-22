@@ -45,7 +45,7 @@ namespace ShiftIt.Http
 		/// </summary>
 		/// <exception cref="ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets.</exception>
 		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
-		public IHttpResponse Request(IHttpRequest request)
+		public IHttpResponse Request(IHttpRequest request, Action<long> sendProgress = null)
 		{
 			var socket = (request.Secure) 
 				? _conn.ConnectSSL(request.Target, Timeout)
@@ -58,9 +58,9 @@ namespace ShiftIt.Http
 			if (request.DataStream != null)
 			{
 				if (request.DataLength > 0)
-					StreamTools.CopyBytesToLength(request.DataStream, socket, request.DataLength, Timeout);
+					StreamTools.CopyBytesToLength(request.DataStream, socket, request.DataLength, Timeout, sendProgress);
 				else
-					StreamTools.CopyBytesToTimeout(request.DataStream, socket);
+					StreamTools.CopyBytesToTimeout(request.DataStream, socket, sendProgress);
 			}
 
 			socket.Flush();
@@ -74,7 +74,7 @@ namespace ShiftIt.Http
 		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
 		/// <exception cref="ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets.</exception>
 		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
-		public IHttpResponse RequestOrThrow(IHttpRequest request)
+		public IHttpResponse RequestOrThrow(IHttpRequest request, Action<long> sendProgress = null)
 		{
 			var response = Request(request);
 			if (response.StatusClass == StatusClass.Success) return response;
@@ -83,16 +83,17 @@ namespace ShiftIt.Http
 			throw new HttpTransferException(response.Headers, request.Target, response.StatusCode, response.StatusMessage);
 		}
 
-		/// <summary>
-		/// Request data from one resource and provide to another.
-		/// This is done in a memory-efficient manner.
-		/// </summary>
-		/// <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
-		/// <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
-		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
-		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
-		/// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
-		public void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest)
+	    /// <summary>
+	    /// Request data from one resource and provide to another.
+	    /// This is done in a memory-efficient manner.
+	    /// </summary>
+	    /// <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
+	    /// <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
+	    /// <param name="sendProgress">Optional: action that is updated with bytes transferred. No guarantees as to when.</param>
+	    /// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+	    /// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+	    /// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
+	    public void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, Action<long> sendProgress = null)
 		{
 			using (var getTx = RequestOrThrow(loadRequest)) // get source
 			{
