@@ -26,11 +26,11 @@ namespace ShiftIt.Integration.Tests
 		public void should_be_able_to_connect_to_a_public_ftp_server_and_list_files ()
 		{
             _subject.SetRemoteHost("ftp.heanet.ie");
-            _subject.SetRemotePath("pub/vim/doc");
+            _subject.SetRemotePath("/pub/CPAN/_modules");
 			_subject.ListMode = DirectoryListMode.NameList;
 			var list = _subject.GetFileList("*");
 
-			Assert.That(list, Contains.Item("README"));
+			Assert.That(list, Contains.Item("EDITORS_README"));
 		}
 	}
 }

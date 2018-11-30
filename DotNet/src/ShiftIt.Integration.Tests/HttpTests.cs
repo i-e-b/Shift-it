@@ -80,7 +80,7 @@ namespace ShiftIt.Integration.Tests
 		[Test]
 		public void read_from_common_site()
 		{
-            var rq = new HttpRequestBuilder().Get(new Uri("http://xkcd.com/1269/")).Build();
+            var rq = new HttpRequestBuilder().Get(new Uri("http://datagenetics.com/blog.html")).Build();
 			using (var result = _subject.Request(rq))
 			{
 				var body = result.BodyReader.ReadStringToLength();
@@ -101,17 +101,17 @@ namespace ShiftIt.Integration.Tests
 		[Test]
 		public void head_from_common_site()
 		{
-            var rq = new HttpRequestBuilder().Head(new Uri("http://xkcd.com/1269/")).Build();
+            var rq = new HttpRequestBuilder().Head(new Uri("http://datagenetics.com/blog.html")).Build();
 			using (var result = _subject.Request(rq))
 			{
-				Assert.That(result.StatusCode == 200);
+				Assert.That(result.StatusCode == 200, "Expected 200, but got "+result.StatusCode+" ("+result.StatusMessage+")");
 			}
 		}
 
 		[Test]
 		public void reading_the_body_of_a_head_request_results_in_a_timeout()
 		{
-            var rq = new HttpRequestBuilder().Head(new Uri("http://xkcd.com/1269/")).Build();
+            var rq = new HttpRequestBuilder().Head(new Uri("http://datagenetics.com/blog.html")).Build();
 
 			_subject.Timeout = TimeSpan.FromSeconds(0.5);
 

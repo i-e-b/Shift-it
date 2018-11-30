@@ -1,0 +1,1701 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ShiftIt.DotnetStd</name>
+    </assembly>
+    <members>
+        <member name="T:ShiftIt.Ftp.DirectoryListMode">
+            <summary>
+            List of common directory listing modes for FTP
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Ftp.DirectoryListMode.NameList">
+            <summary>
+            Standardised list mode. Returns only file/directory names
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Ftp.DirectoryListMode.PlatformList">
+            <summary>
+            Platform specific list mode. Returns more details than NameList, but output varies from server to server.
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Ftp.FtpSession">
+            <summary>
+            A class to send and receive files over FTP, using sockets connections
+            instead of the .Net built in methods.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Ftp.FtpSession.ShouldOverwrite">
+            <summary>
+            Gets or sets whether existing remote files are deleted prior to uploads.
+            This does not affect downloads.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Ftp.FtpSession.ShouldContinue">
+            <summary>
+            Gets or sets whether ftp file transfers will be continued from partial uploads.
+            Use with caution.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Ftp.FtpSession.PassiveMode">
+            <summary>
+            Gets or sets whether ftp connections are active or passive
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.#ctor">
+            <summary>
+            Create a new FTP transfer agent.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.ToString">
+            <summary>
+            Return a rough URI representation of this factory's connection settings
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Dispose">
+            <summary>
+            Close the underlying connection
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Ftp.FtpSession.ListMode">
+            <summary>
+            Gets or sets the command mode used to return directory listings
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.SetRemoteHost(System.String)">
+            <summary>
+            Set the name or IP addres of the FTP server to connect to.
+            </summary>
+            <param name="remoteHost">Server name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.GetRemoteHost">
+            <summary>
+            Return the name of the current FTP server.
+            </summary>
+            <returns>Server name</returns>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.SetRemotePort(System.Int32)">
+            <summary>
+            Set the port number to use for FTP.
+            </summary>
+            <param name="remotePort">Port number</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.GetRemotePort">
+            <summary>
+            Return the current port number.
+            </summary>
+            <returns>Current port number</returns>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.SetRemotePath(System.String)">
+            <summary>
+            Set the remote directory path.
+            </summary>
+            <param name="remotePath">The remote directory path</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.GetRemotePath">
+            <summary>
+            Return the current remote directory path.
+            </summary>
+            <returns>The current remote directory path.</returns>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.SetRemoteUser(System.String)">
+            <summary>
+            Set the user name to use for logging into the remote server.
+            </summary>
+            <param name="remoteUser">Username</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.SetRemotePass(System.String)">
+            <summary>
+            Set the password to user for logging into the remote server.
+            </summary>
+            <param name="remotePass">Password</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.GetFileList(System.String)">
+            <summary>
+            Return a string array containing the remote directory's file list.
+            </summary>
+            <param name="mask">Filename mask to apply to list.
+            This is server dependent, but filters like *.txt, *.exe usually work.</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.GetFileSize(System.String)">
+            <summary>
+            Return the size of a file.
+            </summary>
+            <param name="fileName">Full name of a file in the current directory</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Login">
+            <summary>
+            Login to the remote server.
+            If needed, username and password should have been given before calling.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.SetBinaryMode(System.Boolean)">
+            <summary>
+            Set the data transfer mode between binary and text.
+            </summary>
+            <param name="mode">If true, set binary mode for downloads (8 bit); Else set ASCII text mode (7 bit).</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Download(System.String)">
+            <summary>
+            Download a file to the Assembly's local directory, keeping the same file name.
+            Always resets file's download progress.
+            </summary>
+            <param name="remFileName">Name of file on remote server</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Download(System.String,System.Boolean)">
+            <summary>
+            Download a remote file to the Assembly's local directory,
+            keeping the same file name, and set the resume flag.
+            </summary>
+            <param name="remFileName">Name of file on remote server</param>
+            <param name="resume">if true, try to continue a previous download</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Download(System.String,System.String)">
+            <summary>
+            Download a remote file to a local file name which can include
+            a path. The local file name will be created or overwritten,
+            but the path must exist.
+            </summary>
+            <param name="locFileName">Local file name (may be a full path)</param>
+            <param name="remFileName">Remote file name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Download(System.String,System.String,System.Boolean)">
+            <summary>
+            Download a remote file to a local file name which can include
+            a path, and set the resume flag. The local file name will be
+            created or overwritten, but the path must exist.
+            </summary>
+            <param name="locFileName">Local file name (may be a full path)</param>
+            <param name="remFileName">Remote file name</param>
+            <param name="resume">if true, try to continue a previous download</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Upload(System.String)">
+            <summary>
+            Upload a file to the current remote directory.
+            </summary>
+            <param name="fileName">Full local path and filename to upload</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Upload(System.String,System.Boolean)">
+            <summary>
+            Upload a file to the current remote directory.
+            </summary>
+            <param name="fileName">Full local path and filename to upload</param>
+            <param name="resume">Resume partial upload if possible</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Upload(System.String,System.String,System.Boolean)">
+            <summary>
+            Upload a file and set the resume flag.
+            </summary>
+            <param name="fileName">Full local path and filename to upload</param>
+            <param name="remoteFileName">file name as it should be on the remote server</param>
+            <param name="resume">if true, try to continue a previous upload</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.DeleteRemoteFile(System.String)">
+            <summary>
+            Delete a file from the remote FTP server.
+            </summary>
+            <param name="fileName">File in the current remote directory</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.RenameRemoteFile(System.String,System.String)">
+            <summary>
+            Rename a file on the remote FTP server.
+            </summary>
+            <param name="oldFileName">File name in the current remote directory</param>
+            <param name="newFileName">New file name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Mkdir(System.String)">
+            <summary>
+            Create a directory on the remote FTP server as
+            a child of the current working directory
+            </summary>
+            <param name="dirName">New directory name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Pwd">
+            <summary>
+            List the current working directory
+            </summary>
+            <returns>Current working directory, result of PWD command</returns>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Rmdir(System.String)">
+            <summary>
+            Delete a directory on the remote FTP server.
+            </summary>
+            <param name="dirName">Old directory name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Chdir(System.String)">
+            <summary>
+            Change the current working directory on the remote FTP server.
+            </summary>
+            <param name="dirName">New directory</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Close">
+            <summary>
+            Close the FTP connection.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.EnsureRemotePath(System.String,System.Boolean)">
+            <summary>
+            Check that the specified path exists.
+            If it doesn't, then it is created (if possible).
+            </summary>
+            <remarks>
+            Unless this method throws an exception, it should return in the same working directory
+            as when it is called. If remote path is set to ".", the method will exit in the deepest folder
+            created by this method.
+            </remarks>
+            <param name="path">Path to ensure</param>
+            <param name="relative">If true, path is treated as relative to the working directory.
+            Otherwise, it is assumed to be an absolute path on the server.</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Abort">
+            <summary>
+            Cancel data transfer in progress
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.SetDebug(System.Boolean)">
+            <summary>
+            Set debug mode.
+            This causes diagnostic information to be printed to the console.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.FtpSession.Dispose(System.Boolean)">
+            <summary>
+            Close session and cleanup
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Ftp.IFtpSession">
+            <summary>
+            Contract for an Ftp session
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Ftp.IFtpSession.ShouldOverwrite">
+            <summary>
+            Gets or sets whether existing remote files are deleted prior to uploads.
+            This does not affect downloads.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Ftp.IFtpSession.ShouldContinue">
+            <summary>
+            Gets or sets whether ftp file transfers will be continued from partial uploads.
+            Use with caution.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Ftp.IFtpSession.PassiveMode">
+            <summary>
+            Gets or sets whether ftp connections are active or passive
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Ftp.IFtpSession.ListMode">
+            <summary>
+            Gets or sets the command mode used to return directory listings
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.ToString">
+            <summary>
+            Return a rough URI representation of this factory's connection settings
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.SetRemoteHost(System.String)">
+            <summary>
+            Set the name or IP addres of the FTP server to connect to.
+            </summary>
+            <param name="remoteHost">Server name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.GetRemoteHost">
+            <summary>
+            Return the name of the current FTP server.
+            </summary>
+            <returns>Server name</returns>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.SetRemotePort(System.Int32)">
+            <summary>
+            Set the port number to use for FTP.
+            </summary>
+            <param name="remotePort">Port number</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.GetRemotePort">
+            <summary>
+            Return the current port number.
+            </summary>
+            <returns>Current port number</returns>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.SetRemotePath(System.String)">
+            <summary>
+            Set the remote directory path.
+            </summary>
+            <param name="remotePath">The remote directory path</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.GetRemotePath">
+            <summary>
+            Return the current remote directory path.
+            </summary>
+            <returns>The current remote directory path.</returns>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.SetRemoteUser(System.String)">
+            <summary>
+            Set the user name to use for logging into the remote server.
+            </summary>
+            <param name="remoteUser">Username</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.SetRemotePass(System.String)">
+            <summary>
+            Set the password to user for logging into the remote server.
+            </summary>
+            <param name="remotePass">Password</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.GetFileList(System.String)">
+            <summary>
+            Return a string array containing the remote directory's file list.
+            </summary>
+            <param name="mask">Filename mask to apply to list.
+            This is server dependent, but filters like *.txt, *.exe usually work.</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.GetFileSize(System.String)">
+            <summary>
+            Return the size of a file.
+            </summary>
+            <param name="fileName">Full name of a file in the current directory</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Login">
+            <summary>
+            Login to the remote server.
+            If needed, username and password should have been given before calling.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.SetBinaryMode(System.Boolean)">
+            <summary>
+            Set the data transfer mode between binary and text.
+            </summary>
+            <param name="mode">If true, set binary mode for downloads (8 bit); Else set ASCII text mode (7 bit).</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Download(System.String)">
+            <summary>
+            Download a file to the Assembly's local directory, keeping the same file name.
+            Always resets file's download progress.
+            </summary>
+            <param name="remFileName">Name of file on remote server</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Download(System.String,System.Boolean)">
+            <summary>
+            Download a remote file to the Assembly's local directory,
+            keeping the same file name, and set the resume flag.
+            </summary>
+            <param name="remFileName">Name of file on remote server</param>
+            <param name="resume">if true, try to continue a previous download</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Download(System.String,System.String)">
+            <summary>
+            Download a remote file to a local file name which can include
+            a path. The local file name will be created or overwritten,
+            but the path must exist.
+            </summary>
+            <param name="locFileName">Local file name (may be a full path)</param>
+            <param name="remFileName">Remote file name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Download(System.String,System.String,System.Boolean)">
+            <summary>
+            Download a remote file to a local file name which can include
+            a path, and set the resume flag. The local file name will be
+            created or overwritten, but the path must exist.
+            </summary>
+            <param name="locFileName">Local file name (may be a full path)</param>
+            <param name="remFileName">Remote file name</param>
+            <param name="resume">if true, try to continue a previous download</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Upload(System.String)">
+            <summary>
+            Upload a file to the current remote directory.
+            </summary>
+            <param name="fileName">Full local path and filename to upload</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Upload(System.String,System.Boolean)">
+            <summary>
+            Upload a file to the current remote directory.
+            </summary>
+            <param name="fileName">Full local path and filename to upload</param>
+            <param name="resume">Resume partial upload if possible</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Upload(System.String,System.String,System.Boolean)">
+            <summary>
+            Upload a file and set the resume flag.
+            </summary>
+            <param name="fileName">Full local path and filename to upload</param>
+            <param name="remoteFileName">file name as it should be on the remote server</param>
+            <param name="resume">if true, try to continue a previous upload</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.DeleteRemoteFile(System.String)">
+            <summary>
+            Delete a file from the remote FTP server.
+            </summary>
+            <param name="fileName">File in the current remote directory</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.RenameRemoteFile(System.String,System.String)">
+            <summary>
+            Rename a file on the remote FTP server.
+            </summary>
+            <param name="oldFileName">File name in the current remote directory</param>
+            <param name="newFileName">New file name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Mkdir(System.String)">
+            <summary>
+            Create a directory on the remote FTP server as
+            a child of the current working directory
+            </summary>
+            <param name="dirName">New directory name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Pwd">
+            <summary>
+            List the current working directory
+            </summary>
+            <returns>Current working directory, result of PWD command</returns>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Rmdir(System.String)">
+            <summary>
+            Delete a directory on the remote FTP server.
+            </summary>
+            <param name="dirName">Old directory name</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Chdir(System.String)">
+            <summary>
+            Change the current working directory on the remote FTP server.
+            </summary>
+            <param name="dirName">New directory</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Close">
+            <summary>
+            Close the FTP connection.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.EnsureRemotePath(System.String,System.Boolean)">
+            <summary>
+            Check that the specified path exists.
+            If it doesn't, then it is created (if possible).
+            </summary>
+            <remarks>
+            Unless this method throws an exception, it should return in the same working directory
+            as when it is called. If remote path is set to ".", the method will exit in the deepest folder
+            created by this method.
+            </remarks>
+            <param name="path">Path to ensure</param>
+            <param name="relative">If true, path is treated as relative to the working directory.
+            Otherwise, it is assumed to be an absolute path on the server.</param>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.Abort">
+            <summary>
+            Cancel data transfer in progress
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Ftp.IFtpSession.SetDebug(System.Boolean)">
+            <summary>
+            Set debug mode.
+            This causes diagnostic information to be printed to the console.
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Http.HttpClient">
+            <summary>
+            Standard Http client for Shift-it
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Http.HttpClient.DefaultTimeout">
+            <summary>
+            Default conenction and data timeout (5 seconds)
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.HttpClient.Timeout">
+            <summary>
+            Connection and data transfer timeout
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpClient.#ctor(ShiftIt.Internal.Socket.IConnectableStreamSource,ShiftIt.Internal.Http.IHttpResponseParser)">
+            <summary>
+            Create a new HttpClient with a specified connection and parser
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpClient.#ctor">
+            <summary>
+            Start a new HttpClient
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpClient.Request(ShiftIt.Http.IHttpRequest,System.Action{System.Int64})">
+            <summary>
+            Issue a request to a server, and return the (IDisposable) response.
+            </summary>
+            <exception cref="T:ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+        </member>
+        <member name="M:ShiftIt.Http.HttpClient.RequestOrThrow(ShiftIt.Http.IHttpRequest,System.Action{System.Int64})">
+            <summary>
+            Issue a request to a server, and return the (IDisposable) response. Throws if the response status code was not a success.
+            </summary>
+            <exception cref="T:ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+            <exception cref="T:ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+        </member>
+        <member name="M:ShiftIt.Http.HttpClient.CrossLoad(ShiftIt.Http.IHttpRequest,ShiftIt.Http.IHttpRequestBuilder,System.Action{System.Int64})">
+            <summary>
+            Request data from one resource and provide to another.
+            This is done in a memory-efficient manner.
+            </summary>
+            <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
+            <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
+            <param name="sendProgress">Optional: action that is updated with bytes transferred. No guarantees as to when.</param>
+            <exception cref="T:ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+            <exception cref="T:ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
+        </member>
+        <member name="M:ShiftIt.Http.HttpClient.CrossLoad(ShiftIt.Http.IHttpRequest,ShiftIt.Http.IHttpRequestBuilder,System.String)">
+            <summary>
+            Request data from one resource and provide to another, calculating a 
+            hash of the cross-loaded data. This is done in a memory-efficient manner.
+            If either source or destination return a non-success result (including redirects)
+            an exception will be thrown
+            </summary>
+            <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
+            <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
+            <param name="hashAlgorithmName">Name of hash algorithm to use (should be a name supported by <see cref="T:System.Security.Cryptography.HashAlgorithm"/>)</param>
+            <exception cref="T:ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+            <exception cref="T:ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
+        </member>
+        <member name="T:ShiftIt.Http.HttpRequestBuilder">
+            <summary>
+            HTTP requests builder and request object
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.#ctor">
+            <summary>
+            Start building a new request
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Get(System.Uri)">
+            <summary>
+            Request a target resource
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Head(System.Uri)">
+            <summary>
+            Request the headers of a resource, excluding the resource itself.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Post(System.Uri)">
+            <summary>
+            Post data to a target resource. You should use the stream or string data options of the `Build`
+            or `BuildForm` methods to provide this data.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Put(System.Uri)">
+            <summary>
+            Put data to a target resource. You should use the stream or string data options of the `Build`
+            or `BuildForm` methods to provide this data.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Delete(System.Uri)">
+            <summary>
+            Request that a resource be deleted.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Verb(System.String,System.Uri)">
+            <summary>
+            Make a custom request
+            </summary>
+            <param name="verb">Verb of request</param>
+            <param name="target">Target resource</param>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Accept(System.String)">
+            <summary>
+            Set the MIME types to accept for the resource. Replaces existing header value.
+            Defaults to */* if not provided. 
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.BasicAuthentication(System.String,System.String)">
+            <summary>
+            Provide basic authentication details for the target resource.
+            WARNING: this will be sent in the clear. Use only in internal networks
+            or over SSL connections.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Build(System.IO.Stream,System.Int64)">
+            <summary>
+            Build the request, providing a data stream for the request. It will be sent to the target resource's
+            hosting server.
+            </summary>
+            <param name="stream">Data stream</param>
+            <param name="length">Length of data. Must be provided.</param>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Build(System.Byte[])">
+            <summary>
+            Build the request, providing a data buffer for the request. It will be sent to the target resource's
+            hosting server.
+            </summary>
+            <param name="uploadData">Bytes to be uploaded. The entire buffer will be sent</param>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Build(System.String)">
+            <summary>
+            Build the request, providing string data for the request. It will be sent to the target resource's
+            hosting server.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.BuildForm(System.Object)">
+            <summary>
+            Build the request, providing object data for the request.
+            Each public property on the object will be sent as a form value to the target resource's
+            hosting server. This will force Content-Type to application/x-www-form-urlencoded
+            </summary>
+            <example><code>
+            // sends out "targetId=142&amp;value=Hello%2C+Jim"
+            builder.Build(new {targetId = 142, value = "Hello, Jim" });
+            </code></example>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.Build">
+            <summary>
+            Build the request, suppling no data.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.SetHeader(System.String,System.String)">
+            <summary>
+            Set the value of a header field, replacing any existing values
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpRequestBuilder.AddHeader(System.String,System.String)">
+            <summary>
+            Add a value to a header field, supplimenting any existing values
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Http.HttpResponseExtensions">
+            <summary>
+            Extensions for IHttpResponse
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpResponseExtensions.HttpStatusCode(ShiftIt.Http.IHttpResponse)">
+            <summary>
+            Converts StatusCode integer into HttpStatusCode enum.
+            </summary>
+            <param name="response"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ShiftIt.Http.HttpTransferException">
+            <summary>
+            Exception thrown when a non-sucess result is returned from
+            a method that does not expose a IHttpResponse
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.HttpTransferException.Headers">
+            <summary>
+            Headers returned by failing call
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.HttpTransferException.Target">
+            <summary>
+            Original target for failing call
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.HttpTransferException.StatusCode">
+            <summary>
+            Status code returned by target
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpTransferException.#ctor(System.Collections.Generic.IDictionary{System.String,System.String},System.Uri,System.Int32,System.String)">
+            <summary>
+            Create an exception object for returned headers, target and status
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpTransferException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Internal exception constructor
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.HttpTransferException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Sets the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with information about the exception.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown. </param><param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination. </param><exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is a null reference (Nothing in Visual Basic). </exception><filterpriority>2</filterpriority><PermissionSet><IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Read="*AllFiles*" PathDiscovery="*AllFiles*"/><IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="SerializationFormatter"/></PermissionSet>
+        </member>
+        <member name="T:ShiftIt.Http.IHttpClient">
+            <summary>
+            Contract for HttpClient.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpClient.Request(ShiftIt.Http.IHttpRequest,System.Action{System.Int64})">
+            <summary>
+            Issue a request to a server, and return the (IDisposable) response.
+            </summary>
+            <exception cref="T:ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Generic socket exceptions</exception>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpClient.RequestOrThrow(ShiftIt.Http.IHttpRequest,System.Action{System.Int64})">
+            <summary>
+            Issue a request to a server, and return the (IDisposable) response. Throws if the response status code was not a success.
+            </summary>
+            <exception cref="T:ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+            <exception cref="T:ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpClient.CrossLoad(ShiftIt.Http.IHttpRequest,ShiftIt.Http.IHttpRequestBuilder,System.Action{System.Int64})">
+            <summary>
+            Request data from one resource and provide to another.
+            This is done in a memory-efficient manner.
+            </summary>
+            <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
+            <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
+            <param name="sendProgress">Optional: action that is updated with bytes transferred. No guarantees as to when.</param>
+            <exception cref="T:ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+            <exception cref="T:ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpClient.CrossLoad(ShiftIt.Http.IHttpRequest,ShiftIt.Http.IHttpRequestBuilder,System.String)">
+            <summary>
+            Request data from one resource and provide to another, calculating a 
+            hash of the cross-loaded data.
+            This is done in a memory-efficient manner.
+            </summary>
+            <param name="loadRequest">Request that will provide body data (should be a GET or POST)</param>
+            <param name="storeRequest">Request that will accept body data (should be a PUT or POST)</param>
+            <param name="hashAlgorithmName">Name of hash algorithm to use (should a name supported by System.Security.Cryptography.HashAlgorithm)</param>
+            <exception cref="T:ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
+            <exception cref="T:ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpClient.Timeout">
+            <summary>
+            Connection and data transfer timeout
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Http.IHttpRequest">
+            <summary>
+            Data required to make a HTTP request
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpRequest.Target">
+            <summary>
+            Target resource
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpRequest.Verb">
+            <summary>
+            Verb used
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpRequest.RequestHead">
+            <summary>
+            Headers
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpRequest.DataStream">
+            <summary>
+            Body data stream
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpRequest.DataLength">
+            <summary>
+            Length of body data
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpRequest.Secure">
+            <summary>
+            Returns true if a HTTPS resource is being requested.
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Http.IHttpRequestBuilder">
+            <summary>
+            Helper for building HTTP requests
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Get(System.Uri)">
+            <summary>
+            Request a target resource
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Head(System.Uri)">
+            <summary>
+            Request the headers of a resource, excluding the resource itself.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Post(System.Uri)">
+            <summary>
+            Post data to a target resource. You should use the stream or string data options of the `Build`
+            or `BuildForm` methods to provide this data.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Put(System.Uri)">
+            <summary>
+            Put data to a target resource. You should use the stream or string data options of the `Build`
+            or `BuildForm` methods to provide this data.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Delete(System.Uri)">
+            <summary>
+            Request that a resource be deleted.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Verb(System.String,System.Uri)">
+            <summary>
+            Make a custom request
+            </summary>
+            <param name="verb">Verb of request</param>
+            <param name="target">Target resource</param>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.SetHeader(System.String,System.String)">
+            <summary>
+            Set the value of a header field, replacing any existing values
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.AddHeader(System.String,System.String)">
+            <summary>
+            Add a value to a header field, supplimenting any existing values
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Accept(System.String)">
+            <summary>
+            Set the MIME types to accept for the resource.
+            Defaults to */* if not provided. 
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.BasicAuthentication(System.String,System.String)">
+            <summary>
+            Provide basic authentication details for the target resource.
+            WARNING: this will be sent in the clear. Use only in internal networks
+            or over SSL connections.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Build(System.IO.Stream,System.Int64)">
+            <summary>
+            Build the request, providing a data stream for the request. It will be sent to the target resource's
+            hosting server.
+            </summary>
+            <param name="stream">Data stream</param>
+            <param name="length">Length of data. Must be provided.</param>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Build(System.Byte[])">
+            <summary>
+            Build the request, providing a data buffer for the request. It will be sent to the target resource's
+            hosting server.
+            </summary>
+            <param name="uploadData">Bytes to be uploaded. The entire buffer will be sent</param>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Build(System.String)">
+            <summary>
+            Build the request, providing string data for the request. It will be sent to the target resource's
+            hosting server. The string will be UTF-8 encoded.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.BuildForm(System.Object)">
+            <summary>
+            Build the request, providing object data for the request.
+            Each public property on the object will be sent as a form value to the target resource's
+            hosting server. This will force Content-Type to application/x-www-form-urlencoded
+            </summary>
+            <example><code>
+            // sends out "targetId=142&amp;value=Hello%2C+Jim"
+            builder.Build(new {targetId = 142, value = "Hello, Jim" });
+            </code></example>
+        </member>
+        <member name="M:ShiftIt.Http.IHttpRequestBuilder.Build">
+            <summary>
+            Build the request, suppling no data.
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Http.IHttpResponse">
+            <summary>
+            Wrapper for HTTP response streams
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.HeadersComplete">
+            <summary>
+            Returns true once all headers have been read.
+            The body stream can be used at this point.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.StatusCode">
+            <summary>
+            Status code returned by server.
+            If the status code is zero, there was a protocol error.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.StatusClass">
+            <summary>
+            General class of the status code
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.StatusMessage">
+            <summary>
+            Status message returned by server.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.Headers">
+            <summary>
+            Headers returned by server
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.BodyReader">
+            <summary>
+            The HTTP body stream wrapped in a decoder class
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.RawBodyStream">
+            <summary>
+            The raw body stream. This will be consumed if you use the BodyReader.
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Http.StatusClass">
+            <summary>
+            Classes of HTTP status codes
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Http.StatusClass.Invalid">
+            <summary>
+            Invalid response
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Http.StatusClass.Information">
+            <summary>
+            Informational (1xx)
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Http.StatusClass.Success">
+            <summary>
+            Success (2xx)
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Http.StatusClass.Redirection">
+            <summary>
+            Redirection (3xx)
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Http.StatusClass.ClientError">
+            <summary>
+            Client error (4xx)
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Http.StatusClass.ServerError">
+            <summary>
+            Server error (5xx)
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Http.TimeoutException">
+            <summary>
+            Exception for timeouts that happen across socket connections
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.TimeoutException.#ctor">
+            <summary>
+            New timeout exception
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Http.TimeoutException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Internal
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Http.HttpResponse">
+            <summary>
+            Wrapper for HTTP response streams
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Http.HttpResponse.#ctor(System.IO.Stream,System.TimeSpan)">
+            <summary>
+            Reads synchronously until headers are complete, then 
+            provides the remaining data in a stream
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.HeadersComplete">
+            <summary>
+            Returns true once all headers have been read.
+            The body stream can be used at this point.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.StatusCode">
+            <summary>
+            Status code returned by server.
+            If the status code is zero, there was a protocol error.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.StatusClass">
+            <summary>
+            General class of the status code
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.StatusMessage">
+            <summary>
+            Status message returned by server.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.Headers">
+            <summary>
+            Headers returned by server
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.BodyReader">
+            <summary>
+            The HTTP body stream wrapped in a decoder class
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.RawBodyStream">
+            <summary>
+            The raw body stream. This will be consumed if you use the BodyReader.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Http.HttpResponse.Dispose">
+            <summary>
+            Dispose of the underlying stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Http.HttpResponse.Dispose(System.Boolean)">
+            <summary>
+            Internal dispose
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Http.HttpResponse.Finalize">
+            <summary>
+            Dispose of the underlying stream
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Http.HttpResponseParser">
+            <summary>
+            Parser for http responses
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Http.HttpResponseParser.Parse(System.IO.Stream,System.TimeSpan)">
+            <summary>
+            Return a HTTP response wrapper appropriate for the response stream.
+            </summary>
+            <param name="rawResponse">Raw HTTP response stream</param>
+            <param name="timeout">Connection and data timeout</param>
+            <returns>A HTTP response parser</returns>
+        </member>
+        <member name="T:ShiftIt.Internal.Http.IHttpResponseParser">
+            <summary>
+            Parser for http responses
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Http.IHttpResponseParser.Parse(System.IO.Stream,System.TimeSpan)">
+            <summary>
+            Return a HTTP response wrapper appropriate for the response stream.
+            </summary>
+            <param name="rawResponse">Raw HTTP response stream</param>
+            <param name="timeout">Connection and data timeout</param>
+            <returns>A HTTP response parser</returns>
+        </member>
+        <member name="T:ShiftIt.Internal.Http.IObjectToRequestStreamConverter">
+            <summary>
+            Contract for converting the public properties of an object into a readable stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Http.IObjectToRequestStreamConverter.ConvertToStream(System.Object)">
+            <summary>
+            Convert the public properties of an object into a readable stream
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Http.ObjectToRequestStreamConverter">
+            <summary>
+            Constructs POST body stream for application/x-www-form-urlencoded requests.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Http.ObjectToRequestStreamConverter.ConvertToStream(System.Object)">
+            <summary>
+            Does the actual work using <see cref="T:System.ComponentModel.TypeDescriptor"/>.
+            </summary>
+            <param name="value">object to encode</param>
+            <returns>POST body stream, rewound to the beginning.</returns>
+        </member>
+        <member name="T:ShiftIt.Internal.Socket.IConnectableStreamSource">
+            <summary>
+            Factory methods for connecting a stream to a URI by sockets
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.IConnectableStreamSource.ConnectUnsecured(System.Uri,System.TimeSpan)">
+            <summary>
+            Connect to an unsecured target URI.
+            </summary>
+            <param name="connectionTarget">Uri of target service</param>
+            <param name="connectionTimeout">Timeout for connection and data transfer</param>
+            <returns>Readable and writable stream connected to target by an open socket</returns>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.IConnectableStreamSource.ConnectSSL(System.Uri,System.TimeSpan)">
+            <summary>
+            Connect to an target URI over an SSL connection.
+            This method does not attempt to verify certificate trust.
+            Use only with trusted resources.
+            </summary>
+            <param name="connectionTarget">Uri of target service</param>
+            <param name="connectionTimeout">Timeout for connection and data transfer</param>
+            <returns>Readable and writable stream connected to target by an open socket</returns>
+        </member>
+        <member name="T:ShiftIt.Internal.Socket.SocketStream">
+            <summary>
+            Stream abstraction 
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.#ctor">
+            <summary>
+            Create a disconnected stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.#ctor(System.Net.Sockets.Socket)">
+            <summary>
+            Create a stream wrapper for a socket
+            </summary>
+            <param name="socket">socket to wrap</param>
+        </member>
+        <member name="P:ShiftIt.Internal.Socket.SocketStream.Socket">
+            <summary>
+            Underlying socket used by this stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.Finalize">
+            <summary>
+            Dispose of stream and socket.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:System.IO.Stream"/> and optionally releases the managed resources.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.Flush">
+            <summary> Does nothing </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Reads from the underlying socket into a provided buffer.
+            </summary>
+            <returns>
+            The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
+            </returns>
+            <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source. </param><param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream. </param><param name="count">The maximum number of bytes to be read from the current stream. </param><exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null. </exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative. </exception><exception cref="T:System.IO.IOException">An I/O error occurs. </exception><exception cref="T:System.NotSupportedException">The stream does not support reading. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception><filterpriority>1</filterpriority>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Writes a sequence of bytes to the underlying socket.
+            </summary>
+            <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream. </param><param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream. </param><param name="count">The number of bytes to be written to the current stream. </param><filterpriority>1</filterpriority>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.ResetCounts">
+            <summary>
+            Sets read and write counts (Position, Length) to 0
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Socket.SocketStream.Length">
+            <summary>
+            Number of bytes written to socket
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Socket.SocketStream.Position">
+            <summary>
+            Number of bytes read from socket
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary> No action </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStream.SetLength(System.Int64)">
+            <summary> No action </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Socket.SocketStream.CanRead">
+            <summary> No action </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Socket.SocketStream.CanSeek">
+            <summary> No action </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Socket.SocketStream.CanWrite">
+            <summary> No action </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Socket.SocketStreamFactory">
+            <summary>
+            Factory methods for connecting a stream to a URI by sockets
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStreamFactory.ConnectUnsecured(System.Uri,System.TimeSpan)">
+            <summary>
+            Connect to an unsecured target URI.
+            </summary>
+            <param name="connectionTarget">Uri of target service</param>
+            <param name="connectionTimeout">Timeout for connection and data transfer</param>
+            <returns>Readable and writable stream connected to target by an open socket</returns>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStreamFactory.RemoteCertificateValidationCallback(System.Object,System.Security.Cryptography.X509Certificates.X509Certificate,System.Security.Cryptography.X509Certificates.X509Chain,System.Net.Security.SslPolicyErrors)">
+            <summary>
+            Dummy certification validation callback.
+            Always accepts certificates.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Socket.SocketStreamFactory.ConnectSSL(System.Uri,System.TimeSpan)">
+            <summary>
+            Connect to an target URI over an SSL connection.
+            This method does not attempt to verify certificate trust.
+            Use only with trusted resources.
+            </summary>
+            <param name="connectionTarget">Uri of target service</param>
+            <param name="connectionTimeout">Timeout for connection and data transfer</param>
+            <returns>Readable and writable stream connected to target by an open socket</returns>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.GZipStreamWrapper">
+            <summary>
+            Wrap a gzip stream to expose the end-of-stream logic.
+            This is horrible.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.GZipStreamWrapper.#ctor(ShiftIt.Internal.Streaming.PushbackInputStream)">
+            <summary>
+            Wrap gzip stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.GZipStreamWrapper.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read decompressed data from the source
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.GZipStreamWrapper.IsComplete">
+            <summary>
+            Returns true if the stream has terminated,
+            false otherwise.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.GZipStreamWrapper.Flush">
+            <summary>Not used</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.GZipStreamWrapper.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>Not used</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.GZipStreamWrapper.SetLength(System.Int64)">
+            <summary>Not used</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.GZipStreamWrapper.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.GZipStreamWrapper.CanRead">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.GZipStreamWrapper.CanSeek">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.GZipStreamWrapper.CanWrite">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.GZipStreamWrapper.Length">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.GZipStreamWrapper.Position">
+            <summary>Not used</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.GZipStreamWrapper.Close">
+            <summary>
+            Closes the current stream and releases any resources (such as sockets and file handles) associated with the current stream.
+            </summary>
+            <filterpriority>1</filterpriority>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.HashingReadStream">
+            <summary>
+            Wraps a stream in a hash algorithm
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HashingReadStream.#ctor(System.IO.Stream,System.Security.Cryptography.HashAlgorithm)">
+            <summary>
+            Create a new hashing readstream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HashingReadStream.GetHashValue">
+            <summary>
+            Call after stream is complete to get hash value
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HashingReadStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+            </summary>
+            <returns>
+            The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
+            </returns>
+            <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source. </param><param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream. </param><param name="count">The maximum number of bytes to be read from the current stream. </param><exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null. </exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative. </exception><exception cref="T:System.IO.IOException">An I/O error occurs. </exception><exception cref="T:System.NotSupportedException">The stream does not support reading. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception><filterpriority>1</filterpriority>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HashingReadStream.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the underlying stream and optionally releases the managed resources.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HashingReadStream.CanRead">
+            <summary>
+            Gets a value indicating whether the current stream supports reading.
+            </summary>
+            <returns>
+            true if the stream supports reading; otherwise, false.
+            </returns>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HashingReadStream.Flush">
+            <summary> Not Supported </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HashingReadStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary> Not Supported </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HashingReadStream.SetLength(System.Int64)">
+            <summary> Not Supported </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HashingReadStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary> Not Supported </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HashingReadStream.CanSeek">
+            <summary> Not Supported </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HashingReadStream.CanWrite">
+            <summary> Not Supported </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HashingReadStream.Length">
+            <summary> Not Supported </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HashingReadStream.Position">
+            <summary> Not Supported </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper">
+            <summary>
+            Wrap a HTTP chunked stream to get a de-chunked output.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.#ctor(System.IO.Stream,System.TimeSpan)">
+            <summary>
+            Wrap a stream to de-chunk.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.Close">
+            <summary>
+            Closes the current stream and releases any resources (such as sockets and file handles) associated with the current stream.
+            </summary>
+            <filterpriority>1</filterpriority>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.Flush">
+            <summary>Not used</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>Not used</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.SetLength(System.Int64)">
+            <summary>Not used</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read bytes from stream, reading and joining chunks as needed.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.SkipCRLF(System.IO.Stream)">
+            <summary>
+            Will skip one of CRLF, LFCR, CRCR, LFLF, LF, CR
+            because HTTP servers are tricky.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.ReadChunkLength(System.IO.Stream)">
+            <summary>
+            Read chunk length. Throws if chunk length not available.
+            Should leave a spare '\n' char on stream if protocol correct.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.CanRead">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.CanSeek">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.CanWrite">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.Length">
+            <summary>Not used</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.Position">
+            <summary>Not used</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpChunkedStreamWrapper.IsComplete">
+            <summary>
+            Returns true if the stream has terminated,
+            false otherwise.
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.HttpResponseStream">
+            <summary>
+            Wrapper around a http body stream
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HttpResponseStream.Complete">
+            <summary>
+            Returns true if all expected data has been read.
+            Returns false if message should have more data.
+            
+            Due to frequent protocol violations, this is not 100% reliable.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HttpResponseStream.Timeout">
+            <summary>
+            Timeout for reading.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.#ctor(System.IO.Stream,System.Int32)">
+            <summary>
+            Wrap a non-chunked http body stream, with an expected length
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.HttpResponseStream.ExpectedLength">
+            <summary>
+            Length that server reported for the response.
+            Tries to give decompressed length if response is compressed.
+            
+            Due to frequent protocol violations, this is not 100% reliable.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.ReadStringToLength(System.Action{System.Int64})">
+            <summary>
+            Read string up to the declared response length.
+            If response is chunked, this will read until an empty chunk is received.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.ReadStringToTimeout(System.Action{System.Int64})">
+            <summary>
+            Read string while data is on the stream, waiting up to the timeout value for more data.
+            If response is chunked, this will read the next chunk.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.ReadBytesToLength(System.Action{System.Int64})">
+            <summary>
+            Read raw bytes up to the declared response length.
+            If response is chunked, this will read until an empty chunk is received.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.ReadBytesToTimeout(System.Action{System.Int64})">
+            <summary>
+            Read raw bytes while data is on the stream, waiting up to the timeout value for more data.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read raw bytes from the response into a buffer, returning number of bytes read.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.Finalize">
+            <summary>
+            Dispose of the underlying stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.Dispose">
+            <summary>
+            Close and dispose the underlying stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.HttpResponseStream.Dispose(System.Boolean)">
+            <summary>
+            Internal dispose
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.IHttpResponseStream">
+            <summary>
+            Wrapper around a HTTP response body.
+            All decompression and decoding is handled.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.IHttpResponseStream.ExpectedLength">
+            <summary>
+            Length that server reported for the response.
+            Tries to give decompressed length if response is compressed.
+            
+            Due to frequent protocol violations, this is not 100% reliable.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.IHttpResponseStream.Complete">
+            <summary>
+            Returns true if all expected data has been read.
+            Returns false if message should have more data.
+            
+            Due to frequent protocol violations, this is not 100% reliable.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.IHttpResponseStream.Timeout">
+            <summary>
+            Timeout for reading.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.IHttpResponseStream.ReadStringToLength(System.Action{System.Int64})">
+            <summary>
+            Read string up to the declared response length.
+            If response is chunked, this will read until an empty chunk is received.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.IHttpResponseStream.ReadStringToTimeout(System.Action{System.Int64})">
+            <summary>
+            Read string while data is on the stream, waiting up to the timeout value for more data.
+            If response is chunked, this will read the next chunk.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.IHttpResponseStream.ReadBytesToLength(System.Action{System.Int64})">
+            <summary>
+            Read raw bytes up to the declared response length.
+            If response is chunked, this will read until an empty chunk is received.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.IHttpResponseStream.ReadBytesToTimeout(System.Action{System.Int64})">
+            <summary>
+            Read raw bytes while data is on the stream, waiting up to the timeout value for more data.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.IHttpResponseStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read raw bytes from the response into a buffer, returning number of bytes read.
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.ISelfTerminatingStream">
+            <summary>
+            Represents a stream that has an internal mechanism
+            to represent end-of-data
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.ISelfTerminatingStream.IsComplete">
+            <summary>
+            Returns true if the stream has terminated,
+            false otherwise.
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.PushbackBuffer">
+            <summary>
+            Buffer reader helper for streams
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackBuffer.#ctor(System.IO.Stream)">
+            <summary>
+            Create a new read buffer, over an existing stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackBuffer.#ctor">
+            <summary>
+            Create a new read buffer, with no underlying stream
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackBuffer.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read from the underlying stream, returning actual length read.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackBuffer.UnRead(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Push data back onto the buffer, changing the Position
+            and allowing the data to be read again.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackBuffer.Available">
+            <summary>
+            Size of buffer, not including data not yet read from base stream
+            </summary>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.PushbackInputStream">
+            <summary>
+            A stream wrapper that has an 'UnRead' method. Not thread safe.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.#ctor">
+            <summary>
+            Internal
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.#ctor(System.IO.Stream)">
+            <summary>
+            Create a pushback wrapper around another stream.
+            You should not directly interact with the stream after this.
+            </summary>
+            <param name="baseStream"></param>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read from the underlying stream, returning actual length read.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.UnRead(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Push data back onto the buffer, changing the Position
+            and allowing the data to be read again.
+            
+            If the underlying stream supports seeking, a seek-back will
+            be used instead.
+            </summary>
+            <param name="buffer">buffer used for matching 'Read' call</param>
+            <param name="offset">offset used for matching 'Read' call</param>
+            <param name="length">length *returned* by matching 'Read' call</param>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.UnReadByte(System.Byte)">
+            <summary>
+            Push back a single byte
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.PushbackInputStream.Position">
+            <summary>
+            Read position. 'UnRead'ing data back onto the buffer
+            will reduce the position.
+            Write position is not supported.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>
+            Passed to the underlying stream if it supports seeking.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.Flush">
+            <summary>
+            Flush is called directly on the underlying stream and
+            has no effect on push-back buffering.
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.SetLength(System.Int64)">
+            <summary>
+            Passed directly to underlying stream
+            </summary>
+            <param name="value">The desired length of the current stream in bytes. </param><exception cref="T:System.IO.IOException">An I/O error occurs. </exception><exception cref="T:System.NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception><filterpriority>2</filterpriority>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Write is passed directly through to underlying stream.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.PushbackInputStream.CanRead">
+            <summary>Passed to underlying stream</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.PushbackInputStream.CanSeek">
+            <summary>Passed to underlying stream</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.PushbackInputStream.CanWrite">
+            <summary>Passed to underlying stream</summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Streaming.PushbackInputStream.Length">
+            <summary>Passed to underlying stream</summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.PushbackInputStream.Close">
+            <summary>
+            Closes the current stream and releases any resources (such as sockets and file handles) associated with the current stream.
+            </summary>
+            <filterpriority>1</filterpriority>
+        </member>
+        <member name="T:ShiftIt.Internal.Streaming.StreamTools">
+            <summary>
+            Helpers for byte streams
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Internal.Streaming.StreamTools.DefaultBufferSize">
+            <summary>
+            Default buffer size for transfers. 64KiB
+            </summary>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.StreamTools.CopyBytesToLength(System.IO.Stream,System.IO.Stream,System.Int64,System.TimeSpan,System.Action{System.Int64})">
+            <summary>
+            Copy a specific number of bytes from a source to a destination stream, with a timeout.
+            The timeout is measured from last data received.
+            </summary>
+            <param name="source">Stream to read from</param>
+            <param name="dest">Stream to write to</param>
+            <param name="length">Maximum length to read</param>
+            <param name="timeout">Maximum time to wait for data</param>
+            <param name="progress">Action to receive progress updates</param>
+        </member>
+        <member name="M:ShiftIt.Internal.Streaming.StreamTools.CopyBytesToTimeout(System.IO.Stream,System.IO.Stream,System.Action{System.Int64})">
+            <summary>
+            Copy bytes from a source to a destination stream, with a timeout.
+            </summary>
+            <param name="source">Stream to read from</param>
+            <param name="dest">Stream to write to</param>
+            <param name="progress">Action to receive progress updates</param>
+        </member>
+    </members>
+</doc>

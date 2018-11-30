@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShiftIt", "src\ShiftIt\ShiftIt.csproj", "{76F1721D-9FD0-4BC1-8DBF-9F559768EB56}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Implementation", "Implementation", "{2C8C10F2-2892-4496-AF7C-629AF2AAC6F6}"
@@ -10,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShiftIt.Integration.Tests", "src\ShiftIt.Integration.Tests\ShiftIt.Integration.Tests.csproj", "{AEE3E209-5921-4538-8257-BC7D87F8C73B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShiftIt.Unit.Tests", "src\ShiftIt.Unit.Tests\ShiftIt.Unit.Tests.csproj", "{D2D7C302-8919-4534-8A64-BAB1436807AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShiftIt.DotnetStd", "src\ShiftIt.DotnetStd\ShiftIt.DotnetStd.csproj", "{669C1FEE-4FFA-48E9-AAAC-D50A3CC1CAD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +33,10 @@ Global
 		{D2D7C302-8919-4534-8A64-BAB1436807AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2D7C302-8919-4534-8A64-BAB1436807AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2D7C302-8919-4534-8A64-BAB1436807AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{669C1FEE-4FFA-48E9-AAAC-D50A3CC1CAD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{669C1FEE-4FFA-48E9-AAAC-D50A3CC1CAD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{669C1FEE-4FFA-48E9-AAAC-D50A3CC1CAD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{669C1FEE-4FFA-48E9-AAAC-D50A3CC1CAD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -37,5 +45,9 @@ Global
 		{76F1721D-9FD0-4BC1-8DBF-9F559768EB56} = {2C8C10F2-2892-4496-AF7C-629AF2AAC6F6}
 		{AEE3E209-5921-4538-8257-BC7D87F8C73B} = {20B1E3EE-F900-4A2C-B554-CC25882806B6}
 		{D2D7C302-8919-4534-8A64-BAB1436807AF} = {20B1E3EE-F900-4A2C-B554-CC25882806B6}
+		{669C1FEE-4FFA-48E9-AAAC-D50A3CC1CAD8} = {2C8C10F2-2892-4496-AF7C-629AF2AAC6F6}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F849374D-8A8F-4F44-B138-9722FC8AD676}
 	EndGlobalSection
 EndGlobal
