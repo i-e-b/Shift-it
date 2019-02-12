@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Internal.Socket
 {
@@ -14,7 +15,7 @@ namespace ShiftIt.Internal.Socket
 		/// <param name="connectionTarget">Uri of target service</param>
 		/// <param name="connectionTimeout">Timeout for connection and data transfer</param>
 		/// <returns>Readable and writable stream connected to target by an open socket</returns>
-		Stream ConnectUnsecured(Uri connectionTarget, TimeSpan connectionTimeout);
+        [NotNull]Stream ConnectUnsecured([NotNull]Uri connectionTarget, TimeSpan connectionTimeout);
 
 		/// <summary>
 		/// Connect to an target URI over an SSL connection.
@@ -24,6 +25,6 @@ namespace ShiftIt.Internal.Socket
 		/// <param name="connectionTarget">Uri of target service</param>
 		/// <param name="connectionTimeout">Timeout for connection and data transfer</param>
 		/// <returns>Readable and writable stream connected to target by an open socket</returns>
-		Stream ConnectSSL(Uri connectionTarget, TimeSpan connectionTimeout);
+		[NotNull]Stream ConnectSSL([NotNull]Uri connectionTarget, TimeSpan connectionTimeout);
 	}
 }

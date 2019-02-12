@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using JetBrains.Annotations;
 using ShiftIt.Http;
 
 namespace ShiftIt.Internal.Http
@@ -15,6 +16,6 @@ namespace ShiftIt.Internal.Http
 		/// <param name="rawResponse">Raw HTTP response stream</param>
 		/// <param name="timeout">Connection and data timeout</param>
 		/// <returns>A HTTP response parser</returns>
-		IHttpResponse Parse(Stream rawResponse, TimeSpan timeout);
+		[NotNull]IHttpResponse Parse(Stream rawResponse, TimeSpan timeout);
 	}
 }

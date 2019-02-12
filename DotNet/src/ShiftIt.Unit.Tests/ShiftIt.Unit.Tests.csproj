@@ -78,12 +78,6 @@
     <Compile Include="Streams\Zero_size_expected_length_stream.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ShiftIt\ShiftIt.csproj">
-      <Project>{76f1721d-9fd0-4bc1-8dbf-9f559768eb56}</Project>
-      <Name>ShiftIt</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Helpers\chunked_plain.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -114,6 +108,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ShiftIt.DotnetStd\ShiftIt.DotnetStd.csproj">
+      <Project>{669c1fee-4ffa-48e9-aaac-d50a3cc1cad8}</Project>
+      <Name>ShiftIt.DotnetStd</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

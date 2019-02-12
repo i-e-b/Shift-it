@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Internal.Http
 {
@@ -12,7 +13,7 @@ namespace ShiftIt.Internal.Http
 	/// </summary>
 	public class ObjectToRequestStreamConverter : IObjectToRequestStreamConverter
 	{
-		private const byte equals = (byte) '=';
+		private const byte equalsSign = (byte) '=';
 		private const byte and = (byte) '&';
 		private const byte plus = (byte)'+';
 		private const string unreservedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
@@ -44,7 +45,7 @@ namespace ShiftIt.Internal.Http
 			return result;
 		}
 
-		private void WriteValueObject(object value, bool firstParameter, MemoryStream result)
+		private void WriteValueObject([NotNull]object value, bool firstParameter, [NotNull]MemoryStream result)
 		{
 			var properties = TypeDescriptor.GetProperties(value);
 			foreach (PropertyDescriptor property in properties)
@@ -54,13 +55,13 @@ namespace ShiftIt.Internal.Http
 			}
 		}
 
-		private void WriteProperty(object valueProvider, bool firstParameter, MemoryStream result, PropertyDescriptor property)
+		private void WriteProperty([NotNull]object valueProvider, bool firstParameter, [NotNull]MemoryStream result, [NotNull]PropertyDescriptor property)
 		{
 			if (!firstParameter)
 				result.WriteByte(and);
 
 			UrlEncodeAndWrite(property.Name, result);
-			result.WriteByte(@equals);
+			result.WriteByte(equalsSign);
 
 			var propertyValue = property.GetValue(valueProvider);
 			var formattableValue = propertyValue as IFormattable;
@@ -78,7 +79,7 @@ namespace ShiftIt.Internal.Http
 		}
 
 		// RFC:  http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
-		private void UrlEncodeAndWrite(string value, MemoryStream memoryStream)
+		private void UrlEncodeAndWrite([NotNull]string value, [NotNull]MemoryStream memoryStream)
 		{
 			foreach (char symbol in value)
 			{

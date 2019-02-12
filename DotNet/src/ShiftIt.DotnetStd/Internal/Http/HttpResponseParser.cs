@@ -17,6 +17,7 @@ namespace ShiftIt.Internal.Http
 		/// <returns>A HTTP response parser</returns>
 		public IHttpResponse Parse(Stream rawResponse, TimeSpan timeout)
 		{
+            if (rawResponse == null) throw new ArgumentNullException(nameof(rawResponse));
 			return new HttpResponse(rawResponse, timeout);
 		}
 	}

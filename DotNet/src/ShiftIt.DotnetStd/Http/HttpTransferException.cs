@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Http
 {
@@ -39,8 +40,8 @@ namespace ShiftIt.Http
 		/// <summary>
 		/// Internal exception constructor
 		/// </summary>
-		protected HttpTransferException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-			: base(serializationInfo, streamingContext)
+		protected HttpTransferException([NotNull]SerializationInfo serializationInfo, StreamingContext streamingContext)
+			: base(serializationInfo ?? throw new ArgumentNullException(nameof(serializationInfo)), streamingContext)
 		{
 			Headers = (IDictionary<string, string>) serializationInfo.GetValue("Headers", typeof (IDictionary<string, string>));
 			Target = (Uri)serializationInfo.GetValue("Target", typeof(Uri));

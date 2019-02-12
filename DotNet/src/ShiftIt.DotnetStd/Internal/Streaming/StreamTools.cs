@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using JetBrains.Annotations;
 using TimeoutException = ShiftIt.Http.TimeoutException;
 
 namespace ShiftIt.Internal.Streaming
@@ -23,7 +24,7 @@ namespace ShiftIt.Internal.Streaming
 	    /// <param name="length">Maximum length to read</param>
 	    /// <param name="timeout">Maximum time to wait for data</param>
 	    /// <param name="progress">Action to receive progress updates</param>
-	    public static long CopyBytesToLength(Stream source, Stream dest, long length, TimeSpan timeout, Action<long> progress)
+	    public static long CopyBytesToLength([NotNull]Stream source, [NotNull]Stream dest, long length, TimeSpan timeout, Action<long> progress)
 		{
 			var bufferSize = (int)Math.Min(length, DefaultBufferSize);
 			if (bufferSize < 256) bufferSize = DefaultBufferSize;
@@ -71,7 +72,7 @@ namespace ShiftIt.Internal.Streaming
 	    /// <param name="source">Stream to read from</param>
 	    /// <param name="dest">Stream to write to</param>
 	    /// <param name="progress">Action to receive progress updates</param>
-	    public static void CopyBytesToTimeout(Stream source, Stream dest, Action<long> progress)
+	    public static void CopyBytesToTimeout([NotNull]Stream source, [NotNull]Stream dest, Action<long> progress)
 		{
             try
             {

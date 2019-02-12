@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Http
 {
@@ -12,7 +13,7 @@ namespace ShiftIt.Http
 		/// </summary>
 		/// <exception cref="ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets</exception>
 		/// <exception cref="System.Net.Sockets.SocketException">Generic socket exceptions</exception>
-		IHttpResponse Request(IHttpRequest request, Action<long> sendProgress = null);
+		[NotNull]IHttpResponse Request([NotNull]IHttpRequest request, Action<long> sendProgress = null);
 
 		/// <summary>
 		/// Issue a request to a server, and return the (IDisposable) response. Throws if the response status code was not a success.
@@ -20,7 +21,7 @@ namespace ShiftIt.Http
 		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
 		/// <exception cref="ShiftIt.Http.TimeoutException">Timeouts while reading or writing sockets.</exception>
 		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
-		IHttpResponse RequestOrThrow(IHttpRequest request, Action<long> sendProgress = null);
+        [NotNull]IHttpResponse RequestOrThrow([NotNull]IHttpRequest request, Action<long> sendProgress = null);
 
 	    /// <summary>
 	    /// Request data from one resource and provide to another.
@@ -32,7 +33,7 @@ namespace ShiftIt.Http
 	    /// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
 	    /// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
 	    /// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
-	    void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, Action<long> sendProgress = null);
+	    void CrossLoad([NotNull]IHttpRequest loadRequest, [NotNull]IHttpRequestBuilder storeRequest, Action<long> sendProgress = null);
 
 		/// <summary>
 		/// Request data from one resource and provide to another, calculating a 
@@ -45,7 +46,7 @@ namespace ShiftIt.Http
 		/// <exception cref="ShiftIt.Http.HttpTransferException">Response to the request was not a succesful HTTP status.</exception>
 		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
 		/// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
-		byte[] CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, string hashAlgorithmName);
+        [NotNull]byte[] CrossLoad([NotNull]IHttpRequest loadRequest, [NotNull]IHttpRequestBuilder storeRequest, string hashAlgorithmName);
 
 		/// <summary>
 		/// Connection and data transfer timeout

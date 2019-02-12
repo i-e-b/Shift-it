@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using JetBrains.Annotations;
 using ShiftIt.Internal.Http;
 using ShiftIt.Internal.Socket;
 using ShiftIt.Internal.Streaming;
@@ -17,8 +18,8 @@ namespace ShiftIt.Http
 		/// </summary>
 		public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
 
-		readonly IConnectableStreamSource _conn;
-		readonly IHttpResponseParser _parser;
+		[NotNull]readonly IConnectableStreamSource _conn;
+		[NotNull]readonly IHttpResponseParser _parser;
 
 		/// <summary>
 		/// Connection and data transfer timeout
@@ -30,8 +31,8 @@ namespace ShiftIt.Http
 		/// </summary>
 		public HttpClient(IConnectableStreamSource conn, IHttpResponseParser parser)
 		{
-			_conn = conn;
-			_parser = parser;
+			_conn = conn ?? throw new ArgumentNullException(nameof(conn));
+			_parser = parser ?? throw new ArgumentNullException(nameof(parser));
 			Timeout = DefaultTimeout;
 		}
 
@@ -47,6 +48,9 @@ namespace ShiftIt.Http
 		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
 		public IHttpResponse Request(IHttpRequest request, Action<long> sendProgress = null)
 		{
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request.Target == null) throw new Exception("Request target URL was null");
+
 			var socket = (request.Secure) 
 				? _conn.ConnectSSL(request.Target, Timeout)
 				: _conn.ConnectUnsecured(request.Target, Timeout);
@@ -76,6 +80,7 @@ namespace ShiftIt.Http
 		/// <exception cref="System.Net.Sockets.SocketException">Low level transport exception occured.</exception>
 		public IHttpResponse RequestOrThrow(IHttpRequest request, Action<long> sendProgress = null)
 		{
+            if (request == null) throw new ArgumentNullException(nameof(request));
 			var response = Request(request);
 			if (response.StatusClass == StatusClass.Success) return response;
 
@@ -95,10 +100,15 @@ namespace ShiftIt.Http
 	    /// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
 	    public void CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, Action<long> sendProgress = null)
 		{
+            if (loadRequest == null) throw new ArgumentNullException(nameof(loadRequest));
+            if (storeRequest == null) throw new ArgumentNullException(nameof(storeRequest));
+
 			using (var getTx = RequestOrThrow(loadRequest)) // get source
 			{
-				var storeRq = storeRequest.Build(getTx.RawBodyStream, getTx.BodyReader.ExpectedLength);
-				using (RequestOrThrow(storeRq)) // dispose of the response stream
+                var rawStream = getTx.RawBodyStream;
+                if (rawStream == null) throw new Exception("Body stream was null in request to " + loadRequest.Target);
+                var storeRq = storeRequest.Build(rawStream, getTx.BodyReader.ExpectedLength);
+                using (RequestOrThrow(storeRq)) // dispose of the response stream
 				{
 				}
 			}
@@ -118,7 +128,10 @@ namespace ShiftIt.Http
 		/// <exception cref="ShiftIt.Http.TimeoutException">A timeout occured during transfer.</exception>
 		public byte[] CrossLoad(IHttpRequest loadRequest, IHttpRequestBuilder storeRequest, string hashAlgorithmName)
 		{
-			var hash = HashAlgorithm.Create(hashAlgorithmName);
+            if (loadRequest == null) throw new ArgumentNullException(nameof(loadRequest));
+            if (storeRequest == null) throw new ArgumentNullException(nameof(storeRequest));
+
+			var hash = HashAlgorithm.Create(hashAlgorithmName ?? "SHA256");
 			using (var getTx = RequestOrThrow(loadRequest))
 			{
 				var hashStream = new HashingReadStream(getTx.RawBodyStream, hash);
@@ -126,7 +139,7 @@ namespace ShiftIt.Http
 				using (RequestOrThrow(storeRq)) // dispose of the response stream
 				{
 				}
-				return hashStream.GetHashValue();
+				return hashStream.GetHashValue() ?? throw new Exception("System hash function returned a null result");
 			}
 		}
 	}

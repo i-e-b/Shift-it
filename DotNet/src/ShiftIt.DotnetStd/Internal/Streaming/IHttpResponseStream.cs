@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Internal.Streaming
 {
@@ -46,16 +47,16 @@ namespace ShiftIt.Internal.Streaming
 		/// Read raw bytes up to the declared response length.
 		/// If response is chunked, this will read until an empty chunk is received.
 		/// </summary>
-		byte[] ReadBytesToLength(Action<long> receiveProgress = null);
+        [NotNull]byte[] ReadBytesToLength(Action<long> receiveProgress = null);
 		
 		/// <summary>
 		/// Read raw bytes while data is on the stream, waiting up to the timeout value for more data.
 		/// </summary>
-		byte[] ReadBytesToTimeout(Action<long> receiveProgress = null);
+        [NotNull]byte[] ReadBytesToTimeout(Action<long> receiveProgress = null);
 
 		/// <summary>
 		/// Read raw bytes from the response into a buffer, returning number of bytes read.
 		/// </summary>
-		int Read(byte[] buffer, int offset, int count);
+		int Read([NotNull]byte[] buffer, int offset, int count);
 	}
 }

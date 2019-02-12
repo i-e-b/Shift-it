@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using ShiftIt.Http;
+using JetBrains.Annotations;
+using TimeoutException = ShiftIt.Http.TimeoutException;
 
 namespace ShiftIt.Internal.Socket
 {
@@ -10,6 +12,7 @@ namespace ShiftIt.Internal.Socket
 	/// </summary>
 	public class SocketStream : Stream
 	{
+		[CanBeNull]System.Net.Sockets.Socket _socket;
 
 		/// <summary>
 		/// Create a disconnected stream
@@ -24,8 +27,6 @@ namespace ShiftIt.Internal.Socket
 		{
 			_socket = socket;
 		}
-
-		System.Net.Sockets.Socket _socket;
 
 		/// <summary>
 		/// Underlying socket used by this stream
@@ -67,6 +68,7 @@ namespace ShiftIt.Internal.Socket
 		/// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source. </param><param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream. </param><param name="count">The maximum number of bytes to be read from the current stream. </param><exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null. </exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative. </exception><exception cref="T:System.IO.IOException">An I/O error occurs. </exception><exception cref="T:System.NotSupportedException">The stream does not support reading. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception><filterpriority>1</filterpriority>
 		public override int Read(byte[] buffer, int offset, int count)
 		{
+            if (_socket == null) throw new InvalidOperationException("Attempted to read from a disconnected socket");
 			SocketError err;
 			int len = _socket.Receive(buffer, offset, count, SocketFlags.None, out err);
 			if (err != SocketError.Success && err != SocketError.WouldBlock)
@@ -85,6 +87,7 @@ namespace ShiftIt.Internal.Socket
 		/// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream. </param><param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream. </param><param name="count">The number of bytes to be written to the current stream. </param><filterpriority>1</filterpriority>
 		public override void Write(byte[] buffer, int offset, int count)
 		{
+            if (_socket == null) throw new InvalidOperationException("Attempted to read from a disconnected socket");
 			SocketError err;
 			_socket.Send(buffer, offset, count, SocketFlags.None, out err);
 			if (err != SocketError.Success)
@@ -116,11 +119,16 @@ namespace ShiftIt.Internal.Socket
 		/// </summary>
 		public override long Position { get; set; }
 
-		/**<summary> No action </summary>*/ public override long Seek(long offset, SeekOrigin origin) { return 0; }
-		/**<summary> No action </summary>*/ public override void SetLength(long value) {  }
-
-		/**<summary> No action </summary>*/ public override bool CanRead { get { return true; } }
-		/**<summary> No action </summary>*/ public override bool CanSeek { get { return false; } }
-		/**<summary> No action </summary>*/ public override bool CanWrite { get { return true; } } 
+		/// <summary> No action </summary>
+		public override long Seek(long offset, SeekOrigin origin) { return 0; }
+        /// <summary> No action </summary>
+		public override void SetLength(long value) {  }
+        
+        /// <summary> No action </summary>
+		public override bool CanRead { get { return true; } }
+        /// <summary> No action </summary>
+		public override bool CanSeek { get { return false; } }
+        /// <summary> No action </summary>
+		public override bool CanWrite { get { return true; } } 
 	}
 }

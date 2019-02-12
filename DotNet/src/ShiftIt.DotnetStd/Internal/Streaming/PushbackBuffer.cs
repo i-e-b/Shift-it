@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Internal.Streaming
 {
@@ -8,15 +10,15 @@ namespace ShiftIt.Internal.Streaming
 	/// </summary>
 	public class PushbackBuffer
 	{
-		readonly Stream _baseStream;
-		readonly Queue<byte> _unreadBuffer;
+		[CanBeNull]readonly Stream _baseStream;
+		[NotNull]readonly Queue<byte> _unreadBuffer;
 
 		/// <summary>
 		/// Create a new read buffer, over an existing stream
 		/// </summary>
 		public PushbackBuffer(Stream baseStream)
 		{
-			_baseStream = baseStream;
+			_baseStream = baseStream ?? throw new ArgumentNullException(nameof(baseStream));
 			_unreadBuffer = new Queue<byte>();
 		}
 
@@ -34,6 +36,7 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public int Read(byte[] buffer, int offset, int count)
 		{
+            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 			var remains = count;
 			var pos = offset;
 			while (remains > 0 && _unreadBuffer.Count > 0)
@@ -43,7 +46,7 @@ namespace ShiftIt.Internal.Streaming
 				buffer[pos] = _unreadBuffer.Dequeue();
 				pos++;
 			}
-			//any left, read from stream
+			// any left, read from stream
 			if (remains > 0 && _baseStream != null) pos += _baseStream.Read(buffer, pos, remains);
 			var total = pos - offset;
 			return total;
@@ -55,6 +58,7 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public void UnRead(byte[] buffer, int offset, int length)
 		{
+            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 			var end = offset+length;
 			for (var i = offset; i < end; i++)
 			{

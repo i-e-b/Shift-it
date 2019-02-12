@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 using ShiftIt.Internal.Streaming;
 
 namespace ShiftIt.Http
@@ -35,12 +36,12 @@ namespace ShiftIt.Http
 		/// <summary>
 		/// Headers returned by server
 		/// </summary>
-		IDictionary<string, string> Headers { get; }
+        [NotNull]IDictionary<string, string> Headers { get; }
 
 		/// <summary>
 		/// The HTTP body stream wrapped in a decoder class
 		/// </summary>
-		IHttpResponseStream BodyReader { get; }
+        [NotNull]IHttpResponseStream BodyReader { get; }
 
 		/// <summary>
 		/// The raw body stream. This will be consumed if you use the BodyReader.

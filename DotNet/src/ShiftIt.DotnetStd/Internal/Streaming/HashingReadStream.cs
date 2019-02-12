@@ -2,6 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Internal.Streaming
 {
@@ -10,16 +11,16 @@ namespace ShiftIt.Internal.Streaming
 	/// </summary>
 	public class HashingReadStream : Stream
 	{
-		Stream _source;
-		HashAlgorithm _hash;
+		[NotNull]Stream _source;
+		[NotNull]HashAlgorithm _hash;
 
 		/// <summary>
 		/// Create a new hashing readstream
 		/// </summary>
 		public HashingReadStream(Stream source, HashAlgorithm hash)
 		{
-			_source = source;
-			_hash = hash;
+			_source = source ?? throw new ArgumentNullException(nameof(source));
+			_hash = hash ?? throw new ArgumentNullException(nameof(hash));
 		}
 
 		/// <summary>
@@ -70,15 +71,23 @@ namespace ShiftIt.Internal.Streaming
 			get { return _source.CanRead; }
 		}
 
-		#region Unsupported Junk
-		/**<summary> Not Supported </summary>*/ public override void Flush() { }
-		/**<summary> Not Supported </summary>*/ public override long Seek(long offset, SeekOrigin origin) { throw new InvalidOperationException("Not supported"); }
-		/**<summary> Not Supported </summary>*/ public override void SetLength(long value) { throw new InvalidOperationException("Not supported"); }
-		/**<summary> Not Supported </summary>*/ public override void Write(byte[] buffer, int offset, int count) { throw new InvalidOperationException("Not supported"); }
-		/**<summary> Not Supported </summary>*/ public override bool CanSeek { get { return false; } }
-		/**<summary> Not Supported </summary>*/ public override bool CanWrite { get { return false; } }
-		/**<summary> Not Supported </summary>*/ public override long Length { get { return 0; } }
-		/**<summary> Not Supported </summary>*/ public override long Position { get; set; }
+        #region Unsupported Junk
+        ///<summary> Not Supported </summary>
+        public override void Flush() { }
+        ///<summary> Not Supported </summary>
+        public override long Seek(long offset, SeekOrigin origin) { throw new InvalidOperationException("Not supported"); }
+        ///<summary> Not Supported </summary>
+        public override void SetLength(long value) { throw new InvalidOperationException("Not supported"); }
+        ///<summary> Not Supported </summary>
+        public override void Write(byte[] buffer, int offset, int count) { throw new InvalidOperationException("Not supported"); }
+        ///<summary> Not Supported </summary>
+        public override bool CanSeek { get { return false; } }
+        ///<summary> Not Supported </summary>
+        public override bool CanWrite { get { return false; } }
+        ///<summary> Not Supported </summary>
+        public override long Length { get { return 0; } }
+        ///<summary> Not Supported </summary>
+        public override long Position { get; set; }
 		#endregion
 	}
 }

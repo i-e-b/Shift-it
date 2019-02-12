@@ -1,19 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net40;net462;netstandard2.0</TargetFrameworks>
+    <RootNamespace>ShiftIt</RootNamespace>
+    <AssemblyName>ShiftIt</AssemblyName>
+    <Version>1.9.0</Version>
+    <Authors>i-e-b</Authors>
+    <Description>A HTTP client that can accept a reasonable level of invalid protocol from servers. This is a blocking, synchronous library that uses only .Net sockets, not WebClient or HttpWebRequest, and has a lot of replaceable components.
+High transfer speeds, and uses minimal memory.
+
+An old and battle hardend FTP client library, works with many old and cranky FTP servers that the standard .Net libraries can't handle.</Description>
+    <Copyright>2013-2019 Iain Ballard</Copyright>
+    <PackageTags>http ftp sockets client https core</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <DocumentationFile>C:\Gits\Shift-it\DotNet\src\ShiftIt.DotnetStd\ShiftIt.DotnetStd.xml</DocumentationFile>
+    <DocumentationFile>ShiftIt.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <DocumentationFile>C:\Gits\Shift-it\DotNet\src\ShiftIt.DotnetStd\ShiftIt.DotnetStd.xml</DocumentationFile>
+    <DocumentationFile>ShiftIt.xml</DocumentationFile>
   </PropertyGroup>
 
 </Project>

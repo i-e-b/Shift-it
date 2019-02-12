@@ -14,6 +14,7 @@ namespace ShiftIt.Http
 		/// <returns></returns>
 		public static HttpStatusCode HttpStatusCode(this IHttpResponse response)
 		{
+            if (response == null) return System.Net.HttpStatusCode.ServiceUnavailable;
 			return (HttpStatusCode)response.StatusCode;
 		}
 	}

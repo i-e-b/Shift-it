@@ -23,7 +23,7 @@ namespace ShiftIt.Http
 		/// Internal
 		/// </summary>
 		protected TimeoutException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-			: base(serializationInfo, streamingContext)
+			: base(serializationInfo ?? throw new ArgumentNullException(nameof(serializationInfo)), streamingContext)
 		{
 		}
 	}

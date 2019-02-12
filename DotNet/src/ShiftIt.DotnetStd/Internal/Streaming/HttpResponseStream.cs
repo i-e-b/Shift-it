@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
 using ShiftIt.Http;
 
 namespace ShiftIt.Internal.Streaming
@@ -11,10 +12,9 @@ namespace ShiftIt.Internal.Streaming
 	/// </summary>
 	public class HttpResponseStream : IHttpResponseStream
 	{
-		Stream _source;
-		long _expectedLength;
-		readonly object _lock;
-		long _readSoFar;
+		[NotNull]Stream _source;
+		[NotNull]readonly object _lock;
+        long _readSoFar;
 
 		/// <summary>
 		/// Returns true if all expected data has been read.
@@ -22,7 +22,7 @@ namespace ShiftIt.Internal.Streaming
 		/// 
 		/// Due to frequent protocol violations, this is not 100% reliable.
 		/// </summary>
-		public bool Complete { get { return _readSoFar >= _expectedLength; }}
+		public bool Complete { get { return _readSoFar >= ExpectedLength; }}
 
 		/// <summary>
 		/// Timeout for reading.
@@ -34,32 +34,27 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public HttpResponseStream(Stream source, int expectedLength)
 		{
-			_lock = new Object();
-			_expectedLength = expectedLength;
+			_source = source ?? throw new ArgumentNullException(nameof(source));
+			_lock = new object();
+			ExpectedLength = expectedLength;
 			_readSoFar = 0;
 
 			Timeout = HttpClient.DefaultTimeout;
-			_source = source;
 		}
 
-		/// <summary>
-		/// Length that server reported for the response.
-		/// Tries to give decompressed length if response is compressed.
-		/// 
-		/// Due to frequent protocol violations, this is not 100% reliable.
-		/// </summary>
-		public long ExpectedLength
-		{
-			get {
-				return _expectedLength;
-			}
-		}
+        /// <summary>
+        /// Length that server reported for the response.
+        /// Tries to give decompressed length if response is compressed.
+        /// 
+        /// Due to frequent protocol violations, this is not 100% reliable.
+        /// </summary>
+        public long ExpectedLength { get; private set; }
 
-		/// <summary>
-		/// Read string up to the declared response length.
-		/// If response is chunked, this will read until an empty chunk is received.
-		/// </summary>
-		public string ReadStringToLength(Action<long> receiveProgress = null)
+        /// <summary>
+        /// Read string up to the declared response length.
+        /// If response is chunked, this will read until an empty chunk is received.
+        /// </summary>
+        public string ReadStringToLength(Action<long> receiveProgress = null)
 		{
 			return Encoding.UTF8.GetString(ReadBytesToLength(receiveProgress));
 		}
@@ -79,10 +74,10 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public byte[] ReadBytesToLength(Action<long> receiveProgress = null)
 		{
-			var ms = new MemoryStream((int)_expectedLength);
+			var ms = new MemoryStream((int)ExpectedLength);
 			lock (_lock)
 			{
-				_expectedLength = StreamTools.CopyBytesToLength(_source, ms, _expectedLength, Timeout, receiveProgress);
+				ExpectedLength = StreamTools.CopyBytesToLength(_source, ms, ExpectedLength, Timeout, receiveProgress);
 			}
 			_readSoFar += ms.Length;
 			return ms.ToArray();
@@ -93,7 +88,7 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public byte[] ReadBytesToTimeout(Action<long> receiveProgress = null)
 		{
-			var ms = new MemoryStream((int)_expectedLength);
+			var ms = new MemoryStream((int)ExpectedLength);
 			StreamTools.CopyBytesToTimeout(_source, ms, receiveProgress);
 			_readSoFar += ms.Length;
 			return ms.ToArray();
@@ -104,6 +99,7 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public int Read(byte[] buffer, int offset, int count)
 		{
+            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 			return _source.Read(buffer, offset, count);
 		}
 

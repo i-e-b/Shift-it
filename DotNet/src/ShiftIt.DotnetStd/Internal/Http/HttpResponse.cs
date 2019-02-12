@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
 using ShiftIt.Http;
 using ShiftIt.Internal.Socket;
 using ShiftIt.Internal.Streaming;
@@ -16,13 +17,10 @@ namespace ShiftIt.Internal.Http
 	/// </summary>
 	public class HttpResponse : IHttpResponse
 	{
-		Stream _rawResponse;
-		private readonly StringBuilder _debugResponse;
+		[NotNull]Stream _rawResponse;
+		[NotNull]private readonly StringBuilder _debugResponse;
 
-		private readonly ISet<string> _singleItemHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-			{
-				"Content-Length"
-			};
+		[NotNull]private readonly ISet<string> _singleItemHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Content-Length" };
 
 		/// <summary>
 		/// Reads synchronously until headers are complete, then 
@@ -30,8 +28,9 @@ namespace ShiftIt.Internal.Http
 		/// </summary>
 		public HttpResponse(Stream rawResponse, TimeSpan timeout)
 		{
+			_rawResponse = rawResponse ?? throw new ArgumentNullException(nameof(rawResponse));
+
 			_debugResponse = new StringBuilder();
-			_rawResponse = rawResponse;
 			Headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 			ReadStatusLine(NextLine(_rawResponse));
 
@@ -39,7 +38,7 @@ namespace ShiftIt.Internal.Http
 			HeadersComplete = true;
 
 			_rawResponse.ReadByte(); // eat one spare byte
-			if (_rawResponse is SocketStream) ((SocketStream)_rawResponse).ResetCounts();
+			if (_rawResponse is SocketStream stream) stream.ResetCounts();
 
 			RawBodyStream = _rawResponse;
 
@@ -54,7 +53,7 @@ namespace ShiftIt.Internal.Http
 		bool IsChunked()
 		{
 			return Headers.ContainsKey("Transfer-Encoding")
-				&& Headers["Transfer-Encoding"].ToLowerInvariant() == "chunked";
+				&& Headers["Transfer-Encoding"]?.ToLowerInvariant() == "chunked";
 		}
 
 		int ReportedBodyLength()
@@ -64,7 +63,7 @@ namespace ShiftIt.Internal.Http
 
 		private int GetContentLength()
 		{
-			return int.Parse(Headers["Content-Length"]);
+			return int.Parse(Headers["Content-Length"] ?? "0");
 		}
 
 		Stream RestOfStreamDecompressed(Stream unchunked)
@@ -84,6 +83,7 @@ namespace ShiftIt.Internal.Http
 
 		static Stream DeflateUnwrap(Stream rawResponse)
 		{
+            if (rawResponse == null) throw new ArgumentNullException(nameof(rawResponse));
 			return new DeflateStream(rawResponse, CompressionMode.Decompress, true);
 		}
 
@@ -94,12 +94,12 @@ namespace ShiftIt.Internal.Http
 
 		void AddHeader(string headerLine)
 		{
-			var parts = headerLine.Split(new[] { ": " }, StringSplitOptions.None);
-			if (parts.Length < 2)
+			var parts = headerLine?.Split(new[] { ": " }, StringSplitOptions.None);
+			if (parts == null || parts.Length < 2)
 			{
 				throw new ArgumentException(FormatError(headerLine));
 			}
-			var name = parts[0];
+			var name = parts[0] ?? throw new ArgumentException(FormatError(headerLine));
 			var value = parts[1];
 
 			lock (Headers)
@@ -130,7 +130,7 @@ namespace ShiftIt.Internal.Http
 			}
 		}
 
-		string NextLine(Stream stream)
+		[NotNull]string NextLine([NotNull]Stream stream)
 		{
 			var sb = new StringBuilder();
 			int b;
@@ -155,8 +155,11 @@ namespace ShiftIt.Internal.Http
 			var nextLine = sb.ToString();
 			return nextLine;
 		}
-		IEnumerable<string> NonBlankLines(Stream rawResponse)
+
+		[NotNull]IEnumerable<string> NonBlankLines(Stream rawResponse)
 		{
+            if (rawResponse == null) yield break;
+
 			while (true)
 			{
 				var line = NextLine(rawResponse);
@@ -166,12 +169,12 @@ namespace ShiftIt.Internal.Http
 			}
 		}
 
-		void ReadStatusLine(string statusLine)
+		void ReadStatusLine([NotNull]string statusLine)
 		{
 			var parts = statusLine.Split(new[] { ' ' }, 3);
 			if (parts.Length > 1)
 			{
-				StatusCode = int.Parse(parts[1]);
+				StatusCode = int.Parse(parts[1] ?? throw new Exception("Response status line was not valid"));
 				StatusClass = (StatusClass)(StatusCode - (StatusCode % 100));
 			}
 			if (parts.Length > 2) StatusMessage = parts[2];
@@ -181,7 +184,7 @@ namespace ShiftIt.Internal.Http
 		/// Returns true once all headers have been read.
 		/// The body stream can be used at this point.
 		/// </summary>
-		public bool HeadersComplete { get; private set; }
+		public bool HeadersComplete { get; }
 
 		/// <summary>
 		/// Status code returned by server.
@@ -202,17 +205,17 @@ namespace ShiftIt.Internal.Http
 		/// <summary>
 		/// Headers returned by server
 		/// </summary>
-		public IDictionary<string, string> Headers { get; private set; }
+		public IDictionary<string, string> Headers { get; }
 
 		/// <summary>
 		/// The HTTP body stream wrapped in a decoder class
 		/// </summary>
-		public IHttpResponseStream BodyReader { get; private set; }
+		public IHttpResponseStream BodyReader { get; }
 
 		/// <summary>
 		/// The raw body stream. This will be consumed if you use the BodyReader.
 		/// </summary>
-		public Stream RawBodyStream { get; private set; }
+		public Stream RawBodyStream { get; }
 
 		/// <summary>
 		/// Dispose of the underlying stream

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Http
 {
@@ -11,59 +12,59 @@ namespace ShiftIt.Http
 		/// <summary>
 		/// Request a target resource
 		/// </summary>
-		IHttpRequestBuilder Get(Uri target);
+		[NotNull]IHttpRequestBuilder Get([NotNull]Uri target);
 
 		/// <summary>
 		/// Request the headers of a resource, excluding the resource itself.
 		/// </summary>
-		IHttpRequestBuilder Head(Uri target);
+        [NotNull]IHttpRequestBuilder Head([NotNull]Uri target);
 
 		/// <summary>
 		/// Post data to a target resource. You should use the stream or string data options of the `Build`
 		/// or `BuildForm` methods to provide this data.
 		/// </summary>
-		IHttpRequestBuilder Post(Uri target);
+        [NotNull]IHttpRequestBuilder Post([NotNull]Uri target);
 
 		/// <summary>
 		/// Put data to a target resource. You should use the stream or string data options of the `Build`
 		/// or `BuildForm` methods to provide this data.
 		/// </summary>
-		IHttpRequestBuilder Put(Uri target);
+        [NotNull]IHttpRequestBuilder Put([NotNull]Uri target);
 
 		/// <summary>
 		/// Request that a resource be deleted.
 		/// </summary>
-		IHttpRequestBuilder Delete(Uri target);
+        [NotNull]IHttpRequestBuilder Delete([NotNull]Uri target);
 
 		/// <summary>
 		/// Make a custom request
 		/// </summary>
 		/// <param name="verb">Verb of request</param>
 		/// <param name="target">Target resource</param>
-		IHttpRequestBuilder Verb(string verb, Uri target);
+        [NotNull]IHttpRequestBuilder Verb([NotNull]string verb, [NotNull]Uri target);
 
 		/// <summary>
 		/// Set the value of a header field, replacing any existing values
 		/// </summary>
-		IHttpRequestBuilder SetHeader(string name, string value);
+        [NotNull]IHttpRequestBuilder SetHeader([NotNull]string name, [NotNull]string value);
 
 		/// <summary>
 		/// Add a value to a header field, supplimenting any existing values
 		/// </summary>
-		IHttpRequestBuilder AddHeader(string name, string value);
+        [NotNull]IHttpRequestBuilder AddHeader([NotNull]string name, [NotNull]string value);
 
 		/// <summary>
 		/// Set the MIME types to accept for the resource.
 		/// Defaults to */* if not provided. 
 		/// </summary>
-		IHttpRequestBuilder Accept(string mimeTypes);
+        [NotNull]IHttpRequestBuilder Accept([NotNull]string mimeTypes);
 
 		/// <summary>
 		/// Provide basic authentication details for the target resource.
 		/// WARNING: this will be sent in the clear. Use only in internal networks
 		/// or over SSL connections.
 		/// </summary>
-		IHttpRequestBuilder BasicAuthentication(string userName, string password);
+        [NotNull]IHttpRequestBuilder BasicAuthentication([NotNull]string userName, [NotNull]string password);
 
 		/// <summary>
 		/// Build the request, providing a data stream for the request. It will be sent to the target resource's
@@ -71,20 +72,20 @@ namespace ShiftIt.Http
 		/// </summary>
 		/// <param name="stream">Data stream</param>
 		/// <param name="length">Length of data. Must be provided.</param>
-		IHttpRequest Build(Stream stream, long length);
+        [NotNull]IHttpRequest Build([NotNull]Stream stream, long length);
         
 	    /// <summary>
 	    /// Build the request, providing a data buffer for the request. It will be sent to the target resource's
 	    /// hosting server.
 	    /// </summary>
 	    /// <param name="uploadData">Bytes to be uploaded. The entire buffer will be sent</param>
-	    IHttpRequest Build(byte[] uploadData);
+        [NotNull]IHttpRequest Build([NotNull]byte[] uploadData);
 
 		/// <summary>
 		/// Build the request, providing string data for the request. It will be sent to the target resource's
 		/// hosting server. The string will be UTF-8 encoded.
 		/// </summary>
-		IHttpRequest Build(string data);
+        [NotNull]IHttpRequest Build([NotNull]string data);
 
 		/// <summary>
 		/// Build the request, providing object data for the request.
@@ -95,11 +96,11 @@ namespace ShiftIt.Http
 		/// // sends out "targetId=142&amp;value=Hello%2C+Jim"
 		/// builder.Build(new {targetId = 142, value = "Hello, Jim" });
 		/// </code></example>
-		IHttpRequest BuildForm(object data);
+        [NotNull]IHttpRequest BuildForm([NotNull]object data);
 
 		/// <summary>
 		/// Build the request, suppling no data.
 		/// </summary>
-		IHttpRequest Build();
+        [NotNull]IHttpRequest Build();
 	}
 }

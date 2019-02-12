@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using NUnit.Framework;
 using ShiftIt.Http;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace ShiftIt.Integration.Tests
 {

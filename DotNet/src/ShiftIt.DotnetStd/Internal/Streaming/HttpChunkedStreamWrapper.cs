@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Internal.Streaming
 {
@@ -10,8 +11,8 @@ namespace ShiftIt.Internal.Streaming
 	/// </summary>
 	public class HttpChunkedStreamWrapper: Stream, ISelfTerminatingStream
 	{
-		readonly Stream _source;
-		readonly PushbackBuffer _buffer;
+		[NotNull]readonly Stream _source;
+		[NotNull]readonly PushbackBuffer _buffer;
 		readonly TimeSpan _timeout;
 		bool _complete;
 		const byte CR = 0x0D;
@@ -22,7 +23,7 @@ namespace ShiftIt.Internal.Streaming
 		/// </summary>
 		public HttpChunkedStreamWrapper(Stream source, TimeSpan timeout)
 		{
-			_source = source;
+			_source = source ?? throw new ArgumentNullException(nameof(source));
 			_timeout = timeout;
 			_complete = false;
 			_buffer = new PushbackBuffer();
@@ -37,17 +38,13 @@ namespace ShiftIt.Internal.Streaming
 			_source.Close();
 		}
 
-		/**<summary>Not used</summary>*/public override void Flush() { }
-
-		/**<summary>Not used</summary>*/public override long Seek(long offset, SeekOrigin origin)
-		{
-			throw new NotSupportedException();
-		}
-
-		/**<summary>Not used</summary>*/public override void SetLength(long value)
-		{
-			throw new NotSupportedException();
-		}
+		
+        ///<summary> Not Supported </summary>
+        public override void Flush() { }
+        ///<summary> Not Supported </summary>
+        public override long Seek(long offset, SeekOrigin origin) { throw new NotSupportedException(); }
+        ///<summary> Not Supported </summary>
+        public override void SetLength(long value) { throw new NotSupportedException(); }
 
 		/// <summary>
 		/// Read bytes from stream, reading and joining chunks as needed.
@@ -62,7 +59,7 @@ namespace ShiftIt.Internal.Streaming
 			return _buffer.Read(buffer, offset, count);
 		}
 		
-		byte[] ReadNextChunk()
+		[NotNull]byte[] ReadNextChunk()
 		{
 			if (_complete) return new byte[0];
 			var ms = new MemoryStream();
@@ -94,7 +91,7 @@ namespace ShiftIt.Internal.Streaming
 		/// Will skip one of CRLF, LFCR, CRCR, LFLF, LF, CR
 		/// because HTTP servers are tricky.
 		/// </summary>
-		bool SkipCRLF(Stream source)
+		bool SkipCRLF([NotNull]Stream source)
 		{
 			var cr = source.ReadByte();
 			if (cr < 0) return false;
@@ -108,7 +105,7 @@ namespace ShiftIt.Internal.Streaming
 		/// Read chunk length. Throws if chunk length not available.
 		/// Should leave a spare '\n' char on stream if protocol correct.
 		/// </summary>
-		static long ReadChunkLength(Stream source)
+		static long ReadChunkLength([NotNull]Stream source)
 		{
 			var sb = new StringBuilder();
  			for (;;)
@@ -130,32 +127,24 @@ namespace ShiftIt.Internal.Streaming
 			return result;
 		}
 
-		/**<summary>Not used</summary>*/public override void Write(byte[] buffer, int offset, int count)
+		
+        ///<summary> Not Supported </summary>
+        public override void Write(byte[] buffer, int offset, int count)
 		{
 			throw new NotSupportedException();
 		}
 
-		/**<summary>Not used</summary>*/public override bool CanRead
-		{
-			get { return _source.CanRead; }
-		}
-
-		/**<summary>Not used</summary>*/public override bool CanSeek
-		{
-			get { return false; }
-		}
-
-		/**<summary>Not used</summary>*/public override bool CanWrite
-		{
-			get { return false; }
-		}
-
-		/**<summary>Not used</summary>*/public override long Length
-		{
-			get { return 0; }
-		}
-
-		/**<summary>Not used</summary>*/public override long Position { get; set; }
+		
+        ///<summary> Not Supported </summary>
+        public override bool CanRead { get { return _source.CanRead; } }
+        ///<summary> Not Supported </summary>
+        public override bool CanSeek { get { return false; } }
+        ///<summary> Not Supported </summary>
+        public override bool CanWrite { get { return false; } }
+        ///<summary> Not Supported </summary>
+        public override long Length { get { return 0; } }
+        ///<summary> Not Supported </summary>
+        public override long Position { get; set; }
 
 		/// <summary>
 		/// Returns true if the stream has terminated,

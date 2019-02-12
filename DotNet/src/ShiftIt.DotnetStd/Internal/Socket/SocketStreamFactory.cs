@@ -20,8 +20,11 @@ namespace ShiftIt.Internal.Socket
 		public Stream ConnectUnsecured(Uri connectionTarget, TimeSpan connectionTimeout)
 		{
 			var s = new SocketStream(
-				new System.Net.Sockets.Socket(
-					AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) { Blocking = true });
+				new System.Net.Sockets.Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) { Blocking = true }
+            );
+
+            if (s.Socket == null) throw new Exception("Failed to connect to socket stream");
+
 			s.Socket.SendTimeout = s.Socket.ReceiveTimeout = (int)connectionTimeout.TotalMilliseconds;
 			s.Socket.Connect(connectionTarget.Host, connectionTarget.Port);
 			return s;

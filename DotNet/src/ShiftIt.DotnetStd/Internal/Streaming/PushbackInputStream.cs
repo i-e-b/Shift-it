@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Internal.Streaming
 {
@@ -8,16 +9,17 @@ namespace ShiftIt.Internal.Streaming
 	/// </summary>
 	public class PushbackInputStream:Stream
 	{
-		readonly Stream _baseStream;
+		[NotNull]readonly Stream _baseStream;
+		[NotNull]readonly PushbackBuffer _pushbackBuffer;
 		long _position;
-		readonly PushbackBuffer _pushbackBuffer;
 
-		/// <summary>
-		/// Internal
-		/// </summary>
-		protected PushbackInputStream()
-		{
-		}
+        /// <summary>
+        /// Internal, for proxy generation in tests
+        /// </summary>
+        protected PushbackInputStream(){
+            _baseStream = new MemoryStream();
+            _pushbackBuffer = new PushbackBuffer(_baseStream);
+        }
 
 		/// <summary>
 		/// Create a pushback wrapper around another stream.
@@ -26,7 +28,7 @@ namespace ShiftIt.Internal.Streaming
 		/// <param name="baseStream"></param>
 		public PushbackInputStream(Stream baseStream)
 		{
-			_baseStream = baseStream;
+			_baseStream = baseStream ?? throw new ArgumentNullException(nameof(baseStream));
 			_position = _baseStream.Position;
 			_pushbackBuffer = new PushbackBuffer(_baseStream);
 		}
@@ -126,10 +128,14 @@ namespace ShiftIt.Internal.Streaming
 			_baseStream.Write(buffer, offset, count);
 		}
 
-		/** <summary>Passed to underlying stream</summary>*/public override bool CanRead { get { return _baseStream.CanRead; } }
-		/** <summary>Passed to underlying stream</summary>*/public override bool CanSeek { get { return _baseStream.CanSeek; } }
-		/** <summary>Passed to underlying stream</summary>*/public override bool CanWrite { get { return _baseStream.CanWrite; } }
-		/** <summary>Passed to underlying stream</summary>*/public override long Length { get { return _baseStream.Length; } }
+		/// <summary>Passed to underlying stream</summary>
+		public override bool CanRead { get { return _baseStream.CanRead; } }
+        /// <summary>Passed to underlying stream</summary>
+        public override bool CanSeek { get { return _baseStream.CanSeek; } }
+        /// <summary>Passed to underlying stream</summary>
+        public override bool CanWrite { get { return _baseStream.CanWrite; } }
+        /// <summary>Passed to underlying stream</summary>
+        public override long Length { get { return _baseStream.Length; } }
 		#endregion
 
 		/// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 using ShiftIt.Internal.Http;
 
 namespace ShiftIt.Http
@@ -14,7 +15,7 @@ namespace ShiftIt.Http
 	{
 		string _verb;
 		string _url;
-		readonly Dictionary<string, List<string>> _headers;
+		[NotNull]readonly Dictionary<string, List<string>> _headers;
 		private Uri _target;
 
 		/// <summary>
@@ -116,6 +117,7 @@ namespace ShiftIt.Http
 		/// <param name="length">Length of data. Must be provided.</param>
 		public IHttpRequest Build(Stream stream, long length)
 		{
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
 			return new HttpRequest(_target, _verb, stream, length, RequestHead(length));
 		}
 
@@ -126,6 +128,7 @@ namespace ShiftIt.Http
 	    /// <param name="uploadData">Bytes to be uploaded. The entire buffer will be sent</param>
 	    public IHttpRequest Build(byte[] uploadData)
 	    {
+            if (uploadData == null) throw new ArgumentNullException(nameof(uploadData));
 	        var dataLength = uploadData.Length;
 	        return new HttpRequest(_target, _verb, new MemoryStream(uploadData), dataLength, RequestHead(dataLength));
 	    }
@@ -136,19 +139,20 @@ namespace ShiftIt.Http
 		/// </summary>
 		public IHttpRequest Build(string data)
 		{
+            if (data == null) throw new ArgumentNullException(nameof(data));
             return Build(Encoding.UTF8.GetBytes(data));
-		}
-		
-		/// <summary>
-		/// Build the request, providing object data for the request.
-		/// Each public property on the object will be sent as a form value to the target resource's
-		/// hosting server. This will force Content-Type to application/x-www-form-urlencoded
-		/// </summary>
-		/// <example><code>
-		/// // sends out "targetId=142&amp;value=Hello%2C+Jim"
-		/// builder.Build(new {targetId = 142, value = "Hello, Jim" });
-		/// </code></example>
-		public IHttpRequest BuildForm(object data)
+        }
+
+        /// <summary>
+        /// Build the request, providing object data for the request.
+        /// Each public property on the object will be sent as a form value to the target resource's
+        /// hosting server. This will force Content-Type to application/x-www-form-urlencoded
+        /// </summary>
+        /// <example><code>
+        /// // sends out "targetId=142&amp;value=Hello%2C+Jim"
+        /// builder.Build(new {targetId = 142, value = "Hello, Jim" });
+        /// </code></example>
+        public IHttpRequest BuildForm(object data)
 		{
 			SetHeader("Content-Type", "application/x-www-form-urlencoded");
 
@@ -166,17 +170,20 @@ namespace ShiftIt.Http
 			return new HttpRequest(_target, _verb, null, -1, RequestHead(-1));
 		}
 
-		/// <summary>
-		/// Set the value of a header field, replacing any existing values
-		/// </summary>
-		public IHttpRequestBuilder SetHeader(string name, string value)
-		{
+        /// <summary>
+        /// Set the value of a header field, replacing any existing values
+        /// </summary>
+        public IHttpRequestBuilder SetHeader(string name, string value)
+        {
+            if (name == null) throw new ArgumentNullException(nameof(name));
 			if (!_headers.ContainsKey(name))
 			{
 				_headers.Add(name, new List<string>());
 			}
-			_headers[name].Clear();
-			_headers[name].Add(value);
+            var list = _headers[name] ?? new List<string>();
+			list.Clear();
+			list.Add(value);
+            _headers[name] = list;
 			return this;
 		}
 
@@ -185,14 +192,15 @@ namespace ShiftIt.Http
 		/// </summary>
 		public IHttpRequestBuilder AddHeader(string name, string value)
 		{
+            if (name == null) throw new ArgumentNullException(nameof(name));
 			if (!_headers.ContainsKey(name))
 			{
 				_headers.Add(name, new List<string>());
 			}
-			if (!_headers[name].Contains(value))
-			{
-				_headers[name].Add(value);
-			}
+            
+            var list = _headers[name] ?? new List<string>();
+			if (!list.Contains(value)) { list.Add(value); }
+            _headers[name] = list;
 			return this;
 		}
 
@@ -209,7 +217,7 @@ namespace ShiftIt.Http
 
 			foreach (var header in _headers)
 			{
-				k(header.Key); a(string.Join(",", header.Value)); crlf();
+				k(header.Key); a(string.Join(",", header.Value ?? new List<string>())); crlf();
 			}
 
 			if (dataLength >= 0)
@@ -223,6 +231,7 @@ namespace ShiftIt.Http
 
 		void StdVerb(string verb, Uri target)
 		{
+            if (target == null) throw new ArgumentNullException(nameof(target));
 			_target = target;
 			SetHeader("Host", string.Format("{0}:{1}", target.Host, target.Port));
 			_verb = verb;
@@ -232,52 +241,22 @@ namespace ShiftIt.Http
 
 		private class HttpRequest : IHttpRequest
 		{
-			private readonly Uri _target;
-			private readonly string _verb;
-			private readonly Stream _dataStream;
-			private readonly long _dataLength;
-			private readonly string _requestHead;
-			private readonly bool _secure;
-
-			public HttpRequest(Uri target, string verb, Stream dataStream, long dataLength, string requestHead)
+            public HttpRequest(Uri target, string verb, Stream dataStream, long dataLength, string requestHead)
 			{
-				_target = target;
-				_verb = verb;
-				_dataStream = dataStream;
-				_dataLength = dataLength;
-				_requestHead = requestHead;
-				_secure = _target.Scheme.ToLowerInvariant() == "https";
+				Target = target ?? throw new ArgumentNullException(nameof(target));
+				Verb = verb;
+				DataStream = dataStream;
+				DataLength = dataLength;
+				RequestHead = requestHead;
+				Secure = Target.Scheme.ToLowerInvariant() == "https";
 			}
 
-			public Uri Target
-			{
-				get { return _target; }
-			}
-
-			public string Verb
-			{
-				get { return _verb; }
-			}
-
-			public string RequestHead
-			{
-				get { return _requestHead; }
-			}
-
-			public Stream DataStream
-			{
-				get { return _dataStream; }
-			}
-
-			public long DataLength
-			{
-				get { return _dataLength; }
-			}
-
-			public bool Secure
-			{
-				get { return _secure; }
-			}
-		}
+            public Uri Target { get; }
+            public string Verb { get; }
+            public string RequestHead { get; }
+            public Stream DataStream { get; }
+            public long DataLength { get; }
+            public bool Secure { get; }
+        }
 	}
 }

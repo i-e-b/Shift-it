@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Internal.Http
 {
@@ -10,6 +11,6 @@ namespace ShiftIt.Internal.Http
 		/// <summary>
 		/// Convert the public properties of an object into a readable stream
 		/// </summary>
-		Stream ConvertToStream(object value);
+        [NotNull]Stream ConvertToStream([NotNull]object value);
 	}
 }
