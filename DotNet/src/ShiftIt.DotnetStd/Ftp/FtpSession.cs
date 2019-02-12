@@ -3,6 +3,7 @@ using System.Net;
 using System.IO;
 using System.Text;
 using System.Net.Sockets;
+using JetBrains.Annotations;
 
 namespace ShiftIt.Ftp {
 	/// <summary>
@@ -11,16 +12,16 @@ namespace ShiftIt.Ftp {
 	/// </summary>
 	public class FtpSession : IFtpSession
 	{
-
+		private Socket _clientSocket;
 		private string _remoteHost, _remotePath, _remoteUser, _remotePass, _mes;
 		private int _remotePort, _bytes;
-		private Socket _clientSocket;
-		private DirectoryListMode _listMode;
-
-		private int _retValue;
-		private Boolean _debug;
-		private Boolean _logined;
+        private int _retValue;
+		private bool _debug;
+		private bool _loggedIn;
 		private string _reply;
+
+	    [NotNull]readonly byte[] _buffer = new byte[10240];
+		[NotNull]readonly Encoding ASCII = Encoding.ASCII;
 
 		/// <summary>
 		/// Gets or sets whether existing remote files are deleted prior to uploads.
@@ -39,9 +40,6 @@ namespace ShiftIt.Ftp {
 		/// </summary>
 		public bool PassiveMode { get; set; }
 
-	    readonly Byte[] _buffer = new Byte[10240];
-		readonly Encoding ASCII = Encoding.ASCII;
-
 		/// <summary>
 		/// Create a new FTP transfer agent.
 		/// </summary>
@@ -52,9 +50,9 @@ namespace ShiftIt.Ftp {
 			_remotePass = "example@example.com";
 			_remotePort = 21;
 			_debug = false;
-			_logined = false;
+			_loggedIn = false;
 			PassiveMode = true;
-			_listMode = DirectoryListMode.PlatformList;
+			ListMode = DirectoryListMode.PlatformList;
 		}
 
 		/// <summary>
@@ -73,19 +71,16 @@ namespace ShiftIt.Ftp {
 			GC.SuppressFinalize(this);
 		}
 
-		/// <summary>
-		/// Gets or sets the command mode used to return directory listings
-		/// </summary>
-		public DirectoryListMode ListMode {
-			get { return _listMode; }
-			set { _listMode = value; }
-		}
+        /// <summary>
+        /// Gets or sets the command mode used to return directory listings
+        /// </summary>
+        public DirectoryListMode ListMode { get; set; }
 
-		/// <summary>
-		/// Set the name or IP addres of the FTP server to connect to.
-		/// </summary>
-		/// <param name="remoteHost">Server name</param>
-		public void SetRemoteHost (string remoteHost) {
+        /// <summary>
+        /// Set the name or IP addres of the FTP server to connect to.
+        /// </summary>
+        /// <param name="remoteHost">Server name</param>
+        public void SetRemoteHost (string remoteHost) {
 			_remoteHost = remoteHost;
 		}
 
@@ -152,13 +147,14 @@ namespace ShiftIt.Ftp {
 		/// This is server dependent, but filters like *.txt, *.exe usually work.</param>
 		public string[] GetFileList (string mask) {
 
-			if (!_logined) {
+			if (!_loggedIn) {
 				Login();
 			}
 
 			Socket cSocket = CreateDataSocket();
+            if (cSocket == null) throw new Exception("Failed to connect to data socket");
 
-			switch (_listMode) {
+			switch (ListMode) {
 				case DirectoryListMode.PlatformList:
 					SendCommand("LIST  " + mask);
 					break;
@@ -168,7 +164,7 @@ namespace ShiftIt.Ftp {
 			}
 
 			if (!(_retValue == 150 || _retValue == 125)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			_mes = "";
@@ -195,22 +191,26 @@ namespace ShiftIt.Ftp {
 
 			if (_retValue != 226)
 			{
-				if (_reply.Length > 4) {
-					throw new IOException(_reply.Substring(4), _retValue);
-				}
-				throw new IOException(_reply, _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 			return mess;
 
 		}
 
-		/// <summary>
+        [NotNull]private string LastReply()
+        {
+            if (_reply == null) return "No reply from server";
+            if (_reply.Length < 5) return "Unexpected reply from server: " + _reply;
+            return _reply.Substring(4);
+        }
+
+        /// <summary>
 		/// Return the size of a file.
 		/// </summary>
 		/// <param name="fileName">Full name of a file in the current directory</param>
 		public long GetFileSize (string fileName) {
 
-			if (!_logined) {
+			if (!_loggedIn) {
 				Login();
 			}
 
@@ -218,23 +218,26 @@ namespace ShiftIt.Ftp {
 			long size;
 
 			if (_retValue == 213) {
-				size = Int64.Parse(_reply.Substring(4));
+				size = long.Parse(LastReply());
 			} else {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			return size;
 
 		}
 
-		/// <summary>
-		/// Login to the remote server.
-		/// If needed, username and password should have been given before calling.
-		/// </summary>
-		public void Login () {
+        /// <summary>
+        /// Login to the remote server.
+        /// If needed, username and password should have been given before calling.
+        /// </summary>
+        public void Login()
+        {
+			var hostInfo = GetHostInfo(_remoteHost);
+            if (hostInfo == null) throw new Exception("Failed to read remote host information");
+            if (hostInfo.AddressList == null) throw new Exception("Remote host did not resolve any IP addresses");
 
-			_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			IPHostEntry hostInfo = GetHostInfo(_remoteHost);
+            _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			_clientSocket.SendTimeout = _clientSocket.ReceiveTimeout = 30000;
 
 			try {
@@ -246,7 +249,7 @@ namespace ShiftIt.Ftp {
 			ReadReply();
 			if (_retValue != 220) {
 				Close();
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 			if (_debug)
 				Console.WriteLine("USER " + _remoteUser);
@@ -255,7 +258,7 @@ namespace ShiftIt.Ftp {
 
 			if (!(_retValue == 331 || _retValue == 230)) {
 				Cleanup();
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			if (_retValue != 230) {
@@ -265,11 +268,11 @@ namespace ShiftIt.Ftp {
 				SendCommand("PASS " + _remotePass);
 				if (!(_retValue == 230 || _retValue == 202)) {
 					Cleanup();
-					throw new IOException(_reply.Substring(4), _retValue);
+					throw new IOException(LastReply(), _retValue);
 				}
 			}
 
-			_logined = true;
+			_loggedIn = true;
 			Console.WriteLine("Connected to " + _remoteHost);
 
 			Chdir(_remotePath);
@@ -288,7 +291,7 @@ namespace ShiftIt.Ftp {
 				SendCommand("TYPE A");
 			}
 			if (_retValue != 200) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 		}
 
@@ -296,19 +299,19 @@ namespace ShiftIt.Ftp {
 		/// Download a file to the Assembly's local directory, keeping the same file name.
 		/// Always resets file's download progress.
 		/// </summary>
-		/// <param name="remFileName">Name of file on remote server</param>
-		public void Download (string remFileName) {
-			Download(remFileName, "", false);
+		/// <param name="remoteFileName">Name of file on remote server</param>
+		public void Download (string remoteFileName) {
+			Download(remoteFileName, "", false);
 		}
 
 		/// <summary>
 		/// Download a remote file to the Assembly's local directory,
 		/// keeping the same file name, and set the resume flag.
 		/// </summary>
-		/// <param name="remFileName">Name of file on remote server</param>
+		/// <param name="remoteFileName">Name of file on remote server</param>
 		/// <param name="resume">if true, try to continue a previous download</param>
-		public void Download (string remFileName, Boolean resume) {
-			Download(remFileName, "", resume);
+		public void Download (string remoteFileName, Boolean resume) {
+			Download(remoteFileName, "", resume);
 		}
 
 		/// <summary>
@@ -316,10 +319,10 @@ namespace ShiftIt.Ftp {
 		/// a path. The local file name will be created or overwritten,
 		/// but the path must exist.
 		/// </summary>
-		/// <param name="locFileName">Local file name (may be a full path)</param>
-		/// <param name="remFileName">Remote file name</param>
-		public void Download (string remFileName, string locFileName) {
-			Download(remFileName, locFileName, false);
+		/// <param name="localFileName">Local file name (may be a full path)</param>
+		/// <param name="remoteFileName">Remote file name</param>
+		public void Download (string remoteFileName, string localFileName) {
+			Download(remoteFileName, localFileName, false);
 		}
 
 		/// <summary>
@@ -327,30 +330,34 @@ namespace ShiftIt.Ftp {
 		/// a path, and set the resume flag. The local file name will be
 		/// created or overwritten, but the path must exist.
 		/// </summary>
-		/// <param name="locFileName">Local file name (may be a full path)</param>
-		/// <param name="remFileName">Remote file name</param>
+		/// <param name="localFileName">Local file name (may be a full path)</param>
+		/// <param name="remoteFileName">Remote file name</param>
 		/// <param name="resume">if true, try to continue a previous download</param>
-		public void Download (string remFileName, string locFileName, Boolean resume) {
-			if (!_logined) {
+		public void Download (string remoteFileName, string localFileName, bool resume) {
+            if (remoteFileName == null) throw new ArgumentNullException(nameof(remoteFileName));
+            if (localFileName == null) throw new ArgumentNullException(nameof(localFileName));
+
+			if (!_loggedIn) {
 				Login();
 			}
 
 			SetBinaryMode(true);
 
-			Console.WriteLine("Downloading file " + remFileName + " from " + _remoteHost + "/" + _remotePath);
+			Console.WriteLine("Downloading file " + remoteFileName + " from " + _remoteHost + "/" + _remotePath);
 
-			if (locFileName.Equals("")) {
-				locFileName = remFileName;
+			if (localFileName.Equals("")) {
+				localFileName = remoteFileName;
 			}
 
-			if (!File.Exists(locFileName)) {
-				Stream st = File.Create(locFileName);
+			if (!File.Exists(localFileName)) {
+				Stream st = File.Create(localFileName);
 				st.Close();
 			}
 
-			var output = new FileStream(locFileName, FileMode.Open);
+			var output = new FileStream(localFileName, FileMode.Open);
 
 			var cSocket = CreateDataSocket();
+            if (cSocket == null) throw new Exception("Failed to made a data connection to remote server");
 
 			if (resume) {
 
@@ -373,10 +380,10 @@ namespace ShiftIt.Ftp {
 				}
 			}
 
-			SendCommand("RETR " + remFileName);
+			SendCommand("RETR " + remoteFileName);
 
 			if (!(_retValue == 150 || _retValue == 125)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			while (true) {
@@ -399,7 +406,7 @@ namespace ShiftIt.Ftp {
 			ReadReply();
 
 			if (!(_retValue == 226 || _retValue == 250)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 		}
@@ -421,20 +428,26 @@ namespace ShiftIt.Ftp {
 			Upload(fileName, Path.GetFileName(fileName), resume);
 		}
 
-		/// <summary>
-		/// Upload a file and set the resume flag.
-		/// </summary>
-		/// <param name="fileName">Full local path and filename to upload</param>
-		/// <param name="remoteFileName">file name as it should be on the remote server</param>
-		/// <param name="resume">if true, try to continue a previous upload</param>
-		public void Upload (string fileName, string remoteFileName, Boolean resume) {
-			ShouldContinue = false;
+        /// <summary>
+        /// Upload a file and set the resume flag.
+        /// </summary>
+        /// <param name="fileName">Full local path and filename to upload</param>
+        /// <param name="remoteFileName">file name as it should be on the remote server</param>
+        /// <param name="resume">if true, try to continue a previous upload</param>
+        public void Upload(string fileName, string remoteFileName, bool resume)
+        {
+            if (fileName == null) throw new ArgumentNullException(nameof(fileName));
+            if (remoteFileName == null) throw new ArgumentNullException(nameof(remoteFileName));
+
+            ShouldContinue = false;
 			var dest = remoteFileName.Replace("/", "");
-			if (!_logined) {
+			if (!_loggedIn) {
 				Login();
 			}
 
 			var cSocket = (PassiveMode) ? (CreateDataSocket()) : (CreateDataPort());
+            if (cSocket == null) throw new Exception("Failed to make a data transfer connection to the remote server");
+
 			cSocket.SendTimeout = cSocket.ReceiveTimeout = 30000;
 			long offset = 0;
 
@@ -469,7 +482,7 @@ namespace ShiftIt.Ftp {
 
 			if (!(_retValue == 125 || _retValue == 150)) {
 				ShouldContinue = false;
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			if (!PassiveMode) {
@@ -496,7 +509,7 @@ namespace ShiftIt.Ftp {
 			ReadReply();
 
 			if (!(_retValue == 226 || _retValue == 250)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 		}
 
@@ -506,14 +519,14 @@ namespace ShiftIt.Ftp {
 		/// <param name="fileName">File in the current remote directory</param>
 		public void DeleteRemoteFile (string fileName) {
 
-			if (!_logined) {
+			if (!_loggedIn) {
 				Login();
 			}
 
 			SendCommand("DELE " + fileName);
 
 			if (_retValue != 250) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 		}
@@ -525,14 +538,14 @@ namespace ShiftIt.Ftp {
 		/// <param name="newFileName">New file name</param>
 		public void RenameRemoteFile (string oldFileName, string newFileName) {
 
-			if (!_logined) {
+			if (!_loggedIn) {
 				Login();
 			}
 
 			SendCommand("RNFR " + oldFileName);
 
 			if (_retValue != 350) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			//  known problem
@@ -540,7 +553,7 @@ namespace ShiftIt.Ftp {
 			//  i.e. It will overwrite if newFileName exist
 			SendCommand("RNTO " + newFileName);
 			if (_retValue != 250) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 		}
@@ -552,14 +565,14 @@ namespace ShiftIt.Ftp {
 		/// <param name="dirName">New directory name</param>
 		public void Mkdir (string dirName) {
 
-			if (!_logined) {
+			if (!_loggedIn) {
 				Login();
 			}
 
 			SendCommand("MKD " + dirName);
 
 			if (!(_retValue == 250 || _retValue == 257)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 		}
@@ -569,14 +582,14 @@ namespace ShiftIt.Ftp {
 		/// </summary>
 		/// <returns>Current working directory, result of PWD command</returns>
 		public string Pwd () {
-			if (!_logined) {
+			if (!_loggedIn) {
 				Login();
 			}
 
 			SendCommand("PWD");
 
-			if (!(_retValue == 250 || _retValue == 257)) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (_reply == null || !(_retValue == 250 || _retValue == 257)) {
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			if (_reply.Contains("\"")) {
@@ -594,36 +607,33 @@ namespace ShiftIt.Ftp {
 		/// <param name="dirName">Old directory name</param>
 		public void Rmdir (string dirName) {
 
-			if (!_logined) {
+			if (!_loggedIn) {
 				Login();
 			}
 
 			SendCommand("RMD " + dirName);
 
 			if (_retValue != 250) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 		}
 
-		/// <summary>
-		/// Change the current working directory on the remote FTP server.
-		/// </summary>
-		/// <param name="dirName">New directory</param>
-		public void Chdir (string dirName) {
+        /// <summary>
+        /// Change the current working directory on the remote FTP server.
+        /// </summary>
+        /// <param name="dirName">New directory</param>
+        public void Chdir(string dirName)
+        {
+            if (string.IsNullOrWhiteSpace(dirName)) { return; }
+            if (dirName.Equals(".")) { return; }
 
-			if (dirName.Equals(".")) {
-				return;
-			}
-
-			if (!_logined) {
-				Login();
-			}
+			if (!_loggedIn) { Login(); }
 
 			SendCommand("CWD " + dirName);
 
 			if (_retValue != 250) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			_remotePath = dirName;
@@ -640,20 +650,23 @@ namespace ShiftIt.Ftp {
 			Dispose(true);
 		}
 
-		/// <summary>
-		/// Check that the specified path exists.
-		/// If it doesn't, then it is created (if possible).
-		/// </summary>
-		/// <remarks>
-		/// Unless this method throws an exception, it should return in the same working directory
-		/// as when it is called. If remote path is set to ".", the method will exit in the deepest folder
-		/// created by this method.
-		/// </remarks>
-		/// <param name="path">Path to ensure</param>
-		/// <param name="relative">If true, path is treated as relative to the working directory.
-		/// Otherwise, it is assumed to be an absolute path on the server.</param>
-		public void EnsureRemotePath (string path, bool relative) {
-			string fwd = GetRemotePath();
+        /// <summary>
+        /// Check that the specified path exists.
+        /// If it doesn't, then it is created (if possible).
+        /// </summary>
+        /// <remarks>
+        /// Unless this method throws an exception, it should return in the same working directory
+        /// as when it is called. If remote path is set to ".", the method will exit in the deepest folder
+        /// created by this method.
+        /// </remarks>
+        /// <param name="path">Path to ensure</param>
+        /// <param name="relative">If true, path is treated as relative to the working directory.
+        /// Otherwise, it is assumed to be an absolute path on the server.</param>
+        public void EnsureRemotePath(string path, bool relative)
+        {
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentNullException(nameof(path));
+
+            string fwd = GetRemotePath();
 			string[] parts = path.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
 			if (parts == null || parts.Length < 1) throw new ArgumentException("EnsureRemotePath: Specified path was empty");
 
@@ -719,7 +732,10 @@ namespace ShiftIt.Ftp {
 		private void ReadReply () {
 			_mes = "";
 			_reply = ReadLine();
-			_retValue = Int32.Parse(_reply.Substring(0, 3));
+
+            if (_reply == null) throw new IOException(LastReply(), _retValue);
+
+			_retValue = int.Parse(_reply.Substring(0, 3));
 		}
 
 		private void Cleanup () {
@@ -727,11 +743,11 @@ namespace ShiftIt.Ftp {
 				_clientSocket.Close();
 				_clientSocket = null;
 			}
-			_logined = false;
+			_loggedIn = false;
 		}
 
 		private string ReadLine () {
-
+            if (_clientSocket == null) throw new Exception("Client socket was not initialised. Make sure you have connected and logged in.");
 			while (true) {
 				_bytes = _clientSocket.Receive(_buffer, _buffer.Length, 0);
 				_mes += ASCII.GetString(_buffer, 0, _bytes);
@@ -752,12 +768,11 @@ namespace ShiftIt.Ftp {
 							break;
 						}
 				}
-				//mes = mess[mess.Length - 2];
 			} else {
 				_mes = mess[0];
 			}
 
-			if (_mes.Length < 4) {
+			if (_mes == null || _mes.Length < 4) {
 				if (_debug)
 					foreach (string l in mess) {
 						Console.WriteLine("!   " + l);
@@ -778,9 +793,10 @@ namespace ShiftIt.Ftp {
 			return _mes;
 		}
 
-		private void SendCommand (String command) {
+		private void SendCommand (string command) {
+            if (_clientSocket == null) throw new Exception("Client socket was not initialised. Make sure you have connected and logged in.");
 
-			Byte[] cmdBytes = Encoding.ASCII.GetBytes((command + "\r\n").ToCharArray());
+			var cmdBytes = Encoding.ASCII.GetBytes((command + "\r\n").ToCharArray());
 			_clientSocket.Send(cmdBytes, cmdBytes.Length, 0);
 			ReadReply();
 		}
@@ -795,7 +811,7 @@ namespace ShiftIt.Ftp {
 											 ProtocolType.Tcp);
 
 			// bind the listening socket to the port
-			var hostIP = Dns.GetHostEntry(Dns.GetHostName()).AddressList[0];
+			var hostIP = FirstIpAddress();
 			var ftp_ip = hostIP.ToString().Replace(".", ",");
 			while (true) {
 				try {
@@ -817,7 +833,7 @@ namespace ShiftIt.Ftp {
 
 			SendCommand(port_cmd);
 			if (_retValue != 200 && _retValue != 227) {
-				throw new IOException(_reply.Substring(4), _retValue);
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			/* This has to be done *after* the STOR message is sent and
@@ -831,12 +847,21 @@ namespace ShiftIt.Ftp {
 			return listenSocket;
 		}
 
-		private Socket CreateDataSocket () {
+        [NotNull]private static IPAddress FirstIpAddress()
+        {
+            var resolved =  Dns.GetHostEntry(Dns.GetHostName());
+            if (resolved.AddressList == null || resolved.AddressList.Length < 1) throw new Exception("Failed to resolve an IP address for local machine");
+            var ip = resolved.AddressList[0];
+            if (ip == null) throw new Exception("Failed to resolve a valid IP address for local machine");
+            return ip;
+        }
+
+        private Socket CreateDataSocket () {
 			if (_debug) Console.WriteLine("PASV (Opening a data socket for transfer)");
 			SendCommand("PASV");
 
-			if (_retValue != 227) {
-				throw new IOException(_reply.Substring(4), _retValue);
+			if (_reply == null || _retValue != 227) {
+				throw new IOException(LastReply(), _retValue);
 			}
 
 			int index1 = _reply.IndexOf('(');
@@ -878,6 +903,7 @@ namespace ShiftIt.Ftp {
 			var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			s.SendTimeout = s.ReceiveTimeout = 30000;
 			var hostInfo = GetHostInfo(ipAddress);
+            if (hostInfo.AddressList == null) throw new Exception("Failed to resolve an IP address for the remote server");
 
 			try {
 				s.Connect(hostInfo.AddressList, port);
@@ -888,7 +914,8 @@ namespace ShiftIt.Ftp {
 			return s;
 		}
 
-		private static IPHostEntry GetHostInfo (string addr) {
+		[NotNull]private static IPHostEntry GetHostInfo (string addr) {
+            if (string.IsNullOrWhiteSpace(addr)) throw new Exception("Invalid remote server name requested");
 			IPHostEntry hostInfo;
 			try {
 				hostInfo = Dns.GetHostEntry(addr);

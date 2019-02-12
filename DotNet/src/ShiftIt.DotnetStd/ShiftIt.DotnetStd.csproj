@@ -10,8 +10,13 @@
 High transfer speeds, and uses minimal memory.
 
 An old and battle hardend FTP client library, works with many old and cranky FTP servers that the standard .Net libraries can't handle.</Description>
-    <Copyright>2013-2019 Iain Ballard</Copyright>
+    <Copyright>2010-2019 Iain Ballard</Copyright>
     <PackageTags>http ftp sockets client https core</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/i-e-b/Shift-it</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/i-e-b/Shift-it/master/LICENSE</PackageLicenseUrl>
+    <PackageIconUrl>https://github.com/i-e-b/Shift-it/raw/master/DotNet/Logo.png</PackageIconUrl>
+    <PackageId>Shift-It</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -24,6 +29,10 @@ An old and battle hardend FTP client library, works with many old and cranky FTP
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <DocumentationFile>ShiftIt.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
+    <NoWarn>1701;1702;NU5125;5125</NoWarn>
   </PropertyGroup>
 
 </Project>

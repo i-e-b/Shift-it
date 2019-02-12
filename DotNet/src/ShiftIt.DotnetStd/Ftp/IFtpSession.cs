@@ -111,35 +111,35 @@ namespace ShiftIt.Ftp
 		/// Download a file to the Assembly's local directory, keeping the same file name.
 		/// Always resets file's download progress.
 		/// </summary>
-		/// <param name="remFileName">Name of file on remote server</param>
-		void Download (string remFileName);
+		/// <param name="remoteFileName">Name of file on remote server</param>
+		void Download (string remoteFileName);
 
 		/// <summary>
 		/// Download a remote file to the Assembly's local directory,
 		/// keeping the same file name, and set the resume flag.
 		/// </summary>
-		/// <param name="remFileName">Name of file on remote server</param>
+		/// <param name="remoteFileName">Name of file on remote server</param>
 		/// <param name="resume">if true, try to continue a previous download</param>
-		void Download (string remFileName, Boolean resume);
+		void Download (string remoteFileName, Boolean resume);
 
 		/// <summary>
 		/// Download a remote file to a local file name which can include
 		/// a path. The local file name will be created or overwritten,
 		/// but the path must exist.
 		/// </summary>
-		/// <param name="locFileName">Local file name (may be a full path)</param>
-		/// <param name="remFileName">Remote file name</param>
-		void Download (string remFileName, string locFileName);
+		/// <param name="localFileName">Local file name (may be a full path)</param>
+		/// <param name="remoteFileName">Remote file name</param>
+		void Download (string remoteFileName, string localFileName);
 
 		/// <summary>
 		/// Download a remote file to a local file name which can include
 		/// a path, and set the resume flag. The local file name will be
 		/// created or overwritten, but the path must exist.
 		/// </summary>
-		/// <param name="locFileName">Local file name (may be a full path)</param>
-		/// <param name="remFileName">Remote file name</param>
+		/// <param name="localFileName">Local file name (may be a full path)</param>
+		/// <param name="remoteFileName">Remote file name</param>
 		/// <param name="resume">if true, try to continue a previous download</param>
-		void Download (string remFileName, string locFileName, Boolean resume);
+		void Download (string remoteFileName, string localFileName, Boolean resume);
 
 		/// <summary>
 		/// Upload a file to the current remote directory.
