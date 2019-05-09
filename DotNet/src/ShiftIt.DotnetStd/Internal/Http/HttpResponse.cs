@@ -17,9 +17,12 @@ namespace ShiftIt.Internal.Http
 	/// </summary>
 	public class HttpResponse : IHttpResponse
 	{
-		[NotNull]Stream _rawResponse;
-		[NotNull]private readonly StringBuilder _debugResponse;
+        /// <summary>
+        /// Raw response headers from the server. For diagnostics only.
+        /// </summary>
+		[NotNull]public readonly MemoryStream RawHeaders;
 
+		[NotNull]Stream _rawResponse;
 		[NotNull]private readonly ISet<string> _singleItemHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Content-Length" };
 
 		/// <summary>
@@ -30,7 +33,7 @@ namespace ShiftIt.Internal.Http
 		{
 			_rawResponse = rawResponse ?? throw new ArgumentNullException(nameof(rawResponse));
 
-			_debugResponse = new StringBuilder();
+			RawHeaders = new MemoryStream();
 			Headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 			ReadStatusLine(NextLine(_rawResponse));
 
@@ -117,7 +120,7 @@ namespace ShiftIt.Internal.Http
 		private string FormatError(string headerLine)
 		{
 			ReadRestOfHeaderIntoDebugResponse();
-			return string.Format("Bad header -- {0}{1}Full headers:{2}", headerLine, "\r\n", _debugResponse);
+			return string.Format("Bad header -- {0}{1}Full headers:{2}", headerLine, "\r\n", RawHeaders);
 		}
 
 		private void ReadRestOfHeaderIntoDebugResponse()
@@ -138,7 +141,7 @@ namespace ShiftIt.Internal.Http
 			
 			while ((b = stream.ReadByte()) >= 0)
 			{
-				_debugResponse.Append((char) b);
+				RawHeaders.WriteByte((byte)b);
 				if (b == '\r' || b == '\n')
 				{
 					if (s == 2) {break;}
@@ -217,7 +220,17 @@ namespace ShiftIt.Internal.Http
 		/// </summary>
 		public Stream RawBodyStream { get; }
 
-		/// <summary>
+        /// <inheritdoc />
+        public byte[] RawHeaderData
+        {
+            get
+            {
+                RawHeaders.Seek(0, SeekOrigin.Begin);
+                return RawHeaders.ToArray();
+            }
+        }
+
+        /// <summary>
 		/// Dispose of the underlying stream
 		/// </summary>
 		public void Dispose()

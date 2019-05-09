@@ -47,5 +47,10 @@ namespace ShiftIt.Http
 		/// The raw body stream. This will be consumed if you use the BodyReader.
 		/// </summary>
 		Stream RawBodyStream { get; }
-	}
+        
+        /// <summary>
+        /// Raw response headers from the server. For diagnostics only.
+        /// </summary>
+        byte[] RawHeaderData { get; }
+    }
 }
