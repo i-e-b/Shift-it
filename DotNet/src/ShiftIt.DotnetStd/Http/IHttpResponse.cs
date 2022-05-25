@@ -34,10 +34,16 @@ namespace ShiftIt.Http
 		string StatusMessage { get; }
 
 		/// <summary>
-		/// Headers returned by server
+		/// Headers returned by server, with duplicates concatenated into single string values
 		/// </summary>
         [NotNull]IDictionary<string, string> Headers { get; }
 
+		/// <summary>
+		/// Headers lines returned by server, in the same order as supplied, and with no transformation.
+		/// This is useful if you are using HttpClient as part of a proxy.
+		/// </summary>
+		[NotNull]ICollection<string> ExactHeaders { get; }
+		
 		/// <summary>
 		/// The HTTP body stream wrapped in a decoder class
 		/// </summary>

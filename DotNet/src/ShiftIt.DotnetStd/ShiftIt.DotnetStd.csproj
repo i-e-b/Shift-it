@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>net40;net462;netstandard2.0</TargetFrameworks>
+    <ContinousIntegrationBuild>true</ContinousIntegrationBuild>
     <RootNamespace>ShiftIt</RootNamespace>
     <AssemblyName>ShiftIt</AssemblyName>
-    <Version>1.9.0</Version>
+    <Version>1.9.1</Version>
     <Authors>i-e-b</Authors>
     <Description>A HTTP client that can accept a reasonable level of invalid protocol from servers. This is a blocking, synchronous library that uses only .Net sockets, not WebClient or HttpWebRequest, and has a lot of replaceable components.
 High transfer speeds, and uses minimal memory.
@@ -12,11 +13,12 @@ High transfer speeds, and uses minimal memory.
 An old and battle hardend FTP client library, works with many old and cranky FTP servers that the standard .Net libraries can't handle.</Description>
     <Copyright>2010-2019 Iain Ballard</Copyright>
     <PackageTags>http ftp sockets client https core</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/i-e-b/Shift-it</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/i-e-b/Shift-it/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://github.com/i-e-b/Shift-it/raw/master/DotNet/Logo.png</PackageIconUrl>
     <PackageId>Shift-It</PackageId>
+    <PackageVersion>1.9.1</PackageVersion>
+    <AssemblyVersion>1.9.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -29,6 +31,7 @@ An old and battle hardend FTP client library, works with many old and cranky FTP
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <DocumentationFile>ShiftIt.xml</DocumentationFile>
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">

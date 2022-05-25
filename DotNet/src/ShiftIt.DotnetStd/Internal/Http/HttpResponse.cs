@@ -15,8 +15,15 @@ namespace ShiftIt.Internal.Http
 	/// <summary>
 	/// Wrapper for HTTP response streams
 	/// </summary>
+	// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 	public class HttpResponse : IHttpResponse
 	{
+		/// <summary>
+		/// String used to join duplicated headers. Defaults to <code>","</code>
+		/// This affects all Http Responses.
+		/// </summary>
+		public static string HeaderConcatenationString = ",";
+		
         /// <summary>
         /// Raw response headers from the server. For diagnostics only.
         /// </summary>
@@ -35,6 +42,7 @@ namespace ShiftIt.Internal.Http
 
 			RawHeaders = new MemoryStream();
 			Headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+			ExactHeaders = new List<string>();
 			ReadStatusLine(NextLine(_rawResponse));
 
 			foreach (var headerLine in NonBlankLines(_rawResponse)) AddHeader(headerLine);
@@ -97,6 +105,8 @@ namespace ShiftIt.Internal.Http
 
 		void AddHeader(string headerLine)
 		{
+			ExactHeaders?.Add(headerLine);
+			
 			var parts = headerLine?.Split(new[] { ": " }, StringSplitOptions.None);
 			if (parts == null || parts.Length < 2)
 			{
@@ -114,13 +124,14 @@ namespace ShiftIt.Internal.Http
 				}
 			}
 			if (_singleItemHeaders.Contains(name)) Headers[name] = value;
-			else Headers[name] += "," + value;
+			else Headers[name] += HeaderConcatenationString + value;
 		}
 
 		private string FormatError(string headerLine)
 		{
 			ReadRestOfHeaderIntoDebugResponse();
-			return string.Format("Bad header -- {0}{1}Full headers:{2}", headerLine, "\r\n", RawHeaders);
+			var headersAsString = Encoding.UTF8.GetString(RawHeaders.ToArray());
+			return $"Bad header -- {headerLine}\r\nFull headers:{headersAsString}";
 		}
 
 		private void ReadRestOfHeaderIntoDebugResponse()
@@ -206,9 +217,14 @@ namespace ShiftIt.Internal.Http
 		public string StatusMessage { get; private set; }
 
 		/// <summary>
-		/// Headers returned by server
+		/// Headers returned by server, with duplicates concatenated into single string values
 		/// </summary>
 		public IDictionary<string, string> Headers { get; }
+		
+		/// <summary>
+		/// Headers lines returned by server, in the same order as supplied, and with no transformation.
+		/// </summary>
+		public ICollection<string> ExactHeaders { get; }
 
 		/// <summary>
 		/// The HTTP body stream wrapped in a decoder class

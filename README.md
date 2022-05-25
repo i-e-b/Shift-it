@@ -12,7 +12,7 @@ The protocol strictness of the libraries is also problematic when dealing with t
 
 FTP
 -----
-An old and battle hardend FTP client library, works with many
+An old and battle hardened FTP client library, works with many
 old and cranky FTP servers that the standard .Net libraries can't handle.
 
 HTTP
@@ -23,7 +23,7 @@ This is a blocking, synchronous library that uses only .Net sockets, not WebClie
 Example GET:
 ```csharp
 var rq = new HttpRequestBuilder().Get(new Uri("https://www.nuget.org/")).Build();
-using (var result = _subject.Request(rq)) {
+using (var result = new HttpClient().Request(rq)) {
     var body = result.BodyReader.ReadStringToLength();
     // . . .
 }

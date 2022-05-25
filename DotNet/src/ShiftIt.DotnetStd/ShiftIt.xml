@@ -923,7 +923,13 @@
         </member>
         <member name="P:ShiftIt.Http.IHttpResponse.Headers">
             <summary>
-            Headers returned by server
+            Headers returned by server, with duplicates concatenated into single string values
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.ExactHeaders">
+            <summary>
+            Headers lines returned by server, in the same order as supplied, and with no transformation.
+            This is useful if you are using HttpClient as part of a proxy.
             </summary>
         </member>
         <member name="P:ShiftIt.Http.IHttpResponse.BodyReader">
@@ -934,6 +940,11 @@
         <member name="P:ShiftIt.Http.IHttpResponse.RawBodyStream">
             <summary>
             The raw body stream. This will be consumed if you use the BodyReader.
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Http.IHttpResponse.RawHeaderData">
+            <summary>
+            Raw response headers from the server. For diagnostics only.
             </summary>
         </member>
         <member name="T:ShiftIt.Http.StatusClass">
@@ -991,9 +1002,15 @@
             Wrapper for HTTP response streams
             </summary>
         </member>
-        <member name="F:ShiftIt.Internal.Http.HttpResponse._debugResponse">
+        <member name="F:ShiftIt.Internal.Http.HttpResponse.HeaderConcatenationString">
             <summary>
-            Entire raw response from the server. For diagnostics only.
+            String used to join duplicated headers. Defaults to <code>","</code>
+            This affects all Http Responses.
+            </summary>
+        </member>
+        <member name="F:ShiftIt.Internal.Http.HttpResponse.RawHeaders">
+            <summary>
+            Raw response headers from the server. For diagnostics only.
             </summary>
         </member>
         <member name="M:ShiftIt.Internal.Http.HttpResponse.#ctor(System.IO.Stream,System.TimeSpan)">
@@ -1026,7 +1043,12 @@
         </member>
         <member name="P:ShiftIt.Internal.Http.HttpResponse.Headers">
             <summary>
-            Headers returned by server
+            Headers returned by server, with duplicates concatenated into single string values
+            </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.ExactHeaders">
+            <summary>
+            Headers lines returned by server, in the same order as supplied, and with no transformation.
             </summary>
         </member>
         <member name="P:ShiftIt.Internal.Http.HttpResponse.BodyReader">
@@ -1038,6 +1060,9 @@
             <summary>
             The raw body stream. This will be consumed if you use the BodyReader.
             </summary>
+        </member>
+        <member name="P:ShiftIt.Internal.Http.HttpResponse.RawHeaderData">
+            <inheritdoc />
         </member>
         <member name="M:ShiftIt.Internal.Http.HttpResponse.Dispose">
             <summary>
